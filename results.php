@@ -897,7 +897,22 @@ by <a href="__channel_url__" class="yt-uix-sessionlink yt-user-name  spf-link " 
 <?php
 foreach($dataSearch as $key => $search) {
 if ($search['type'] == "video") {
-echo '<li><div class="yt-lockup yt-lockup-tile yt-lockup-video yt-uix-tile clearfix" data-context-item-id="' . $search['videoId'] . '"><div class="yt-lockup-thumbnail"><a href="/watch?v=' . $search['videoId'] . '" class="contains-addto yt-uix-sessionlink spf-link " data-sessionlink="itct=CD4Q3DAYACITCMmRrZ-H5b8CFYkD3Qod8iYAUCj0JFIWZWFnbGUgY2Fkc29mdCB0dXRvcmlhbA"><div class="video-thumb"><img src="//i.ytimg.com/vi/' . $search['videoId'] . '/mqdefault.jpg" width="185" height="104"/></div><span class="video-time">32:18</span>
+// Time on vid
+if ($search['lengthSeconds'] > 3600) {
+$length = ltrim(gmdate("H:i:s", $search['lengthSeconds']),"0");
+} else {
+$lengthM = ltrim(gmdate("i", $search['lengthSeconds']),"0");
+$lengthS = gmdate("s", $search['lengthSeconds']);
+
+// Prevent things like :48 length
+if ($lengthM == "") {
+$lengthM = "0";
+}
+
+$length = $lengthM . ":" . $lengthS;
+}
+
+echo '<li><div class="yt-lockup yt-lockup-tile yt-lockup-video yt-uix-tile clearfix" data-context-item-id="' . $search['videoId'] . '"><div class="yt-lockup-thumbnail"><a href="/watch?v=' . $search['videoId'] . '" class="contains-addto yt-uix-sessionlink spf-link " data-sessionlink="itct=CD4Q3DAYACITCMmRrZ-H5b8CFYkD3Qod8iYAUCj0JFIWZWFnbGUgY2Fkc29mdCB0dXRvcmlhbA"><div class="video-thumb"><img src="//i.ytimg.com/vi/' . $search['videoId'] . '/mqdefault.jpg" width="185" height="104"/></div><span class="video-time">' . $length . '</span>
 
   <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-button-menu-id="shared-addto-watch-later-login" data-video-ids="' . $search['videoId'] . '"><span class="yt-uix-button-icon-wrapper"><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
 </a></div><div class="yt-lockup-content"><h3 class="yt-lockup-title"><a href="/watch?v=' . $search['videoId'] . '" class="yt-uix-tile-link yt-ui-ellipsis yt-ui-ellipsis-2 yt-uix-sessionlink spf-link " data-sessionlink="itct=CD4Q3DAYACITCMmRrZ-H5b8CFYkD3Qod8iYAUCj0JFIWZWFnbGUgY2Fkc29mdCB0dXRvcmlhbA" dir="ltr">' . $search['title'] . '</a></h3><div class="yt-lockup-meta"><ul class="yt-lockup-meta-info"><li>by <b><a href="/channel/' . $search['authorId'] . '" class=" yt-uix-sessionlink spf-link  g-hovercard" data-sessionlink="itct=CD4Q3DAYACITCMmRrZ-H5b8CFYkD3Qod8iYAUCj0JA" data-ytid="' . $search['authorId'] . '">' . $search['author'] . '</a></b></li><li>' . $search['publishedText'] . '</li><li>' . number_format($search['viewCount']) . ' views</li></ul></div><div class="yt-lockup-description yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr">' . $search['descriptionHtml'] . '</div><div class="yt-lockup-badges"><ul class="yt-badge-list "><li class="yt-badge-item"><span class="yt-badge " >HD</span></li></ul> </div></div></div></li>';

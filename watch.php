@@ -694,9 +694,17 @@ Advertisement
           <?php
 foreach ($dataVid['recommendedVideos'] as $key => $video) {
 if ($video['lengthSeconds'] > 3600) {
-$length = gmdate("H:i:s", $video['lengthSeconds']);
+$length = ltrim(gmdate("H:i:s", $video['lengthSeconds']),"0");
 } else {
-$length = gmdate("i:s", $video['lengthSeconds']);
+$lengthM = ltrim(gmdate("i", $video['lengthSeconds']),"0");
+$lengthS = gmdate("s", $video['lengthSeconds']);
+
+// Prevent things like :48 length
+if ($lengthM == "") {
+$lengthM = "0";
+}
+
+$length = $lengthM . ":" . $lengthS;
 }
 
 echo '<li class="video-list-item related-list-item">  <a href="/watch?v=' . $video['videoId'] . '" class=" related-video spf-link  yt-uix-sessionlink"  data-sessionlink="feature=relmfu&amp;ei=20HYU_PNJIee-gPU5oLACw&amp;ved=CAMQzRooAA"><span class="yt-uix-simple-thumb-wrap yt-uix-simple-thumb-related" data-vid="' . $video['videoId'] . '"><img data-thumb="//i.ytimg.com/vi/' . $video['videoId'] . '/default.jpg" aria-hidden="true" src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="" width="120" height="90" ><span class="video-time">' . $length . '</span>
