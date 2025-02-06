@@ -1,3 +1,57 @@
+<?php
+// Include config file
+include('./config.php');
+
+// URL of the file you want to request
+$url = $invidApi . '/api/v1/videos/' . $_GET['v'];
+
+// Cache file path
+$cache_file = './cache/videos/' . $_GET['v'] . '.json';
+
+// Cache duration in seconds (24 hours)
+$cache_duration = 24 * 60 * 60;
+
+// Check if cache file exists and is still valid
+if (file_exists($cache_file) && (time() - filemtime($cache_file) < $cache_duration)) {
+    // Read data from cache
+    $data = file_get_contents($cache_file);
+} else {
+    // Fetch data from URL
+    $data = file_get_contents($url);
+
+    // Save data to cache file
+    file_put_contents($cache_file, $data);
+}
+
+$dataVid = json_decode($data, true);
+
+$title = $dataVid['title'];
+$description = $dataVid['descriptionHtml'];
+$descriptionBland = $dataVid['description'];
+$likeCount = number_format($dataVid['likeCount']);
+$dislikeCount = number_format($dataVid['dislikeCount']);
+$viewCount = number_format($dataVid['viewCount']);
+$author = $dataVid['author'];
+$authorId = $dataVid['authorId'];
+$authorVerified = $dataVid['authorVerified'];
+$authorImg = $dataVid['authorThumbnails'][1]['url'];
+$genre = $dataVid['genre'];
+$storyboard = str_replace("/", "\/", $dataVid['storyboards'][2]['templateUrl']);
+$vidLength = $dataVid['lengthSeconds'];
+
+// Do video time
+$date = $dataVid['published'];
+$vidDate = date('d M, Y', $date);
+
+// $video1 = urlencode($dataVid['adaptiveFormats'][8]['url']); //It worked once, then google crushed it :<
+$video1 = urlencode($invidApi . '/latest_version?id=' . $_GET['v'] . '&local=true');
+
+if ($authorVerified == true) {
+$authorVerifiedHtml = '<a target="_blank" class="qualified-channel-title-badge" href="//support.google.com/youtube/bin/answer.py?answer=3046484&amp;hl=en"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Verified" class="yt-channel-title-icon-verified yt-uix-tooltip yt-sprite" alt=""></a>';
+} else {
+$authorVerifiedHtml = '';
+}
+?>
 <!DOCTYPE html><html lang="en" data-cast-api-enabled="true"><head><script>var ytcsi = {gt: function(n) {n = (n || '') + 'data_';return ytcsi[n] || (ytcsi[n] = {tick: {},span: {},info: {}});},tick: function(l, t, n) {ytcsi.gt(n).tick[l] = t || +new Date();},span: function(l, s, n) {ytcsi.gt(n).span[l] = (typeof s == 'number') ? s :+new Date() - ytcsi.data_.tick[l];},info: function(k, v, n) {ytcsi.gt(n).info[k] = v;}};ytcsi.perf = window.performance || window.mozPerformance ||window.msPerformance || window.webkitPerformance;ytcsi.tick('_start', ytcsi.perf ? ytcsi.perf.timing.responseStart : null);if (document.webkitVisibilityState == 'prerender') {ytcsi.info('prerender', 1);document.addEventListener('webkitvisibilitychange', function() {ytcsi.tick('_start');}, false);}</script>  <script>
     try {window.ytbuffer = {};ytbuffer.handleClick = function(e) {var element = e.target || e.srcElement;while (element.parentElement) {if (element.className.match(/(^| )yt-can-buffer( |$)/)) {window.ytbuffer = {bufferedClick: e};element.className += ' yt-is-buffered';break;}element = element.parentElement;}};if (document.addEventListener) {document.addEventListener('click', ytbuffer.handleClick);} else {document.attachEvent('onclick', ytbuffer.handleClick);}} catch(e) {}
     (function(){function a(b,g,k){var h=document.getElementsByTagName("html")[0],e=[h.className];b&&1251<=(window.innerWidth||document.documentElement.clientWidth)&&(e.push("guide-pinned"),g&&e.push("show-guide"));k&&(b=(window.innerWidth||document.documentElement.clientWidth)-21-50,1251<=(window.innerWidth||document.documentElement.clientWidth)&&g&&(b-=230),e.push(" ",1262<=b?"content-snap-width-3":1056<=b?"content-snap-width-2":"content-snap-width-1"));h.className=e.join(" ")}
@@ -19,35 +73,35 @@ yt.www.masthead.sizing.runBeforeBodyIsReady(false,true,false);
       <script>ytimg.preload("http:\/\/r20---sn-nwj7knl7.googlevideo.com\/crossdomain.xml");ytimg.preload("http:\/\/r20---sn-nwj7knl7.googlevideo.com\/generate_204");</script>
 
 
-<title>Why Do Dogs Smell Each Other&#39;s Butts? - Reactions - YouTube</title><link rel="search" type="application/opensearchdescription+xml" href="http://www.youtube.com/opensearch?locale=en_US" title="YouTube Video Search"><link rel="shortcut icon" href="http://s.ytimg.com/yts/img/favicon-vfldLzJxy.ico" type="image/x-icon">     <link rel="icon" href="//s.ytimg.com/yts/img/favicon_32-vflWoMFGx.png" sizes="32x32"><link rel="canonical" href="http://www.youtube.com/watch?v=PZlJ8XfwiNg"><link rel="alternate" media="handheld" href="http://m.youtube.com/watch?v=PZlJ8XfwiNg"><link rel="alternate" media="only screen and (max-width: 640px)" href="http://m.youtube.com/watch?v=PZlJ8XfwiNg"><link rel="shortlink" href="http://youtu.be/PZlJ8XfwiNg">      <meta name="title" content="Why Do Dogs Smell Each Other&#39;s Butts? - Reactions">
+<title><?php echo $title; ?> - YouTube</title><link rel="search" type="application/opensearchdescription+xml" href="http://www.youtube.com/opensearch?locale=en_US" title="YouTube Video Search"><link rel="shortcut icon" href="http://s.ytimg.com/yts/img/favicon-vfldLzJxy.ico" type="image/x-icon">     <link rel="icon" href="//s.ytimg.com/yts/img/favicon_32-vflWoMFGx.png" sizes="32x32"><link rel="canonical" href="http://www.youtube.com/watch?v=<?php echo $_GET['v']; ?>"><link rel="alternate" media="handheld" href="http://m.youtube.com/watch?v=<?php echo $_GET['v']; ?>"><link rel="alternate" media="only screen and (max-width: 640px)" href="http://m.youtube.com/watch?v=<?php echo $_GET['v']; ?>"><link rel="shortlink" href="http://youtu.be/<?php echo $_GET['v']; ?>">      <meta name="title" content="<?php echo $title; ?>">
 
-      <meta name="description" content="Subscribe! http://bit.ly/ACSReactions We are getting to the bottom of one of the biggest quandaries in science: Why dogs sniff each other’s butts. Turns out ...">
+      <meta name="description" content="<?php echo $descriptionBland; ?>">
 
       <meta name="keywords" content="Reactions, Dogs, Dog Butts, Sniffing, chemistry, aroma chemistry, pets, communication, dog smells butts, chemical senses, acs, american chemical society, sci...">
 
-      <link rel="alternate" href="android-app://com.google.android.youtube/http/youtube.com/watch/PZlJ8XfwiNg">
+      <link rel="alternate" href="android-app://com.google.android.youtube/http/youtube.com/watch/<?php echo $_GET['v']; ?>">
 
 
-      <link rel="alternate" type="application/json+oembed" href="http://www.youtube.com/oembed?format=json&amp;url=http%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DPZlJ8XfwiNg" title="Why Do Dogs Smell Each Other&#39;s Butts? - Reactions">
-  <link rel="alternate" type="text/xml+oembed" href="http://www.youtube.com/oembed?format=xml&amp;url=http%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DPZlJ8XfwiNg" title="Why Do Dogs Smell Each Other&#39;s Butts? - Reactions">
+      <link rel="alternate" type="application/json+oembed" href="http://www.youtube.com/oembed?format=json&amp;url=http%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D<?php echo $_GET['v']; ?>" title="<?php echo $title; ?>">
+  <link rel="alternate" type="text/xml+oembed" href="http://www.youtube.com/oembed?format=xml&amp;url=http%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D<?php echo $_GET['v']; ?>" title="<?php echo $title; ?>">
 
         <meta property="og:site_name" content="YouTube">
-    <meta property="og:url" content="http://www.youtube.com/watch?v=PZlJ8XfwiNg">
-    <meta property="og:title" content="Why Do Dogs Smell Each Other&#39;s Butts? - Reactions">
-    <meta property="og:image" content="http://i.ytimg.com/vi/PZlJ8XfwiNg/maxresdefault.jpg">
+    <meta property="og:url" content="http://www.youtube.com/watch?v=<?php echo $_GET['v']; ?>">
+    <meta property="og:title" content="<?php echo $title; ?>">
+    <meta property="og:image" content="http://i.ytimg.com/vi/<?php echo $_GET['v']; ?>/maxresdefault.jpg">
 
-      <meta property="og:description" content="Subscribe! http://bit.ly/ACSReactions We are getting to the bottom of one of the biggest quandaries in science: Why dogs sniff each other’s butts. Turns out ...">
+      <meta property="og:description" content="<?php echo $descriptionBland; ?>">
 
     <meta property="al:ios:app_store_id" content="544007664">
     <meta property="al:ios:app_name" content="YouTube">
-      <meta property="al:ios:url" content="vnd.youtube://www.youtube.com/watch?v=PZlJ8XfwiNg&amp;feature=applinks">
-    <meta property="al:android:url" content="http://www.youtube.com/watch?v=PZlJ8XfwiNg&amp;feature=applinks">
+      <meta property="al:ios:url" content="vnd.youtube://www.youtube.com/watch?v=<?php echo $_GET['v']; ?>&amp;feature=applinks">
+    <meta property="al:android:url" content="http://www.youtube.com/watch?v=<?php echo $_GET['v']; ?>&amp;feature=applinks">
     <meta property="al:android:app_name" content="YouTube">
     <meta property="al:android:package" content="com.google.android.youtube">
-    <meta property="al:web:url" content="http://www.youtube.com/watch?v=PZlJ8XfwiNg&amp;feature=applinks">
+    <meta property="al:web:url" content="http://www.youtube.com/watch?v=<?php echo $_GET['v']; ?>&amp;feature=applinks">
 
     <meta property="og:type" content="video">
-        <meta property="og:video" content="http://www.youtube.com/v/PZlJ8XfwiNg?autohide=1&amp;version=3">
+        <meta property="og:video" content="http://www.youtube.com/v/<?php echo $_GET['v']; ?>?autohide=1&amp;version=3">
       <meta property="og:video:type" content="application/x-shockwave-flash">
       <meta property="og:video:width" content="1280">
       <meta property="og:video:height" content="720">
@@ -56,20 +110,20 @@ yt.www.masthead.sizing.runBeforeBodyIsReady(false,true,false);
 
         <meta name="twitter:card" content="player">
     <meta name="twitter:site" content="@youtube">
-    <meta name="twitter:url" content="http://www.youtube.com/watch?v=PZlJ8XfwiNg">
-    <meta name="twitter:title" content="Why Do Dogs Smell Each Other&#39;s Butts? - Reactions">
-    <meta name="twitter:description" content="Subscribe! http://bit.ly/ACSReactions We are getting to the bottom of one of the biggest quandaries in science: Why dogs sniff each other’s butts. Turns out ...">
-    <meta name="twitter:image" content="http://i.ytimg.com/vi/PZlJ8XfwiNg/maxresdefault.jpg">
+    <meta name="twitter:url" content="http://www.youtube.com/watch?v=<?php echo $_GET['v']; ?>">
+    <meta name="twitter:title" content="<?php echo $title; ?>">
+    <meta name="twitter:description" content="<?php echo $descriptionBland; ?>">
+    <meta name="twitter:image" content="http://i.ytimg.com/vi/<?php echo $_GET['v']; ?>/maxresdefault.jpg">
     <meta name="twitter:app:name:iphone" content="YouTube">
     <meta name="twitter:app:id:iphone" content="544007664">
     <meta name="twitter:app:name:ipad" content="YouTube">
     <meta name="twitter:app:id:ipad" content="544007664">
-      <meta name="twitter:app:url:iphone" content="vnd.youtube://www.youtube.com/watch?v=PZlJ8XfwiNg&amp;feature=applinks">
-      <meta name="twitter:app:url:ipad" content="vnd.youtube://www.youtube.com/watch?v=PZlJ8XfwiNg&amp;feature=applinks">
+      <meta name="twitter:app:url:iphone" content="vnd.youtube://www.youtube.com/watch?v=<?php echo $_GET['v']; ?>&amp;feature=applinks">
+      <meta name="twitter:app:url:ipad" content="vnd.youtube://www.youtube.com/watch?v=<?php echo $_GET['v']; ?>&amp;feature=applinks">
     <meta name="twitter:app:name:googleplay" content="YouTube">
     <meta name="twitter:app:id:googleplay" content="com.google.android.youtube">
-    <meta name="twitter:app:url:googleplay" content="http://www.youtube.com/watch?v=PZlJ8XfwiNg">
-      <meta name="twitter:player" content="https://www.youtube.com/embed/PZlJ8XfwiNg">
+    <meta name="twitter:app:url:googleplay" content="http://www.youtube.com/watch?v=<?php echo $_GET['v']; ?>">
+      <meta name="twitter:player" content="https://www.youtube.com/embed/<?php echo $_GET['v']; ?>">
       <meta name="twitter:player:width" content="1280">
       <meta name="twitter:player:height" content="720">
 
@@ -90,7 +144,7 @@ yt.www.masthead.sizing.runBeforeBodyIsReady(false,true,false);
     </div>
   </div>
   <div id="appbar-main-guide-notification-container"></div>
-</div><div id="yt-masthead-signin"><span id="appbar-onebar-upload-group"><a href="//www.youtube.com/upload" class="yt-uix-button   yt-uix-sessionlink yt-uix-button-default yt-uix-button-size-default" data-sessionlink="feature=mhsb&amp;ei=20HYU_PNJIee-gPU5oLACw" id="upload-btn"><span class="yt-uix-button-content">Upload </span></a></span><button class="yt-uix-button yt-uix-button-size-default yt-uix-button-primary" type="button" onclick=";window.location.href=this.getAttribute(&#39;href&#39;);return false;" href="https://accounts.google.com/ServiceLogin?continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Ffeature%3Dsign_in_button%26next%3D%252Fwatch%253Fv%253DPZlJ8XfwiNg%26hl%3Den%26action_handle_signin%3Dtrue%26app%3Ddesktop&amp;uilel=3&amp;service=youtube&amp;passive=true&amp;hl=en"><span class="yt-uix-button-content">Sign in </span></button></div><div id="yt-masthead-content"><form id="masthead-search" class="search-form consolidated-form" action="/results" onsubmit="if (_gel(&#39;masthead-search-term&#39;).value == &#39;&#39;) return false;"><button class="yt-uix-button yt-uix-button-size-default yt-uix-button-default search-btn-component search-button" type="submit" onclick="if (_gel(&#39;masthead-search-term&#39;).value == &#39;&#39;) return false; _gel(&#39;masthead-search&#39;).submit(); return false;;return true;" id="search-btn" tabindex="2" dir="ltr"><span class="yt-uix-button-content">Search </span></button><div id="masthead-search-terms" class="masthead-search-terms-border" dir="ltr"><label><input id="masthead-search-term" autocomplete="off"  class="search-term yt-uix-form-input-bidi" name="search_query" value="" type="text" tabindex="1" title="Search"></label></div></form></div></div></div>
+</div><div id="yt-masthead-signin"><span id="appbar-onebar-upload-group"><a href="//www.youtube.com/upload" class="yt-uix-button   yt-uix-sessionlink yt-uix-button-default yt-uix-button-size-default" data-sessionlink="feature=mhsb&amp;ei=20HYU_PNJIee-gPU5oLACw" id="upload-btn"><span class="yt-uix-button-content">Upload </span></a></span><button class="yt-uix-button yt-uix-button-size-default yt-uix-button-primary" type="button" onclick=";window.location.href=this.getAttribute(&#39;href&#39;);return false;" href="https://accounts.google.com/ServiceLogin?continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Ffeature%3Dsign_in_button%26next%3D%252Fwatch%253Fv%253D<?php echo $_GET['v']; ?>%26hl%3Den%26action_handle_signin%3Dtrue%26app%3Ddesktop&amp;uilel=3&amp;service=youtube&amp;passive=true&amp;hl=en"><span class="yt-uix-button-content">Sign in </span></button></div><div id="yt-masthead-content"><form id="masthead-search" class="search-form consolidated-form" action="/results" onsubmit="if (_gel(&#39;masthead-search-term&#39;).value == &#39;&#39;) return false;"><button class="yt-uix-button yt-uix-button-size-default yt-uix-button-default search-btn-component search-button" type="submit" onclick="if (_gel(&#39;masthead-search-term&#39;).value == &#39;&#39;) return false; _gel(&#39;masthead-search&#39;).submit(); return false;;return true;" id="search-btn" tabindex="2" dir="ltr"><span class="yt-uix-button-content">Search </span></button><div id="masthead-search-terms" class="masthead-search-terms-border" dir="ltr"><label><input id="masthead-search-term" autocomplete="off"  class="search-term yt-uix-form-input-bidi" name="search_query" value="" type="text" tabindex="1" title="Search"></label></div></form></div></div></div>
     <div id="masthead-appbar-container" class="clearfix"><div id="masthead-appbar"><div id="appbar-content" class=""></div></div></div>
 
 </div><div id="masthead-positioner-height-offset"></div><div id="page-container"><div id="page" class="  watch      watch-non-stage-mode   clearfix"><div id="guide" class="yt-scrollbar">    <div id="appbar-guide-menu" class="appbar-menu appbar-guide-menu-layout appbar-guide-clickable-ancestor">
@@ -140,7 +194,7 @@ Loading...
       <div id="player-api" class="player-width player-height off-screen-target player-api"></div>
 
           <script>if (window.ytcsi) {window.ytcsi.tick("cfg", null, '');}</script>
-    <script>var ytplayer = ytplayer || {};ytplayer.config = {"url_v9as2": "http:\/\/s.ytimg.com\/yts\/swfbin\/player-vflSotbD3\/cps.swf", "args": {"ytfocEnabled": "1", "enablejsapi": 1, "afv_video_min_cpm": 6000000, "pyv_in_related_cafe_experiment_id": "", "trueview": true, "tag_for_child_directed": false, "focEnabled": "1", "iv3_module": "1", "ad_slots": "0", "ad_host_tier": "3660190", "aftv": true, "ad_tag": "http:\/\/pubads.g.doubleclick.net\/gampad\/ads?ad_rule=0\u0026ciu_szs=300x60,300x250\u0026env=vp\u0026gdfp_req=1\u0026impl=s\u0026iu=\/4061\/com.ytpwatch.scitech\/3406642\/OSPWQJ3BSQL4KZTP4G5N4V2GLI\u0026output=xml_vast3\u0026scor=1\u0026scp=kpeid%3DdJ9oJ2GUF8Vmb-G63ldGWg%26kpid%3D3406642%26kpu%3DACSReactions%26kvid%3DPZlJ8XfwiNg%26mpvid%3DHu39qu4brxHm_Q7m%26ord%3D752307870%26afv%3D1%26dc_yt%3D1%26excl_cat%3D3406642%26k2%3D211%26k5%3D211%26kclt%3D1%26kga%3D-1%26kgg%3D-1%26kgpt%3D1%26klg%3Den%26kmyd%3Dwatch-channel-brand-div%26ko%3Dp%26kpco%3D12045%26kr%3DF%26kvlg%3Den%26kvz%3D205%26nlfb%3D1%26yt3pav%3D1%26ytcat%3D28%26ytdevice%3D1%26ytexp%3D940670,946013%26yt_ec%3D1%26yt_vrallowed%3D1\u0026sz=480x361%7C480x70\u0026unviewed_position_start=1\u0026vid=PZlJ8XfwiNg", "cr": "US", "t": "1", "mpvid": "Hu39qu4brxHm_Q7m", "adsense_video_doc_id": "yt_PZlJ8XfwiNg", "pltype": "content", "dclk": true, "sourceid": "y", "atc": "a=3\u0026b=ps0wTMc6vGBm7IQMMHl7P3lVCPE\u0026c=1406681563\u0026d=1\u0026e=PZlJ8XfwiNg\u0026c3a=24\u0026c1a=1\u0026hh=8LclxMjOCYkeaxdQ2HwHBfhisf4", "fmt_list": "22\/1280x720\/9\/0\/115,43\/640x360\/99\/0\/0,18\/640x360\/9\/0\/115,5\/320x240\/7\/0\/0,36\/320x240\/99\/1\/0,17\/176x144\/99\/1\/0", "cafe_experiment_id": "", "allow_html5_ads": 1, "cut_ad_for_ypc": false, "uid": "dJ9oJ2GUF8Vmb-G63ldGWg", "ad_video_pub_id": "ca-pub-6219811747049371", "aid": "P9BWj8HuFTA", "allowed_ads": [0, 1, 2, 4, 8, 9, 10], "ad_flags": 0, "rmktPingThreshold": 0, "iv_load_policy": 1, "hl": "en_US", "gpt_migration": 1, "baseUrl": "http:\/\/googleads.g.doubleclick.net\/pagead\/viewthroughconversion\/962985656\/", "loeid": "940670,946013", "cid": 3406642, "account_playback_token": "QUFFLUhqblJVQmNyLUxFRFA0RjR1OHhCejc2a3o4bjQ0UXxBQ3Jtc0tueVVITGhOTWRaS1FGUTRLM3R6X0YtT05XbUtvQm1qcGpZN3BhaDI0MlA4aHBRTVRFblhDalNhWUszTnBSb3NWYjctc2g2Z2FJOVVhMl9DaG8zWlFCTVJMRVZiZTVLZF9lV09JR1hyQzJTMXRHc2dnaw==", "host_language": "en", "iv_module": "http:\/\/s.ytimg.com\/yts\/swfbin\/player-vflSotbD3\/iv_module.swf", "ad3_module": "1", "c": "WEB", "invideo": true, "sffb": true, "loaderUrl": "http:\/\/www.youtube.com\/watch?v=PZlJ8XfwiNg", "as_launched_in_country": "1", "cc_asr": 1, "storyboard_spec": "http:\/\/i.ytimg.com\/sb\/PZlJ8XfwiNg\/storyboard3_L$L\/$N.jpg|48#27#100#10#10#0#default#AWTMSMgpI9xwexeZvbLEDgKYw5s|80#45#75#10#10#2000#M$M#8jQ2VruXbMv-UJoDGg0Bat8kNR0|160#90#75#5#5#2000#M$M#EnErc2AW6jW2doJMHAKnFMJnCJk", "ad_channel_code_instream": "yt_mpvid_Hu39qu4brxHm_Q7m,yt_cid_3406642,yt_no_ap,ytdevice_1,afv_user_id_dJ9oJ2GUF8Vmb-G63ldGWg,afv_user_acsreactions,ytel_detailpage,ytps_default,Vertical_211,afv_instream,afv_instream_us", "cc_font": "Arial Unicode MS, arial, verdana, _sans", "yt_pt": "APb3F29pydlet71zg4RDozCSiGCyFMNZT1qsgKczAk3WdQqNh4F0BnIoJPZ5NPNapZ-JZDJEiPTC2KHeg2YxZfoiCpyWHURzPbkgAhtzD93JNYauViBos4l_ziY6bH-E0tJwGRhOBk0RwWn_tHCL", "tmi": "1", "midroll_freqcap": 420.0, "ad_eurl": "http:\/\/www.youtube.com\/video\/PZlJ8XfwiNg", "ad_host": "ca-host-pub-4184977541492624", "dashmpd": "http:\/\/manifest.googlevideo.com\/api\/manifest\/dash\/cmbypass\/yes\/mv\/m\/sver\/3\/ipbits\/0\/mm\/31\/upn\/Dfh_KE1nOCo\/mt\/1406681503\/itag\/0\/playback_host\/r20---sn-nwj7knl7.googlevideo.com\/mws\/yes\/fexp\/902408%2C924222%2C927622%2C934024%2C934030%2C940670%2C946013\/sparams\/as%2Ccmbypass%2Cgcr%2Cid%2Cip%2Cipbits%2Citag%2Cplayback_host%2Csource%2Cexpire\/id\/o-AE9ihuvyJUfcbTO8j-i6rA1y3P3CdI3dUoFHjUxKWPDm\/ms\/au\/expire\/1406703163\/ip\/207.241.226.173\/signature\/633F307E778ECE701570849B6D95EF0610B4C315.213B3EA5C07596DB3C263CEC3C876FB742FC0C2E\/key\/yt5\/source\/youtube\/gcr\/us\/as\/fmp4_audio_clear%2Cwebm_audio_clear%2Cfmp4_sd_hd_clear%2Cwebm_sd_hd_clear%2Cwebm2_sd_hd_clear", "ptchn": "dJ9oJ2GUF8Vmb-G63ldGWg", "gut_tag": "\/4061\/ytpwatch\/3406642", "afv": true, "afv_ad_tag": "http:\/\/googleads.g.doubleclick.net\/pagead\/ads?ad_type=skippablevideo\u0026client=ca-pub-6219811747049371\u0026description_url=http%3A%2F%2Fwww.youtube.com%2Fvideo%2FPZlJ8XfwiNg\u0026hl=en\u0026host=ca-host-pub-4184977541492624\u0026ht_id=3660190\u0026loeid=940670,946013\u0026max_ad_duration=15000\u0026url=http%3A%2F%2Fwww.youtube.com%2Fvideo%2FPZlJ8XfwiNg\u0026video_cpm=6000000\u0026ytdevice=1\u0026yt_pt=APb3F29pydlet71zg4RDozCSiGCyFMNZT1qsgKczAk3WdQqNh4F0BnIoJPZ5NPNapZ-JZDJEiPTC2KHeg2YxZfoiCpyWHURzPbkgAhtzD93JNYauViBos4l_ziY6bH-E0tJwGRhOBk0RwWn_tHCL\u0026channel=yt_mpvid_Hu39qu4brxHm_Q7m%2Byt_cid_3406642%2Byt_no_ap%2Bytdevice_1%2Bafv_user_id_dJ9oJ2GUF8Vmb-G63ldGWg%2Bafv_user_acsreactions%2Bytel_detailpage%2Bytps_default%2BVertical_211%2Bafv_instream%2Bafv_instream_us", "adaptive_fmts": "bitrate=2213432\u0026size=1280x720\u0026url=%2Fvideoplayback%3Flmt%3D1406320984921903%26upn%3DbVnv-xx5fzM%26expire%3D1406703163%26sver%3D3%26gir%3Dyes%26sparams%3Dclen%252Cdur%252Cgir%252Cid%252Cinitcwndbps%252Cip%252Cipbits%252Citag%252Clmt%252Csource%252Cupn%252Cexpire%26clen%3D30347587%26key%3Dyt5%26mws%3Dyes%26fexp%3D902408%252C924222%252C927622%252C934024%252C934030%252C940670%252C946013%26ip%3D207.241.226.173%26ipbits%3D0%26mm%3D31%26mt%3D1406681503%26itag%3D136%26id%3Do-AE9ihuvyJUfcbTO8j-i6rA1y3P3CdI3dUoFHjUxKWPDm%26initcwndbps%3D7073000%26dur%3D147.397%26signature%3D9BFBCF56810C65B12254320C8B8833765CBB3EDE.F5C124EE3439894BDF256A2BF69E17CBCBBD849E%26ms%3Dau%26source%3Dyoutube%26mv%3Dm\u0026type=video%2Fmp4%3B+codecs%3D%22avc1.4d401f%22\u0026lmt=1406320984921903\u0026clen=30347587\u0026itag=136\u0026index=709-1100\u0026init=0-708,bitrate=1106654\u0026size=854x480\u0026url=%2Fvideoplayback%3Flmt%3D1406320982008364%26upn%3DbVnv-xx5fzM%26expire%3D1406703163%26sver%3D3%26gir%3Dyes%26sparams%3Dclen%252Cdur%252Cgir%252Cid%252Cinitcwndbps%252Cip%252Cipbits%252Citag%252Clmt%252Csource%252Cupn%252Cexpire%26clen%3D14714810%26key%3Dyt5%26mws%3Dyes%26fexp%3D902408%252C924222%252C927622%252C934024%252C934030%252C940670%252C946013%26ip%3D207.241.226.173%26ipbits%3D0%26mm%3D31%26mt%3D1406681503%26itag%3D135%26id%3Do-AE9ihuvyJUfcbTO8j-i6rA1y3P3CdI3dUoFHjUxKWPDm%26initcwndbps%3D7073000%26dur%3D147.397%26signature%3DF5413C52CEC1C13965531A9524A1696B7DD9FB59.17E1585D2C95B594E733A837DDCACDDBBC66D484%26ms%3Dau%26source%3Dyoutube%26mv%3Dm\u0026type=video%2Fmp4%3B+codecs%3D%22avc1.4d401e%22\u0026lmt=1406320982008364\u0026clen=14714810\u0026itag=135\u0026index=709-1100\u0026init=0-708,bitrate=605066\u0026size=640x360\u0026url=%2Fvideoplayback%3Flmt%3D1406320979919750%26upn%3DbVnv-xx5fzM%26expire%3D1406703163%26sver%3D3%26gir%3Dyes%26sparams%3Dclen%252Cdur%252Cgir%252Cid%252Cinitcwndbps%252Cip%252Cipbits%252Citag%252Clmt%252Csource%252Cupn%252Cexpire%26clen%3D7578868%26key%3Dyt5%26mws%3Dyes%26fexp%3D902408%252C924222%252C927622%252C934024%252C934030%252C940670%252C946013%26ip%3D207.241.226.173%26ipbits%3D0%26mm%3D31%26mt%3D1406681503%26itag%3D134%26id%3Do-AE9ihuvyJUfcbTO8j-i6rA1y3P3CdI3dUoFHjUxKWPDm%26initcwndbps%3D7073000%26dur%3D147.397%26signature%3D77A64AD29A32212BF6EB1891769F9C3D530B398A.8C6772D439458CE907AB3B49777325FD4F94CB55%26ms%3Dau%26source%3Dyoutube%26mv%3Dm\u0026type=video%2Fmp4%3B+codecs%3D%22avc1.4d401e%22\u0026lmt=1406320979919750\u0026clen=7578868\u0026itag=134\u0026index=709-1100\u0026init=0-708,bitrate=255430\u0026size=426x240\u0026url=%2Fvideoplayback%3Flmt%3D1406320976904468%26upn%3DbVnv-xx5fzM%26expire%3D1406703163%26sver%3D3%26gir%3Dyes%26sparams%3Dclen%252Cdur%252Cgir%252Cid%252Cinitcwndbps%252Cip%252Cipbits%252Citag%252Clmt%252Csource%252Cupn%252Cexpire%26clen%3D4505867%26key%3Dyt5%26mws%3Dyes%26fexp%3D902408%252C924222%252C927622%252C934024%252C934030%252C940670%252C946013%26ip%3D207.241.226.173%26ipbits%3D0%26mm%3D31%26mt%3D1406681503%26itag%3D133%26id%3Do-AE9ihuvyJUfcbTO8j-i6rA1y3P3CdI3dUoFHjUxKWPDm%26initcwndbps%3D7073000%26dur%3D147.397%26signature%3DCFCB986F992CE54EAD3655F522330BBF9264B8AC.38D0FB1FE90CE8E9241C451CA6B71A50A75DEC1F%26ms%3Dau%26source%3Dyoutube%26mv%3Dm\u0026type=video%2Fmp4%3B+codecs%3D%22avc1.4d4015%22\u0026lmt=1406320976904468\u0026clen=4505867\u0026itag=133\u0026index=673-1064\u0026init=0-672,bitrate=110941\u0026size=256x144\u0026url=%2Fvideoplayback%3Flmt%3D1406320975085345%26upn%3DbVnv-xx5fzM%26expire%3D1406703163%26sver%3D3%26gir%3Dyes%26sparams%3Dclen%252Cdur%252Cgir%252Cid%252Cinitcwndbps%252Cip%252Cipbits%252Citag%252Clmt%252Csource%252Cupn%252Cexpire%26clen%3D2012530%26key%3Dyt5%26mws%3Dyes%26fexp%3D902408%252C924222%252C927622%252C934024%252C934030%252C940670%252C946013%26ip%3D207.241.226.173%26ipbits%3D0%26mm%3D31%26mt%3D1406681503%26itag%3D160%26id%3Do-AE9ihuvyJUfcbTO8j-i6rA1y3P3CdI3dUoFHjUxKWPDm%26initcwndbps%3D7073000%26dur%3D147.397%26signature%3D9E29504D49B7AE0D3B40BB7487C092E2901EE615.36937051765527E40919EB2BA045266CE4FB55C3%26ms%3Dau%26source%3Dyoutube%26mv%3Dm\u0026type=video%2Fmp4%3B+codecs%3D%22avc1.42c00c%22\u0026lmt=1406320975085345\u0026clen=2012530\u0026itag=160\u0026index=671-1062\u0026init=0-670,bitrate=129721\u0026url=%2Fvideoplayback%3Flmt%3D1406320972017975%26upn%3DbVnv-xx5fzM%26expire%3D1406703163%26sver%3D3%26gir%3Dyes%26sparams%3Dclen%252Cdur%252Cgir%252Cid%252Cinitcwndbps%252Cip%252Cipbits%252Citag%252Clmt%252Csource%252Cupn%252Cexpire%26clen%3D2368101%26key%3Dyt5%26mws%3Dyes%26fexp%3D902408%252C924222%252C927622%252C934024%252C934030%252C940670%252C946013%26ip%3D207.241.226.173%26ipbits%3D0%26mm%3D31%26mt%3D1406681503%26itag%3D140%26id%3Do-AE9ihuvyJUfcbTO8j-i6rA1y3P3CdI3dUoFHjUxKWPDm%26initcwndbps%3D7073000%26dur%3D147.446%26signature%3D7B6458617B2A286C0897C6526435A159056FB851.17079A820404A836F5C88431C2BE202C3E0ACF4F%26ms%3Dau%26source%3Dyoutube%26mv%3Dm\u0026type=audio%2Fmp4%3B+codecs%3D%22mp4a.40.2%22\u0026lmt=1406320972017975\u0026clen=2368101\u0026itag=140\u0026index=592-803\u0026init=0-591", "mpu": true, "ad_preroll": "1", "timestamp": 1406681563, "video_id": "PZlJ8XfwiNg", "shortform": true, "ad_channel_code_overlay": "yt_mpvid_Hu39qu4brxHm_Q7m,yt_cid_3406642,yt_no_ap,ytdevice_1,afv_user_id_dJ9oJ2GUF8Vmb-G63ldGWg,afv_user_acsreactions,ytel_detailpage,ytps_default,Vertical_211,afv_overlay,invideo_overlay_480x70_cat28", "dash": "1", "keywords": "Reactions,Dogs,Dog Butts,Sniffing,chemistry,aroma chemistry,pets,communication,dog smells butts,chemical senses,acs,american chemical society,science video,ifl science,dog videos", "no_get_video_log": "1", "excluded_ads": "2=1_2,2_2", "plid": "AAT_XpLpoGnoRzyB", "ad_logging_flag": 1, "instream_long": false, "idpj": "-5", "length_seconds": 148, "midroll_prefetch_size": 1, "title": "Why Do Dogs Smell Each Other's Butts? - Reactions", "vid": "PZlJ8XfwiNg", "fexp": "902408,924222,927622,934024,934030,940670,946013", "ttsurl": "http:\/\/www.youtube.com\/api\/timedtext?expire=1406706763\u0026v=PZlJ8XfwiNg\u0026asr_langs=de%2Cko%2Cja%2Cen%2Cfr%2Ces%2Cru%2Cit%2Cnl%2Cpt\u0026signature=829D3B02F8C32A0637C1BFBF676DD67598C5387B.A8BF4FEF375145168DF3BED826CE4158E85F3EFA\u0026sparams=asr_langs%2Ccaps%2Cv%2Cexpire\u0026caps=asr\u0026hl=en_US\u0026key=yttt1", "cc_module": "http:\/\/s.ytimg.com\/yts\/swfbin\/player-vflSotbD3\/subtitle_module.swf", "ldpj": "-35", "cc3_module": "1", "referrer": "http:\/\/www.youtube.com\/embed\/PZlJ8XfwiNg", "iv_invideo_url": "http:\/\/www.youtube.com\/annotations_invideo?cap_hist=1\u0026cta=2\u0026video_id=PZlJ8XfwiNg", "csi_page_type": "watch,watch7ad", "rmktEnabled": "1", "afv_instream_max": 15000, "oid": "DQwHBTIc-poR1tMSuxNSmg", "enablecsi": "1", "watermark": ",http:\/\/s.ytimg.com\/yts\/img\/watermark\/youtube_watermark-vflHX6b6E.png,http:\/\/s.ytimg.com\/yts\/img\/watermark\/youtube_hd_watermark-vflAzLcD6.png", "eventid": "20HYU_PNJIee-gPU5oLACw", "sdetail": "p:\/embed\/PZlJ8XfwiNg", "afv_ad_tag_restricted_to_instream": "http:\/\/googleads.g.doubleclick.net\/pagead\/ads?ad_type=skippablevideo\u0026client=ca-pub-6219811747049371\u0026description_url=http%3A%2F%2Fwww.youtube.com%2Fvideo%2FPZlJ8XfwiNg\u0026hl=en\u0026host=ca-host-pub-4184977541492624\u0026ht_id=3660190\u0026loeid=940670,946013\u0026max_ad_duration=15000\u0026url=http%3A%2F%2Fwww.youtube.com%2Fvideo%2FPZlJ8XfwiNg\u0026video_cpm=6000000\u0026ytdevice=1\u0026yt_pt=APb3F29pydlet71zg4RDozCSiGCyFMNZT1qsgKczAk3WdQqNh4F0BnIoJPZ5NPNapZ-JZDJEiPTC2KHeg2YxZfoiCpyWHURzPbkgAhtzD93JNYauViBos4l_ziY6bH-E0tJwGRhOBk0RwWn_tHCL\u0026channel=yt_mpvid_Hu39qu4brxHm_Q7m%2Byt_cid_3406642%2Byt_no_ap%2Bytdevice_1%2Bafv_user_id_dJ9oJ2GUF8Vmb-G63ldGWg%2Bafv_user_acsreactions%2Bytel_detailpage%2Bytps_default%2BVertical_211%2Bafv_instream%2Bafv_instream_us", "ptk": "RPMNetworks", "ad_device": 1, "ucid": "UCdJ9oJ2GUF8Vmb-G63ldGWg", "url_encoded_fmt_stream_map": "type=video%2Fmp4%3B+codecs%3D%22avc1.64001F%2C+mp4a.40.2%22\u0026itag=22\u0026url=%2Fvideoplayback%3Fsver%3D3%26ipbits%3D0%26mm%3D31%26ms%3Dau%26itag%3D22%26upn%3DiZHDGmcUMnQ%26fexp%3D902408%252C924222%252C927622%252C934024%252C934030%252C940670%252C946013%26sparams%3Did%252Cinitcwndbps%252Cip%252Cipbits%252Citag%252Cratebypass%252Csource%252Cupn%252Cexpire%26id%3Do-AE9ihuvyJUfcbTO8j-i6rA1y3P3CdI3dUoFHjUxKWPDm%26initcwndbps%3D7073000%26mv%3Dm%26mws%3Dyes%26ip%3D207.241.226.173%26signature%3DF3ABE46867B72ED603C6332970B6384BF2F19A35.D69F05DB23D8757FB481A949639CC2B5A9C8AE4F%26key%3Dyt5%26source%3Dyoutube%26ratebypass%3Dyes%26expire%3D1406703163%26mt%3D1406681503\u0026quality=hd720\u0026fallback_host=tc.v2.cache7.googlevideo.com,type=video%2Fwebm%3B+codecs%3D%22vp8.0%2C+vorbis%22\u0026itag=43\u0026url=%2Fvideoplayback%3Fsver%3D3%26ipbits%3D0%26mm%3D31%26ms%3Dau%26itag%3D43%26upn%3DiZHDGmcUMnQ%26fexp%3D902408%252C924222%252C927622%252C934024%252C934030%252C940670%252C946013%26sparams%3Did%252Cinitcwndbps%252Cip%252Cipbits%252Citag%252Cratebypass%252Csource%252Cupn%252Cexpire%26id%3Do-AE9ihuvyJUfcbTO8j-i6rA1y3P3CdI3dUoFHjUxKWPDm%26initcwndbps%3D7073000%26mv%3Dm%26mws%3Dyes%26ip%3D207.241.226.173%26signature%3DCA061C915B23BF024BD7ECB7D905B7775D6DB90D.C9ADDF5C17C3677E7CDFE016F3FB926EF17D2652%26key%3Dyt5%26source%3Dyoutube%26ratebypass%3Dyes%26expire%3D1406703163%26mt%3D1406681503\u0026quality=medium\u0026fallback_host=tc.v10.cache1.googlevideo.com,type=video%2Fmp4%3B+codecs%3D%22avc1.42001E%2C+mp4a.40.2%22\u0026itag=18\u0026url=%2Fvideoplayback%3Fsver%3D3%26ipbits%3D0%26mm%3D31%26ms%3Dau%26itag%3D18%26upn%3DiZHDGmcUMnQ%26fexp%3D902408%252C924222%252C927622%252C934024%252C934030%252C940670%252C946013%26sparams%3Did%252Cinitcwndbps%252Cip%252Cipbits%252Citag%252Cratebypass%252Csource%252Cupn%252Cexpire%26id%3Do-AE9ihuvyJUfcbTO8j-i6rA1y3P3CdI3dUoFHjUxKWPDm%26initcwndbps%3D7073000%26mv%3Dm%26mws%3Dyes%26ip%3D207.241.226.173%26signature%3D155CCB1F443EA46EC50CD0DEF032C1F1DAEC1613.A653A778B9FC7A19E2A2B79EC6EAE12CAC7A25A0%26key%3Dyt5%26source%3Dyoutube%26ratebypass%3Dyes%26expire%3D1406703163%26mt%3D1406681503\u0026quality=medium\u0026fallback_host=tc.v21.cache2.googlevideo.com,type=video%2Fx-flv\u0026itag=5\u0026url=%2Fvideoplayback%3Fsver%3D3%26ipbits%3D0%26mm%3D31%26ms%3Dau%26itag%3D5%26upn%3DiZHDGmcUMnQ%26fexp%3D902408%252C924222%252C927622%252C934024%252C934030%252C940670%252C946013%26sparams%3Did%252Cinitcwndbps%252Cip%252Cipbits%252Citag%252Csource%252Cupn%252Cexpire%26id%3Do-AE9ihuvyJUfcbTO8j-i6rA1y3P3CdI3dUoFHjUxKWPDm%26initcwndbps%3D7073000%26mv%3Dm%26mws%3Dyes%26ip%3D207.241.226.173%26signature%3D967D6D3C3B15677D63AB01CB1570ED11186E647F.7E1D0469FA291ECE48851F9BBB568EA3F0F82F1E%26key%3Dyt5%26source%3Dyoutube%26expire%3D1406703163%26mt%3D1406681503\u0026quality=small\u0026fallback_host=tc.v21.cache4.googlevideo.com,type=video%2F3gpp%3B+codecs%3D%22mp4v.20.3%2C+mp4a.40.2%22\u0026itag=36\u0026url=%2Fvideoplayback%3Fsver%3D3%26ipbits%3D0%26mm%3D31%26ms%3Dau%26itag%3D36%26upn%3DiZHDGmcUMnQ%26fexp%3D902408%252C924222%252C927622%252C934024%252C934030%252C940670%252C946013%26sparams%3Did%252Cinitcwndbps%252Cip%252Cipbits%252Citag%252Csource%252Cupn%252Cexpire%26id%3Do-AE9ihuvyJUfcbTO8j-i6rA1y3P3CdI3dUoFHjUxKWPDm%26initcwndbps%3D7073000%26mv%3Dm%26mws%3Dyes%26ip%3D207.241.226.173%26signature%3D1AAA692D60A0F7A7A427D9233C63D6E1458CA5C4.BFA36570C8F8895CCC97A852F4A223F1FE225610%26key%3Dyt5%26source%3Dyoutube%26expire%3D1406703163%26mt%3D1406681503\u0026quality=small\u0026fallback_host=tc.v15.cache2.googlevideo.com,type=video%2F3gpp%3B+codecs%3D%22mp4v.20.3%2C+mp4a.40.2%22\u0026itag=17\u0026url=%2Fvideoplayback%3Fsver%3D3%26ipbits%3D0%26mm%3D31%26ms%3Dau%26itag%3D17%26upn%3DiZHDGmcUMnQ%26fexp%3D902408%252C924222%252C927622%252C934024%252C934030%252C940670%252C946013%26sparams%3Did%252Cinitcwndbps%252Cip%252Cipbits%252Citag%252Csource%252Cupn%252Cexpire%26id%3Do-AE9ihuvyJUfcbTO8j-i6rA1y3P3CdI3dUoFHjUxKWPDm%26initcwndbps%3D7073000%26mv%3Dm%26mws%3Dyes%26ip%3D207.241.226.173%26signature%3D8EB5AC14F909AAC7A6E69917047FF43F3D666999.BDA2BF77A81DC6FC5470E15CB26CA4239F012C49%26key%3Dyt5%26source%3Dyoutube%26expire%3D1406703163%26mt%3D1406681503\u0026quality=small\u0026fallback_host=tc.v6.cache1.googlevideo.com", "vq": "auto"}, "min_version": "8.0.0", "assets": {"js": "\/\/s.ytimg.com\/yts\/jsbin\/html5player-en_US-vflCGk6yw\/html5player.js", "css": "\/\/s.ytimg.com\/yts\/cssbin\/www-player-vfl_UOZc_.css", "html": "\/html5_player_template"}, "html5": false, "url_v8": "http:\/\/s.ytimg.com\/yts\/swfbin\/player-vflSotbD3\/cps.swf", "attrs": {"id": "movie_player"}, "params": {"allowscriptaccess": "always", "bgcolor": "#000000", "allowfullscreen": "true"}, "sts": 16275, "url": "http:\/\/s.ytimg.com\/yts\/swfbin\/player-vflSotbD3\/watch_as3.swf"};(function() {var encoded = [];for (var key in ytplayer.config.args) {encoded.push(encodeURIComponent(key) + '=' + encodeURIComponent(ytplayer.config.args[key]));}var swf = "      \u003cembed type=\"application\/x-shockwave-flash\"     s\u0072c=\"http:\/\/s.ytimg.com\/yts\/swfbin\/player-vflSotbD3\/watch_as3.swf\"     name=\"movie_player\"     id=\"movie_player\"    flashvars=\"__flashvars__\"     allowscriptaccess=\"always\" bgcolor=\"#000000\" allowfullscreen=\"true\"\u003e\n  \u003cnoembed\u003e\u003cdiv class=\"yt-alert yt-alert-default yt-alert-error  yt-alert-player\"\u003e  \u003cdiv class=\"yt-alert-icon\"\u003e\n    \u003cimg s\u0072c=\"http:\/\/s.ytimg.com\/yts\/img\/pixel-vfl3z5WfW.gif\" class=\"icon master-sprite yt-sprite\" alt=\"\"\u003e\n  \u003c\/div\u003e\n\u003cdiv class=\"yt-alert-buttons\"\u003e\u003c\/div\u003e\u003cdiv class=\"yt-alert-content\" role=\"alert\"\u003e    \u003cspan class=\"yt-alert-vertical-trick\"\u003e\u003c\/span\u003e\n    \u003cdiv class=\"yt-alert-message\"\u003e\n            You need Adobe Flash Player to watch this video. \u003cbr\u003e \u003ca href=\"http:\/\/get.adobe.com\/flashplayer\/\"\u003eDownload it from Adobe.\u003c\/a\u003e\n    \u003c\/div\u003e\n\u003c\/div\u003e\u003c\/div\u003e\u003c\/noembed\u003e\n\n";swf = swf.replace('__flashvars__', encoded.join('&'));document.getElementById("player-api").innerHTML = swf;ytplayer.config.loaded = true}());</script>
+    <script>var ytplayer = ytplayer || {};ytplayer.config = {"url_v9as2": "http:\/\/s.ytimg.com\/yts\/swfbin\/player-vflSotbD3\/cps.swf", "args": {"ytfocEnabled": "1", "enablejsapi": 1, "afv_video_min_cpm": 6000000, "pyv_in_related_cafe_experiment_id": "", "trueview": true, "tag_for_child_directed": false, "focEnabled": "1", "iv3_module": "1", "ad_slots": "0", "ad_host_tier": "3660190", "aftv": true, "ad_tag": "http:\/\/pubads.g.doubleclick.net\/gampad\/ads?ad_rule=0\u0026ciu_szs=300x60,300x250\u0026env=vp\u0026gdfp_req=1\u0026impl=s\u0026iu=\/4061\/com.ytpwatch.scitech\/3406642\/OSPWQJ3BSQL4KZTP4G5N4V2GLI\u0026output=xml_vast3\u0026scor=1\u0026scp=kpeid%3DdJ9oJ2GUF8Vmb-G63ldGWg%26kpid%3D3406642%26kpu%3DACSReactions%26kvid%3D<?php echo $_GET['v']; ?>%26mpvid%3DHu39qu4brxHm_Q7m%26ord%3D752307870%26afv%3D1%26dc_yt%3D1%26excl_cat%3D3406642%26k2%3D211%26k5%3D211%26kclt%3D1%26kga%3D-1%26kgg%3D-1%26kgpt%3D1%26klg%3Den%26kmyd%3Dwatch-channel-brand-div%26ko%3Dp%26kpco%3D12045%26kr%3DF%26kvlg%3Den%26kvz%3D205%26nlfb%3D1%26yt3pav%3D1%26ytcat%3D28%26ytdevice%3D1%26ytexp%3D940670,946013%26yt_ec%3D1%26yt_vrallowed%3D1\u0026sz=480x361%7C480x70\u0026unviewed_position_start=1\u0026vid=<?php echo $_GET['v']; ?>", "cr": "US", "t": "1", "mpvid": "Hu39qu4brxHm_Q7m", "adsense_video_doc_id": "yt_<?php echo $_GET['v']; ?>", "pltype": "content", "dclk": true, "sourceid": "y", "atc": "a=3\u0026b=ps0wTMc6vGBm7IQMMHl7P3lVCPE\u0026c=1406681563\u0026d=1\u0026e=<?php echo $_GET['v']; ?>\u0026c3a=24\u0026c1a=1\u0026hh=8LclxMjOCYkeaxdQ2HwHBfhisf4", "fmt_list": "22\/1280x720\/9\/0\/115,43\/640x360\/99\/0\/0,18\/640x360\/9\/0\/115,5\/320x240\/7\/0\/0,36\/320x240\/99\/1\/0,17\/176x144\/99\/1\/0", "cafe_experiment_id": "", "allow_html5_ads": 1, "cut_ad_for_ypc": false, "uid": "dJ9oJ2GUF8Vmb-G63ldGWg", "ad_video_pub_id": "ca-pub-6219811747049371", "aid": "P9BWj8HuFTA", "allowed_ads": [0, 1, 2, 4, 8, 9, 10], "ad_flags": 0, "rmktPingThreshold": 0, "iv_load_policy": 1, "hl": "en_US", "gpt_migration": 1, "baseUrl": "http:\/\/googleads.g.doubleclick.net\/pagead\/viewthroughconversion\/962985656\/", "loeid": "940670,946013", "cid": 3406642, "account_playback_token": "QUFFLUhqblJVQmNyLUxFRFA0RjR1OHhCejc2a3o4bjQ0UXxBQ3Jtc0tueVVITGhOTWRaS1FGUTRLM3R6X0YtT05XbUtvQm1qcGpZN3BhaDI0MlA4aHBRTVRFblhDalNhWUszTnBSb3NWYjctc2g2Z2FJOVVhMl9DaG8zWlFCTVJMRVZiZTVLZF9lV09JR1hyQzJTMXRHc2dnaw==", "host_language": "en", "iv_module": "http:\/\/s.ytimg.com\/yts\/swfbin\/player-vflSotbD3\/iv_module.swf", "ad3_module": "1", "c": "WEB", "invideo": true, "sffb": true, "loaderUrl": "http:\/\/www.youtube.com\/watch?v=<?php echo $_GET['v']; ?>", "as_launched_in_country": "1", "cc_asr": 1, "storyboard_spec": "<?php echo $storyboard; ?>|48#27#100#10#10#0#default#AWTMSMgpI9xwexeZvbLEDgKYw5s|80#45#75#10#10#2000#M$M#8jQ2VruXbMv-UJoDGg0Bat8kNR0|160#90#75#5#5#2000#M$M#EnErc2AW6jW2doJMHAKnFMJnCJk", "ad_channel_code_instream": "yt_mpvid_Hu39qu4brxHm_Q7m,yt_cid_3406642,yt_no_ap,ytdevice_1,afv_user_id_dJ9oJ2GUF8Vmb-G63ldGWg,afv_user_acsreactions,ytel_detailpage,ytps_default,Vertical_211,afv_instream,afv_instream_us", "cc_font": "Arial Unicode MS, arial, verdana, _sans", "yt_pt": "APb3F29pydlet71zg4RDozCSiGCyFMNZT1qsgKczAk3WdQqNh4F0BnIoJPZ5NPNapZ-JZDJEiPTC2KHeg2YxZfoiCpyWHURzPbkgAhtzD93JNYauViBos4l_ziY6bH-E0tJwGRhOBk0RwWn_tHCL", "tmi": "1", "midroll_freqcap": 420.0, "ad_eurl": "http:\/\/www.youtube.com\/video\/<?php echo $_GET['v']; ?>", "ad_host": "ca-host-pub-4184977541492624", "dashmpd": "http:\/\/manifest.googlevideo.com\/api\/manifest\/dash\/cmbypass\/yes\/mv\/m\/sver\/3\/ipbits\/0\/mm\/31\/upn\/Dfh_KE1nOCo\/mt\/1406681503\/itag\/0\/playback_host\/r20---sn-nwj7knl7.googlevideo.com\/mws\/yes\/fexp\/902408%2C924222%2C927622%2C934024%2C934030%2C940670%2C946013\/sparams\/as%2Ccmbypass%2Cgcr%2Cid%2Cip%2Cipbits%2Citag%2Cplayback_host%2Csource%2Cexpire\/id\/o-AE9ihuvyJUfcbTO8j-i6rA1y3P3CdI3dUoFHjUxKWPDm\/ms\/au\/expire\/1406703163\/ip\/207.241.226.173\/signature\/633F307E778ECE701570849B6D95EF0610B4C315.213B3EA5C07596DB3C263CEC3C876FB742FC0C2E\/key\/yt5\/source\/youtube\/gcr\/us\/as\/fmp4_audio_clear%2Cwebm_audio_clear%2Cfmp4_sd_hd_clear%2Cwebm_sd_hd_clear%2Cwebm2_sd_hd_clear", "ptchn": "dJ9oJ2GUF8Vmb-G63ldGWg", "gut_tag": "\/4061\/ytpwatch\/3406642", "afv": true, "afv_ad_tag": "http:\/\/googleads.g.doubleclick.net\/pagead\/ads?ad_type=skippablevideo\u0026client=ca-pub-6219811747049371\u0026description_url=http%3A%2F%2Fwww.youtube.com%2Fvideo%2F<?php echo $_GET['v']; ?>\u0026hl=en\u0026host=ca-host-pub-4184977541492624\u0026ht_id=3660190\u0026loeid=940670,946013\u0026max_ad_duration=15000\u0026url=http%3A%2F%2Fwww.youtube.com%2Fvideo%2F<?php echo $_GET['v']; ?>\u0026video_cpm=6000000\u0026ytdevice=1\u0026yt_pt=APb3F29pydlet71zg4RDozCSiGCyFMNZT1qsgKczAk3WdQqNh4F0BnIoJPZ5NPNapZ-JZDJEiPTC2KHeg2YxZfoiCpyWHURzPbkgAhtzD93JNYauViBos4l_ziY6bH-E0tJwGRhOBk0RwWn_tHCL\u0026channel=yt_mpvid_Hu39qu4brxHm_Q7m%2Byt_cid_3406642%2Byt_no_ap%2Bytdevice_1%2Bafv_user_id_dJ9oJ2GUF8Vmb-G63ldGWg%2Bafv_user_acsreactions%2Bytel_detailpage%2Bytps_default%2BVertical_211%2Bafv_instream%2Bafv_instream_us", "adaptive_fmts": "bitrate=2213432\u0026size=1280x720\u0026url=<?php echo $video1; ?>\u0026type=video%2Fmp4%3B+codecs%3D%22avc1.4d401f%22\u0026lmt=1406320984921903\u0026clen=30347587\u0026itag=136\u0026index=709-1100\u0026init=0-708,bitrate=1106654\u0026size=854x480\u0026url=<?php echo $video1; ?>\u0026type=video%2Fmp4%3B+codecs%3D%22avc1.4d401e%22\u0026lmt=1406320982008364\u0026clen=14714810\u0026itag=135\u0026index=709-1100\u0026init=0-708,bitrate=605066\u0026size=640x360\u0026url=<?php echo $video1; ?>\u0026type=video%2Fmp4%3B+codecs%3D%22avc1.4d401e%22\u0026lmt=1406320979919750\u0026clen=7578868\u0026itag=134\u0026index=709-1100\u0026init=0-708,bitrate=255430\u0026size=426x240\u0026url=<?php echo $video1; ?>\u0026type=video%2Fmp4%3B+codecs%3D%22avc1.4d4015%22\u0026lmt=1406320976904468\u0026clen=4505867\u0026itag=133\u0026index=673-1064\u0026init=0-672,bitrate=110941\u0026size=256x144\u0026url=<?php echo $video1; ?>\u0026type=video%2Fmp4%3B+codecs%3D%22avc1.42c00c%22\u0026lmt=1406320975085345\u0026clen=2012530\u0026itag=160\u0026index=671-1062\u0026init=0-670,bitrate=129721\u0026url=<?php echo $video1; ?>\u0026type=audio%2Fmp4%3B+codecs%3D%22mp4a.40.2%22\u0026lmt=1406320972017975\u0026clen=2368101\u0026itag=140\u0026index=592-803\u0026init=0-591", "mpu": true, "ad_preroll": "1", "timestamp": 1406681563, "video_id": "<?php echo $_GET['v']; ?>", "shortform": true, "ad_channel_code_overlay": "yt_mpvid_Hu39qu4brxHm_Q7m,yt_cid_3406642,yt_no_ap,ytdevice_1,afv_user_id_dJ9oJ2GUF8Vmb-G63ldGWg,afv_user_acsreactions,ytel_detailpage,ytps_default,Vertical_211,afv_overlay,invideo_overlay_480x70_cat28", "dash": "1", "keywords": "Reactions,Dogs,Dog Butts,Sniffing,chemistry,aroma chemistry,pets,communication,dog smells butts,chemical senses,acs,american chemical society,science video,ifl science,dog videos", "no_get_video_log": "1", "excluded_ads": "2=1_2,2_2", "plid": "AAT_XpLpoGnoRzyB", "ad_logging_flag": 1, "instream_long": false, "idpj": "-5", "length_seconds": <?php echo $vidLength; ?>, "midroll_prefetch_size": 1, "title": "<?php echo $title; ?>", "vid": "<?php echo $_GET['v']; ?>", "fexp": "902408,924222,927622,934024,934030,940670,946013", "ttsurl": "http:\/\/www.youtube.com\/api\/timedtext?expire=1406706763\u0026v=<?php echo $_GET['v']; ?>\u0026asr_langs=de%2Cko%2Cja%2Cen%2Cfr%2Ces%2Cru%2Cit%2Cnl%2Cpt\u0026signature=829D3B02F8C32A0637C1BFBF676DD67598C5387B.A8BF4FEF375145168DF3BED826CE4158E85F3EFA\u0026sparams=asr_langs%2Ccaps%2Cv%2Cexpire\u0026caps=asr\u0026hl=en_US\u0026key=yttt1", "cc_module": "http:\/\/s.ytimg.com\/yts\/swfbin\/player-vflSotbD3\/subtitle_module.swf", "ldpj": "-35", "cc3_module": "1", "referrer": "http:\/\/www.youtube.com\/embed\/<?php echo $_GET['v']; ?>", "iv_invideo_url": "http:\/\/www.youtube.com\/annotations_invideo?cap_hist=1\u0026cta=2\u0026video_id=<?php echo $_GET['v']; ?>", "csi_page_type": "watch,watch7ad", "rmktEnabled": "1", "afv_instream_max": 15000, "oid": "DQwHBTIc-poR1tMSuxNSmg", "enablecsi": "1", "watermark": ",http:\/\/s.ytimg.com\/yts\/img\/watermark\/youtube_watermark-vflHX6b6E.png,http:\/\/s.ytimg.com\/yts\/img\/watermark\/youtube_hd_watermark-vflAzLcD6.png", "eventid": "20HYU_PNJIee-gPU5oLACw", "sdetail": "p:\/embed\/<?php echo $_GET['v']; ?>", "afv_ad_tag_restricted_to_instream": "http:\/\/googleads.g.doubleclick.net\/pagead\/ads?ad_type=skippablevideo\u0026client=ca-pub-6219811747049371\u0026description_url=http%3A%2F%2Fwww.youtube.com%2Fvideo%2F<?php echo $_GET['v']; ?>\u0026hl=en\u0026host=ca-host-pub-4184977541492624\u0026ht_id=3660190\u0026loeid=940670,946013\u0026max_ad_duration=15000\u0026url=http%3A%2F%2Fwww.youtube.com%2Fvideo%2F<?php echo $_GET['v']; ?>\u0026video_cpm=6000000\u0026ytdevice=1\u0026yt_pt=APb3F29pydlet71zg4RDozCSiGCyFMNZT1qsgKczAk3WdQqNh4F0BnIoJPZ5NPNapZ-JZDJEiPTC2KHeg2YxZfoiCpyWHURzPbkgAhtzD93JNYauViBos4l_ziY6bH-E0tJwGRhOBk0RwWn_tHCL\u0026channel=yt_mpvid_Hu39qu4brxHm_Q7m%2Byt_cid_3406642%2Byt_no_ap%2Bytdevice_1%2Bafv_user_id_dJ9oJ2GUF8Vmb-G63ldGWg%2Bafv_user_acsreactions%2Bytel_detailpage%2Bytps_default%2BVertical_211%2Bafv_instream%2Bafv_instream_us", "ptk": "RPMNetworks", "ad_device": 1, "ucid": "<?php echo $authorId; ?>", "url_encoded_fmt_stream_map": "type=video%2Fmp4%3B+codecs%3D%22avc1.64001F%2C+mp4a.40.2%22\u0026itag=22\u0026url=<?php echo $video1; ?>\u0026quality=hd720\u0026fallback_host=tc.v2.cache7.googlevideo.com,type=video%2Fwebm%3B+codecs%3D%22vp8.0%2C+vorbis%22\u0026itag=43\u0026url=<?php echo $video1; ?>\u0026quality=medium\u0026fallback_host=tc.v10.cache1.googlevideo.com,type=video%2Fmp4%3B+codecs%3D%22avc1.42001E%2C+mp4a.40.2%22\u0026itag=18\u0026url=<?php echo $video1; ?>\u0026quality=medium\u0026fallback_host=tc.v21.cache2.googlevideo.com,type=video%2Fx-flv\u0026itag=5\u0026url=<?php echo $video1; ?>\u0026quality=small\u0026fallback_host=tc.v21.cache4.googlevideo.com,type=video%2F3gpp%3B+codecs%3D%22mp4v.20.3%2C+mp4a.40.2%22\u0026itag=36\u0026url=<?php echo $video1; ?>\u0026quality=small\u0026fallback_host=tc.v15.cache2.googlevideo.com,type=video%2F3gpp%3B+codecs%3D%22mp4v.20.3%2C+mp4a.40.2%22\u0026itag=17\u0026url=<?php echo $video1; ?>\u0026quality=small\u0026fallback_host=tc.v6.cache1.googlevideo.com", "vq": "auto"}, "min_version": "8.0.0", "assets": {"js": "\/\/s.ytimg.com\/yts\/jsbin\/html5player-en_US-vflCGk6yw\/html5player.js", "css": "\/\/s.ytimg.com\/yts\/cssbin\/www-player-vfl_UOZc_.css", "html": "\/html5_player_template"}, "html5": false, "url_v8": "http:\/\/s.ytimg.com\/yts\/swfbin\/player-vflSotbD3\/cps.swf", "attrs": {"id": "movie_player"}, "params": {"allowscriptaccess": "always", "bgcolor": "#000000", "allowfullscreen": "true"}, "sts": 16275, "url": "http:\/\/s.ytimg.com\/yts\/swfbin\/player-vflSotbD3\/watch_as3.swf"};(function() {var encoded = [];for (var key in ytplayer.config.args) {encoded.push(encodeURIComponent(key) + '=' + encodeURIComponent(ytplayer.config.args[key]));}var swf = "      \u003cembed type=\"application\/x-shockwave-flash\"     s\u0072c=\"http:\/\/s.ytimg.com\/yts\/swfbin\/player-vflSotbD3\/watch_as3.swf\"     name=\"movie_player\"     id=\"movie_player\"    flashvars=\"__flashvars__\"     allowscriptaccess=\"always\" bgcolor=\"#000000\" allowfullscreen=\"true\"\u003e\n  \u003cnoembed\u003e\u003cdiv class=\"yt-alert yt-alert-default yt-alert-error  yt-alert-player\"\u003e  \u003cdiv class=\"yt-alert-icon\"\u003e\n    \u003cimg s\u0072c=\"http:\/\/s.ytimg.com\/yts\/img\/pixel-vfl3z5WfW.gif\" class=\"icon master-sprite yt-sprite\" alt=\"\"\u003e\n  \u003c\/div\u003e\n\u003cdiv class=\"yt-alert-buttons\"\u003e\u003c\/div\u003e\u003cdiv class=\"yt-alert-content\" role=\"alert\"\u003e    \u003cspan class=\"yt-alert-vertical-trick\"\u003e\u003c\/span\u003e\n    \u003cdiv class=\"yt-alert-message\"\u003e\n            You need Adobe Flash Player to watch this video. \u003cbr\u003e \u003ca href=\"http:\/\/get.adobe.com\/flashplayer\/\"\u003eDownload it from Adobe.\u003c\/a\u003e\n    \u003c\/div\u003e\n\u003c\/div\u003e\u003c\/div\u003e\u003c\/noembed\u003e\n\n";swf = swf.replace('__flashvars__', encoded.join('&'));document.getElementById("player-api").innerHTML = swf;ytplayer.config.loaded = true}());</script>
 
 
   </div>
@@ -153,13 +207,13 @@ Loading...
       <div id="watch7-main" class="clearfix">
         <div id="watch7-content" class="watch-content " itemscope itemid="" itemtype="http://schema.org/VideoObject"
         >
-              <link itemprop="url" href="http://www.youtube.com/watch?v=PZlJ8XfwiNg">
-    <meta itemprop="name" content="Why Do Dogs Smell Each Other&#39;s Butts? - Reactions">
-    <meta itemprop="description" content="Subscribe! http://bit.ly/ACSReactions We are getting to the bottom of one of the biggest quandaries in science: Why dogs sniff each other’s butts. Turns out ...">
+              <link itemprop="url" href="http://www.youtube.com/watch?v=<?php echo $_GET['v']; ?>">
+    <meta itemprop="name" content="<?php echo $title; ?>">
+    <meta itemprop="description" content="<?php echo $descriptionBland; ?>">
     <meta itemprop="paid" content="False">
 
-      <meta itemprop="channelId" content="UCdJ9oJ2GUF8Vmb-G63ldGWg">
-      <meta itemprop="videoId" content="PZlJ8XfwiNg">
+      <meta itemprop="channelId" content="<?php echo $authorId; ?>">
+      <meta itemprop="videoId" content="<?php echo $_GET['v']; ?>">
 
       <meta itemprop="duration" content="PT2M28S">
       <meta itemprop="unlisted" content="False">
@@ -171,14 +225,14 @@ Loading...
           <link itemprop="url" href="https://plus.google.com/102363777671586241145">
         </span>
 
-    <link itemprop="thumbnailUrl" href="http://i.ytimg.com/vi/PZlJ8XfwiNg/maxresdefault.jpg">
+    <link itemprop="thumbnailUrl" href="http://i.ytimg.com/vi/<?php echo $_GET['v']; ?>/maxresdefault.jpg">
     <span itemprop="thumbnail" itemscope itemtype="http://schema.org/ImageObject">
-      <link itemprop="url" href="http://i.ytimg.com/vi/PZlJ8XfwiNg/maxresdefault.jpg">
+      <link itemprop="url" href="http://i.ytimg.com/vi/<?php echo $_GET['v']; ?>/maxresdefault.jpg">
       <meta itemprop="width" content="1280">
       <meta itemprop="height" content="720">
     </span>
 
-      <link itemprop="embedURL" href="https://www.youtube.com/embed/PZlJ8XfwiNg">
+      <link itemprop="embedURL" href="https://www.youtube.com/embed/<?php echo $_GET['v']; ?>">
       <meta itemprop="playerType" content="HTML5 Flash">
       <meta itemprop="width" content="1280">
       <meta itemprop="height" content="720">
@@ -190,7 +244,7 @@ Loading...
       <div class="yt-alert yt-alert-actionable yt-alert-info hid " id="speedyg-template">  <div class="yt-alert-icon">
     <img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="icon master-sprite yt-sprite" alt="">
   </div>
-<div class="yt-alert-buttons">  <a href="https://www.google.com/get/videoqualityreport/?v=PZlJ8XfwiNg" class="yt-uix-button   yt-uix-sessionlink yt-uix-button-alert-info yt-uix-button-size-default" data-sessionlink="ei=20HYU_PNJIee-gPU5oLACw" id="speedyg-link" target="_blank"><span class="yt-uix-button-content">Find out why </span></a>
+<div class="yt-alert-buttons">  <a href="https://www.google.com/get/videoqualityreport/?v=<?php echo $_GET['v']; ?>" class="yt-uix-button   yt-uix-sessionlink yt-uix-button-alert-info yt-uix-button-size-default" data-sessionlink="ei=20HYU_PNJIee-gPU5oLACw" id="speedyg-link" target="_blank"><span class="yt-uix-button-content">Find out why </span></a>
 <button class="yt-uix-button yt-uix-button-size-default yt-uix-button-close close yt-uix-close" type="button" onclick=";return false;" data-close-parent-class="yt-alert"><span class="yt-uix-button-content">Close </span></button></div><div class="yt-alert-content" role="alert">    <span class="yt-alert-vertical-trick"></span>
     <div class="yt-alert-message">
     </div>
@@ -205,24 +259,24 @@ Loading...
   
 
 
-  <span id="eow-title" class="watch-title  " dir="ltr" title="Why Do Dogs Smell Each Other&#39;s Butts? - Reactions">
-    Why Do Dogs Smell Each Other&#39;s Butts? - Reactions
+  <span id="eow-title" class="watch-title  " dir="ltr" title="<?php echo $title; ?>">
+    <?php echo $title; ?>
   </span>
 
     </h1>
   </div>
 
-      <div id="watch7-user-header" class=" spf-link "><a href="/channel/UCdJ9oJ2GUF8Vmb-G63ldGWg" class="yt-user-photo  yt-uix-sessionlink" data-sessionlink="feature=watch&amp;ei=20HYU_PNJIee-gPU5oLACw" >    <span class="video-thumb  yt-thumb yt-thumb-48 g-hovercard"
-        data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg"
+      <div id="watch7-user-header" class=" spf-link "><a href="/channel/<?php echo $authorId; ?>" class="yt-user-photo  yt-uix-sessionlink" data-sessionlink="feature=watch&amp;ei=20HYU_PNJIee-gPU5oLACw" >    <span class="video-thumb  yt-thumb yt-thumb-48 g-hovercard"
+        data-ytid="<?php echo $authorId; ?>"
       >
       <span class="yt-thumb-square">
         <span class="yt-thumb-clip">
-          <img src="https://yt3.ggpht.com/-UQ5DWuNL_kE/AAAAAAAAAAI/AAAAAAAAAAA/Za4-C4_l3o4/s88-c-k-no/photo.jpg" alt="Reactions" width="48"  height="48" >
+          <img src="<?php echo $authorImg; ?>" alt="<?php echo $author; ?>" width="48"  height="48" >
           <span class="vertical-align"></span>
         </span>
       </span>
     </span>
-</a><div class="yt-user-info"><a href="/channel/UCdJ9oJ2GUF8Vmb-G63ldGWg" class="g-hovercard yt-uix-sessionlink yt-user-name " data-sessionlink="feature=watch&amp;ei=20HYU_PNJIee-gPU5oLACw" dir="ltr" data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg" data-name="watch">Reactions</a></div><span id="watch7-subscription-container"><span class=" yt-uix-button-subscription-container with-preferences" ><button class="yt-uix-button yt-uix-button-size-default yt-uix-button-subscribe-branded yt-uix-button-has-icon yt-uix-subscription-button yt-can-buffer" type="button" onclick=";return false;" aria-live="polite" aria-busy="false" aria-role="button" data-sessionlink="feature=watch&amp;ei=20HYU_PNJIee-gPU5oLACw&amp;ved=CBcQmys" data-channel-external-id="UCdJ9oJ2GUF8Vmb-G63ldGWg" data-href="https://accounts.google.com/ServiceLogin?continue=http%3A%2F%2Fwww.youtube.com%2Fsignin%3Ffeature%3Dsubscribe%26next%3D%252Fchannel%252FUCdJ9oJ2GUF8Vmb-G63ldGWg%26app%3Ddesktop%26action_handle_signin%3Dtrue%26continue_action%3DQUFFLUhqbV91eFcyYUlDX050SUtDX0JvT2JBRThFTUZ5UXxBQ3Jtc0ttdXZaV3I0WUw5c19iQW5ERU9TTmRfdXV6a0xmQUI1aVNYWWpGN0RObTlibTFWbnJ5aV9KcmhOQ3lOTWdwUnhtcmFhUVI4NjVBN3FWRlV2R0dvZGpHeEsyZzNOSDM0bHNSb05BUVYtTFFRSzh0Q3d1RGZwLThGc1BubC1uUzBQdjBXdlZoVHgxbU9oYXhzZFdfdzRzVjhEM3E0NGhSZ0Jab3hzRkVyT21FQVFfS3laLVM3TGo1dTQ4Y2dGeV9OdGFaRjJCVHA%253D%26hl%3Den&amp;uilel=3&amp;service=youtube&amp;passive=true&amp;hl=en" data-style-type="branded"><span class="yt-uix-button-icon-wrapper"><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-subscribe yt-sprite" alt=""></span><span class="yt-uix-button-content"><span class="subscribe-label" aria-label="Subscribe">Subscribe</span><span class="subscribed-label" aria-label="Unsubscribe">Subscribed</span><span class="unsubscribe-label" aria-label="Unsubscribe">Unsubscribe</span> </span></button><button class="yt-uix-button yt-uix-button-size-default yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon yt-uix-subscription-preferences-button" type="button" onclick=";return false;" data-channel-external-id="UCdJ9oJ2GUF8Vmb-G63ldGWg"><span class="yt-uix-button-icon-wrapper"><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-subscription-preferences yt-sprite" alt=""></span></button><span class="yt-subscription-button-subscriber-count-branded-horizontal" title="20,544">20,544</span>  <span class="yt-subscription-button-disabled-mask" title=""></span>
+</a><div class="yt-user-info"><a href="/channel/<?php echo $authorId; ?>" class="g-hovercard yt-uix-sessionlink yt-user-name " data-sessionlink="feature=watch&amp;ei=20HYU_PNJIee-gPU5oLACw" dir="ltr" data-ytid="<?php echo $authorId; ?>" data-name="watch"><?php echo $author; ?></a><?php echo $authorVerifiedHtml; ?></div><span id="watch7-subscription-container"><span class=" yt-uix-button-subscription-container with-preferences" ><button class="yt-uix-button yt-uix-button-size-default yt-uix-button-subscribe-branded yt-uix-button-has-icon yt-uix-subscription-button yt-can-buffer" type="button" onclick=";return false;" aria-live="polite" aria-busy="false" aria-role="button" data-sessionlink="feature=watch&amp;ei=20HYU_PNJIee-gPU5oLACw&amp;ved=CBcQmys" data-channel-external-id="<?php echo $authorId; ?>" data-href="https://accounts.google.com/ServiceLogin?continue=http%3A%2F%2Fwww.youtube.com%2Fsignin%3Ffeature%3Dsubscribe%26next%3D%252Fchannel%252F<?php echo $authorId; ?>%26app%3Ddesktop%26action_handle_signin%3Dtrue%26continue_action%3DQUFFLUhqbV91eFcyYUlDX050SUtDX0JvT2JBRThFTUZ5UXxBQ3Jtc0ttdXZaV3I0WUw5c19iQW5ERU9TTmRfdXV6a0xmQUI1aVNYWWpGN0RObTlibTFWbnJ5aV9KcmhOQ3lOTWdwUnhtcmFhUVI4NjVBN3FWRlV2R0dvZGpHeEsyZzNOSDM0bHNSb05BUVYtTFFRSzh0Q3d1RGZwLThGc1BubC1uUzBQdjBXdlZoVHgxbU9oYXhzZFdfdzRzVjhEM3E0NGhSZ0Jab3hzRkVyT21FQVFfS3laLVM3TGo1dTQ4Y2dGeV9OdGFaRjJCVHA%253D%26hl%3Den&amp;uilel=3&amp;service=youtube&amp;passive=true&amp;hl=en" data-style-type="branded"><span class="yt-uix-button-icon-wrapper"><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-subscribe yt-sprite" alt=""></span><span class="yt-uix-button-content"><span class="subscribe-label" aria-label="Subscribe">Subscribe</span><span class="subscribed-label" aria-label="Unsubscribe">Subscribed</span><span class="unsubscribe-label" aria-label="Unsubscribe">Unsubscribe</span> </span></button><button class="yt-uix-button yt-uix-button-size-default yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon yt-uix-subscription-preferences-button" type="button" onclick=";return false;" data-channel-external-id="<?php echo $authorId; ?>"><span class="yt-uix-button-icon-wrapper"><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-subscription-preferences yt-sprite" alt=""></span></button><span class="yt-subscription-button-subscriber-count-branded-horizontal" title="0">0</span>  <span class="yt-subscription-button-disabled-mask" title=""></span>
   
   <div class="yt-uix-overlay " data-overlay-style="primary"data-overlay-shape="tiny">
     
@@ -278,18 +332,18 @@ Loading...
 
   </div>
 
-</span></span><div id="watch7-views-info"><div class="watch-view-count">121,181</div>
+</span></span><div id="watch7-views-info"><div class="watch-view-count"><?php echo $viewCount; ?></div>
   <div class="video-extras-sparkbars">
-    <div class="video-extras-sparkbar-likes" style="width: 85.9538784067%"></div>
-    <div class="video-extras-sparkbar-dislikes" style="width: 14.0461215933%"></div>
+    <div class="video-extras-sparkbar-likes" style="width: 100.0%"></div>
+    <div class="video-extras-sparkbar-dislikes" style="width: 0.0%"></div>
   </div>
     <span class="video-extras-likes-dislikes">
         <img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="icon-watch-stats-like yt-sprite" title="Like" alt="">
-  <span class="likes-count">410</span>
+  <span class="likes-count"><?php echo $likeCount; ?></span>
 
       &nbsp;&nbsp;&nbsp;
         <img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="icon-watch-stats-dislike yt-sprite" title="Dislike" alt="">
-  <span class="dislikes-count">67</span>
+  <span class="dislikes-count"><?php echo $dislikeCount; ?></span>
 
     </span>
 </div></div>
@@ -303,7 +357,7 @@ Loading...
 <span id="watch-like-dislike-buttons" class="yt-uix-button-group " data-vote-state="2" data-button-toggle-group="optional"><span class="yt-uix-clickcard"><button class="yt-uix-button yt-uix-button-size-default yt-uix-button-text yt-uix-button-has-icon yt-uix-clickcard-target yt-uix-tooltip" type="button" onclick=";return false;" id="watch-like" title="" data-orientation="vertical" data-position="bottomright" data-like-tooltip="I like this" data-force-position="true" data-unlike-tooltip="Unlike" data-button-toggle="true"><span class="yt-uix-button-icon-wrapper"><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-watch-like yt-sprite" alt=""></span><span class="yt-uix-button-content">Like </span></button>  <div class="watch7-hovercard yt-uix-clickcard-content">
       <h3 class="watch7-hovercard-header">Sign in to YouTube</h3>
     <div class="watch7-hovercard-message">
-      Sign in with your Google Account (YouTube, Google+, Gmail, Orkut, Picasa, or Chrome) to like <span class="yt-user-name  g-hovercard" dir="ltr" data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg">Reactions</span>'s video.
+      Sign in with your Google Account (YouTube, Google+, Gmail, Orkut, Picasa, or Chrome) to like <span class="yt-user-name  g-hovercard" dir="ltr" data-ytid="<?php echo $authorId; ?>"><?php echo $author; ?></span>'s video.
 
     </div>
       <ul class="watch7-hovercard-icon-strip clearfix">
@@ -324,13 +378,13 @@ Loading...
         </li>
       </ul>
     <div class="watch7-hovercard-account-line">
-      <a href="https://accounts.google.com/ServiceLogin?continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Ffeature%3D__FEATURE__%26next%3D%252Fwatch%253Fv%253DPZlJ8XfwiNg%26hl%3Den%26action_handle_signin%3Dtrue%26app%3Ddesktop&amp;uilel=3&amp;service=youtube&amp;passive=true&amp;hl=en" class="yt-uix-button   yt-uix-sessionlink yt-uix-button-primary yt-uix-button-size-default" data-sessionlink="ei=20HYU_PNJIee-gPU5oLACw"><span class="yt-uix-button-content">Sign in </span></a>
+      <a href="https://accounts.google.com/ServiceLogin?continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Ffeature%3D__FEATURE__%26next%3D%252Fwatch%253Fv%253D<?php echo $_GET['v']; ?>%26hl%3Den%26action_handle_signin%3Dtrue%26app%3Ddesktop&amp;uilel=3&amp;service=youtube&amp;passive=true&amp;hl=en" class="yt-uix-button   yt-uix-sessionlink yt-uix-button-primary yt-uix-button-size-default" data-sessionlink="ei=20HYU_PNJIee-gPU5oLACw"><span class="yt-uix-button-content">Sign in </span></a>
     </div>
   </div>
 </span><span class="yt-uix-clickcard"><button class="yt-uix-button yt-uix-button-size-default yt-uix-button-text yt-uix-button-empty yt-uix-button-has-icon yt-uix-clickcard-target yt-uix-tooltip" type="button" onclick=";return false;" id="watch-dislike" title="I dislike this" data-orientation="vertical" data-position="bottomright" data-force-position="true" data-button-toggle="true"><span class="yt-uix-button-icon-wrapper"><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-watch-dislike yt-sprite" alt="I dislike this"></span></button>  <div class="watch7-hovercard yt-uix-clickcard-content">
       <h3 class="watch7-hovercard-header">Sign in to YouTube</h3>
     <div class="watch7-hovercard-message">
-      Sign in with your Google Account (YouTube, Google+, Gmail, Orkut, Picasa, or Chrome) to dislike <span class="yt-user-name  g-hovercard" dir="ltr" data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg">Reactions</span>'s video.
+      Sign in with your Google Account (YouTube, Google+, Gmail, Orkut, Picasa, or Chrome) to dislike <span class="yt-user-name  g-hovercard" dir="ltr" data-ytid="<?php echo $authorId; ?>"><?php echo $author; ?></span>'s video.
 
     </div>
       <ul class="watch7-hovercard-icon-strip clearfix">
@@ -351,7 +405,7 @@ Loading...
         </li>
       </ul>
     <div class="watch7-hovercard-account-line">
-      <a href="https://accounts.google.com/ServiceLogin?continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Ffeature%3D__FEATURE__%26next%3D%252Fwatch%253Fv%253DPZlJ8XfwiNg%26hl%3Den%26action_handle_signin%3Dtrue%26app%3Ddesktop&amp;uilel=3&amp;service=youtube&amp;passive=true&amp;hl=en" class="yt-uix-button   yt-uix-sessionlink yt-uix-button-primary yt-uix-button-size-default" data-sessionlink="ei=20HYU_PNJIee-gPU5oLACw"><span class="yt-uix-button-content">Sign in </span></a>
+      <a href="https://accounts.google.com/ServiceLogin?continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Ffeature%3D__FEATURE__%26next%3D%252Fwatch%253Fv%253D<?php echo $_GET['v']; ?>%26hl%3Den%26action_handle_signin%3Dtrue%26app%3Ddesktop&amp;uilel=3&amp;service=youtube&amp;passive=true&amp;hl=en" class="yt-uix-button   yt-uix-sessionlink yt-uix-button-primary yt-uix-button-size-default" data-sessionlink="ei=20HYU_PNJIee-gPU5oLACw"><span class="yt-uix-button-content">Sign in </span></a>
     </div>
   </div>
 </span></span>
@@ -363,7 +417,7 @@ Loading...
       <span class="yt-uix-clickcard"><button class="yt-uix-button yt-uix-button-size-default yt-uix-button-text action-panel-trigger addto-button  yt-uix-clickcard-target yt-uix-tooltip" type="button" onclick=";return false;" title="" data-orientation="vertical" data-upsell="playlist" data-trigger-for="action-panel-none-addto" data-position="bottomleft" data-button-toggle="true"><span class="yt-uix-button-content">Add to </span></button>  <div class="watch7-hovercard yt-uix-clickcard-content">
       <h3 class="watch7-hovercard-header">Sign in to YouTube</h3>
     <div class="watch7-hovercard-message">
-      Sign in with your Google Account (YouTube, Google+, Gmail, Orkut, Picasa, or Chrome) to add <span class="yt-user-name  g-hovercard" dir="ltr" data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg">Reactions</span>'s video to your playlist.
+      Sign in with your Google Account (YouTube, Google+, Gmail, Orkut, Picasa, or Chrome) to add <span class="yt-user-name  g-hovercard" dir="ltr" data-ytid="<?php echo $authorId; ?>"><?php echo $author; ?></span>'s video to your playlist.
 
     </div>
       <ul class="watch7-hovercard-icon-strip clearfix">
@@ -384,7 +438,7 @@ Loading...
         </li>
       </ul>
     <div class="watch7-hovercard-account-line">
-      <a href="https://accounts.google.com/ServiceLogin?continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Ffeature%3D__FEATURE__%26next%3D%252Fwatch%253Fv%253DPZlJ8XfwiNg%26hl%3Den%26action_handle_signin%3Dtrue%26app%3Ddesktop&amp;uilel=3&amp;service=youtube&amp;passive=true&amp;hl=en" class="yt-uix-button   yt-uix-sessionlink yt-uix-button-primary yt-uix-button-size-default" data-sessionlink="ei=20HYU_PNJIee-gPU5oLACw"><span class="yt-uix-button-content">Sign in </span></a>
+      <a href="https://accounts.google.com/ServiceLogin?continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Ffeature%3D__FEATURE__%26next%3D%252Fwatch%253Fv%253D<?php echo $_GET['v']; ?>%26hl%3Den%26action_handle_signin%3Dtrue%26app%3Ddesktop&amp;uilel=3&amp;service=youtube&amp;passive=true&amp;hl=en" class="yt-uix-button   yt-uix-sessionlink yt-uix-button-primary yt-uix-button-size-default" data-sessionlink="ei=20HYU_PNJIee-gPU5oLACw"><span class="yt-uix-button-content">Sign in </span></a>
     </div>
   </div>
 </span>
@@ -403,10 +457,10 @@ Loading...
       <div id="watch-description-content">
         <div id="watch-description-clip">
           <p id="watch-uploader-info">
-              <strong>Published on Jul 28, 2014</strong>
+              <strong>Published on <?php echo $vidDate; ?></strong>
           </p>
           <div id="watch-description-text">
-            <p id="eow-description" >Subscribe! <a href="http://bit.ly/ACSReactions" target="_blank" title="http://bit.ly/ACSReactions" rel="nofollow" dir="ltr" class="yt-uix-redirect-link">http://bit.ly/ACSReactions</a><br /><br />We are getting to the bottom of one of the biggest quandaries in science: Why dogs sniff each other’s butts. Turns out this behavior is just one of many interesting forms of chemical communication in the animal kingdom. Dogs use a special feature called the Jacobsen&#39;s Organ to get chemical signals from their nose sent directly to their brain. <br /><br />Check out our other videos and be sure to subscribe for more chemistry goodness. <br /><br />Find us on all these places:<br />Subscribe! <a href="http://bit.ly/ACSReactions" target="_blank" title="http://bit.ly/ACSReactions" rel="nofollow" dir="ltr" class="yt-uix-redirect-link">http://bit.ly/ACSReactions</a><br />Facebook! <a href="http://facebook.com/ACSReactions" target="_blank" title="http://facebook.com/ACSReactions" rel="nofollow" dir="ltr" class="yt-uix-redirect-link">http://facebook.com/ACSReactions</a><br />Twitter! <a href="http://twitter.com/ACSReactions" target="_blank" title="http://twitter.com/ACSReactions" rel="nofollow" dir="ltr" class="yt-uix-redirect-link">http://twitter.com/ACSReactions</a><br /><br />Like this episode? Check out these other Reactions videos:<br />Why does bacon smell so good?: <a href="https://www.youtube.com/watch?v=2P_0HGRWgXw" target="_blank" title="https://www.youtube.com/watch?v=2P_0HGRWgXw" rel="nofollow" dir="ltr" class="yt-uix-redirect-link">https://www.youtube.com/watch?v=2P_0H...</a><br />Zombie Apocalypse survival chemistry: <a href="https://www.youtube.com/watch?v=SUEjmyisz7c" target="_blank" title="https://www.youtube.com/watch?v=SUEjmyisz7c" rel="nofollow" dir="ltr" class="yt-uix-redirect-link">https://www.youtube.com/watch?v=SUEjm...</a><br /><br />Leave your chemistry questions in the comments!</p>
+            <p id="eow-description" ><?php echo $description; ?></p>
           </div>
               <div id="watch-description-extras" class="yt-uix-expander-body">
     <ul class="watch-extras-section">
@@ -422,7 +476,7 @@ Category
         </h4>
         <div class="content">
               <p id="eow-category">
-    <a href="/science" class=" yt-uix-sessionlink spf-link " data-sessionlink="ei=20HYU_PNJIee-gPU5oLACw">Science &amp; Technology</a>
+    <a href="/" class=" yt-uix-sessionlink spf-link " data-sessionlink="ei=20HYU_PNJIee-gPU5oLACw"><?php echo $genre; ?></a>
   </p>
 
         </div>
@@ -556,7 +610,7 @@ Loading...
 
       <div id="action-panel-login" class="action-panel-content hid">
     <div class="action-panel-login">
-      <a href="https://accounts.google.com/ServiceLogin?continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Ffeature%3D__FEATURE__%26next%3D%252Fwatch%253Fv%253DPZlJ8XfwiNg%26hl%3Den%26action_handle_signin%3Dtrue%26app%3Ddesktop&amp;uilel=3&amp;service=youtube&amp;passive=true&amp;hl=en" class="yt-uix-button   yt-uix-sessionlink yt-uix-button-default yt-uix-button-size-default" data-sessionlink="ei=20HYU_PNJIee-gPU5oLACw"><span class="yt-uix-button-content">Sign in </span></a>
+      <a href="https://accounts.google.com/ServiceLogin?continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Ffeature%3D__FEATURE__%26next%3D%252Fwatch%253Fv%253D<?php echo $_GET['v']; ?>%26hl%3Den%26action_handle_signin%3Dtrue%26app%3Ddesktop&amp;uilel=3&amp;service=youtube&amp;passive=true&amp;hl=en" class="yt-uix-button   yt-uix-sessionlink yt-uix-button-default yt-uix-button-size-default" data-sessionlink="ei=20HYU_PNJIee-gPU5oLACw"><span class="yt-uix-button-content">Sign in </span></a>
     </div>
   </div>
 
@@ -586,7 +640,7 @@ Loading...
   </div>
 
 
-          <div class="cmt_iframe_holder" data-href="http://www.youtube.com/watch?v=PZlJ8XfwiNg" data-viewtype="FILTERED" style="display: none;"></div>
+          <div class="cmt_iframe_holder" data-href="http://www.youtube.com/watch?v=<?php echo $_GET['v']; ?>" data-viewtype="FILTERED" style="display: none;"></div>
 
   <div id="watch-discussion" class="     yt-card-has-expander">
               
@@ -637,311 +691,33 @@ Advertisement
                 <div class="watch-sidebar-section">
     <div class="watch-sidebar-body">
       <ul id="watch-related" class="video-list">
-          <li class="video-list-item related-list-item">  <a href="/watch?v=4ukdUDCE56c" class=" related-video spf-link  yt-uix-sessionlink"  data-sessionlink="feature=relmfu&amp;ei=20HYU_PNJIee-gPU5oLACw&amp;ved=CAMQzRooAA"><span class="yt-uix-simple-thumb-wrap yt-uix-simple-thumb-related" data-vid="4ukdUDCE56c"><img data-thumb="//i.ytimg.com/vi/4ukdUDCE56c/default.jpg" aria-hidden="true" src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="" width="120" height="90" ><span class="video-time">2:53</span>
+          <?php
+foreach ($dataVid['recommendedVideos'] as $key => $video) {
+if ($video['lengthSeconds'] > 3600) {
+$length = gmdate("H:i:s", $video['lengthSeconds']);
+} else {
+$length = gmdate("i:s", $video['lengthSeconds']);
+}
 
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-video-ids="4ukdUDCE56c" data-button-menu-id="shared-addto-watch-later-login"><span class="yt-uix-button-icon-wrapper"><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
+echo '<li class="video-list-item related-list-item">  <a href="/watch?v=' . $video['videoId'] . '" class=" related-video spf-link  yt-uix-sessionlink"  data-sessionlink="feature=relmfu&amp;ei=20HYU_PNJIee-gPU5oLACw&amp;ved=CAMQzRooAA"><span class="yt-uix-simple-thumb-wrap yt-uix-simple-thumb-related" data-vid="' . $video['videoId'] . '"><img data-thumb="//i.ytimg.com/vi/' . $video['videoId'] . '/default.jpg" aria-hidden="true" src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="" width="120" height="90" ><span class="video-time">' . $length . '</span>
+
+  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-video-ids="' . $video['videoId'] . '" data-button-menu-id="shared-addto-watch-later-login"><span class="yt-uix-button-icon-wrapper"><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
 </span>  <span dir="ltr" class="title" title="Marijuana Chemistry - Reactions">
-    Marijuana Chemistry - Reactions
+    ' . $video['title'] . '
   </span>
     <span class="stat attribution">
       <span class="g-hovercard"
-          data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg"
+          data-ytid="' . $video['authorId'] . '"
           data-name="relmfu"
         >
-        by <b><span class=" g-hovercard" data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg">Reactions</span></b>
+        by <b><span class=" g-hovercard" data-ytid="' . $video['authorId'] . '">' . $video['author'] . '</span></b>
       </span>
     </span>
-    <span class="stat view-count">20,492 views</span>
+    <span class="stat view-count">' . number_format($video['viewCount']) . ' views</span>
 </a>
-</li><li class="video-list-item related-list-item">  <a href="/watch?v=Kq7I-Rt2SnY" class=" related-video spf-link  yt-uix-sessionlink"  data-sessionlink="feature=relmfu&amp;ei=20HYU_PNJIee-gPU5oLACw&amp;ved=CAQQzRooAQ"><span class="yt-uix-simple-thumb-wrap yt-uix-simple-thumb-related" data-vid="Kq7I-Rt2SnY"><img data-thumb="//i.ytimg.com/vi/Kq7I-Rt2SnY/default.jpg" aria-hidden="true" src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="" width="120" height="90" ><span class="video-time">2:50</span>
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-video-ids="Kq7I-Rt2SnY" data-button-menu-id="shared-addto-watch-later-login"><span class="yt-uix-button-icon-wrapper"><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</span>  <span dir="ltr" class="title" title="How does Tylenol work? The truth is, we don&#39;t know... - Reactions">
-    How does Tylenol work? The truth is, we don&#39;t know... - Reactions
-  </span>
-    <span class="stat attribution">
-      <span class="g-hovercard"
-          data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg"
-          data-name="relmfu"
-        >
-        by <b><span class=" g-hovercard" data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg">Reactions</span></b>
-      </span>
-    </span>
-    <span class="stat view-count">28,687 views</span>
-</a>
-</li><li class="video-list-item related-list-item">  <a href="/watch?v=YuJOhpNS0IY" class=" related-video spf-link  yt-uix-sessionlink"  data-sessionlink="feature=relmfu&amp;ei=20HYU_PNJIee-gPU5oLACw&amp;ved=CAUQzRooAg"><span class="yt-uix-simple-thumb-wrap yt-uix-simple-thumb-related" data-vid="YuJOhpNS0IY"><img data-thumb="//i.ytimg.com/vi/YuJOhpNS0IY/default.jpg" aria-hidden="true" src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="" width="120" height="90" ><span class="video-time">2:26</span>
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-video-ids="YuJOhpNS0IY" data-button-menu-id="shared-addto-watch-later-login"><span class="yt-uix-button-icon-wrapper"><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</span>  <span dir="ltr" class="title" title="The Science of Caffeine: The World&#39;s Most Popular Drug - Reactions">
-    The Science of Caffeine: The World&#39;s Most Popular Drug - Reactions
-  </span>
-    <span class="stat attribution">
-      <span class="g-hovercard"
-          data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg"
-          data-name="relmfu"
-        >
-        by <b><span class=" g-hovercard" data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg">Reactions</span></b>
-      </span>
-    </span>
-    <span class="stat view-count">197,990 views</span>
-</a>
-</li><li class="video-list-item related-list-item">  <a href="/watch?v=-rlapUkWCSM" class=" related-video spf-link  yt-uix-sessionlink"  data-sessionlink="feature=relmfu&amp;ei=20HYU_PNJIee-gPU5oLACw&amp;ved=CAYQzRooAw"><span class="yt-uix-simple-thumb-wrap yt-uix-simple-thumb-related" data-vid="-rlapUkWCSM"><img data-thumb="//i.ytimg.com/vi/-rlapUkWCSM/default.jpg" aria-hidden="true" src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="" width="120" height="90" ><span class="video-time">4:25</span>
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-video-ids="-rlapUkWCSM" data-button-menu-id="shared-addto-watch-later-login"><span class="yt-uix-button-icon-wrapper"><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</span>  <span dir="ltr" class="title" title="Ice Cream Science - Reactions">
-    Ice Cream Science - Reactions
-  </span>
-    <span class="stat attribution">
-      <span class="g-hovercard"
-          data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg"
-          data-name="relmfu"
-        >
-        by <b><span class=" g-hovercard" data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg">Reactions</span></b>
-      </span>
-    </span>
-    <span class="stat view-count">37,542 views</span>
-</a>
-</li><li class="video-list-item related-list-item">  <a href="/watch?v=ReGfd_s9gXA" class=" related-video spf-link  yt-uix-sessionlink"  data-sessionlink="feature=relmfu&amp;ei=20HYU_PNJIee-gPU5oLACw&amp;ved=CAcQzRooBA"><span class="yt-uix-simple-thumb-wrap yt-uix-simple-thumb-related" data-vid="ReGfd_s9gXA"><img data-thumb="//i.ytimg.com/vi/ReGfd_s9gXA/default.jpg" aria-hidden="true" src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="" width="120" height="90" ><span class="video-time">3:48</span>
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-video-ids="ReGfd_s9gXA" data-button-menu-id="shared-addto-watch-later-login"><span class="yt-uix-button-icon-wrapper"><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</span>  <span dir="ltr" class="title" title="4 Chemistry Life Hacks for Everyday Problems - Reactions">
-    4 Chemistry Life Hacks for Everyday Problems - Reactions
-  </span>
-    <span class="stat attribution">
-      <span class="g-hovercard"
-          data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg"
-          data-name="relmfu"
-        >
-        by <b><span class=" g-hovercard" data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg">Reactions</span></b>
-      </span>
-    </span>
-    <span class="stat view-count">33,793 views</span>
-</a>
-</li><li class="video-list-item related-list-item">  <a href="/watch?v=54-rMC_67TM" class=" related-video spf-link  yt-uix-sessionlink"  data-sessionlink="feature=relmfu&amp;ei=20HYU_PNJIee-gPU5oLACw&amp;ved=CAgQzRooBQ"><span class="yt-uix-simple-thumb-wrap yt-uix-simple-thumb-related" data-vid="54-rMC_67TM"><img data-thumb="//i.ytimg.com/vi/54-rMC_67TM/default.jpg" aria-hidden="true" src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="" width="120" height="90" ><span class="video-time">3:19</span>
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-video-ids="54-rMC_67TM" data-button-menu-id="shared-addto-watch-later-login"><span class="yt-uix-button-icon-wrapper"><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</span>  <span dir="ltr" class="title" title="Sexy Chem: 4 Ways Chemistry Transformed Sex - Reactions">
-    Sexy Chem: 4 Ways Chemistry Transformed Sex - Reactions
-  </span>
-    <span class="stat attribution">
-      <span class="g-hovercard"
-          data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg"
-          data-name="relmfu"
-        >
-        by <b><span class=" g-hovercard" data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg">Reactions</span></b>
-      </span>
-    </span>
-    <span class="stat view-count">13,888 views</span>
-</a>
-</li><li class="video-list-item related-list-item">  <a href="/watch?v=kb-XDGcAuLM" class=" related-video spf-link  yt-uix-sessionlink"  data-sessionlink="feature=relmfu&amp;ei=20HYU_PNJIee-gPU5oLACw&amp;ved=CAkQzRooBg"><span class="yt-uix-simple-thumb-wrap yt-uix-simple-thumb-related" data-vid="kb-XDGcAuLM"><img data-thumb="//i.ytimg.com/vi/kb-XDGcAuLM/default.jpg" aria-hidden="true" src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="" width="120" height="90" ><span class="video-time">1:55</span>
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-video-ids="kb-XDGcAuLM" data-button-menu-id="shared-addto-watch-later-login"><span class="yt-uix-button-icon-wrapper"><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</span>  <span dir="ltr" class="title" title="Raychelle Burks on Poisons, Medicine, and Communicating Science - Reaction">
-    Raychelle Burks on Poisons, Medicine, and Communicating Science - Reaction
-  </span>
-    <span class="stat attribution">
-      <span class="g-hovercard"
-          data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg"
-          data-name="relmfu"
-        >
-        by <b><span class=" g-hovercard" data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg">Reactions</span></b>
-      </span>
-    </span>
-    <span class="stat view-count">1,366 views</span>
-</a>
-</li><li class="video-list-item related-list-item">  <a href="/watch?v=bAIwFaPycaU" class=" related-video spf-link  yt-uix-sessionlink"  data-sessionlink="feature=relmfu&amp;ei=20HYU_PNJIee-gPU5oLACw&amp;ved=CAoQzRooBw"><span class="yt-uix-simple-thumb-wrap yt-uix-simple-thumb-related" data-vid="bAIwFaPycaU"><img data-thumb="//i.ytimg.com/vi/bAIwFaPycaU/default.jpg" aria-hidden="true" src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="" width="120" height="90" ><span class="video-time">3:19</span>
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-video-ids="bAIwFaPycaU" data-button-menu-id="shared-addto-watch-later-login"><span class="yt-uix-button-icon-wrapper"><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</span>  <span dir="ltr" class="title" title="4 Science Secrets About Money - Reactions">
-    4 Science Secrets About Money - Reactions
-  </span>
-    <span class="stat attribution">
-      <span class="g-hovercard"
-          data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg"
-          data-name="relmfu"
-        >
-        by <b><span class=" g-hovercard" data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg">Reactions</span></b>
-      </span>
-    </span>
-    <span class="stat view-count">7,241 views</span>
-</a>
-</li><li class="video-list-item related-list-item">  <a href="/watch?v=vFZlxQU0Pyk" class=" related-video spf-link  yt-uix-sessionlink"  data-sessionlink="feature=relmfu&amp;ei=20HYU_PNJIee-gPU5oLACw&amp;ved=CAsQzRooCA"><span class="yt-uix-simple-thumb-wrap yt-uix-simple-thumb-related" data-vid="vFZlxQU0Pyk"><img data-thumb="//i.ytimg.com/vi/vFZlxQU0Pyk/default.jpg" aria-hidden="true" src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="" width="120" height="90" ><span class="video-time">2:40</span>
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-video-ids="vFZlxQU0Pyk" data-button-menu-id="shared-addto-watch-later-login"><span class="yt-uix-button-icon-wrapper"><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</span>  <span dir="ltr" class="title" title="Why Do We Get Allergies? - Reactions">
-    Why Do We Get Allergies? - Reactions
-  </span>
-    <span class="stat attribution">
-      <span class="g-hovercard"
-          data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg"
-          data-name="relmfu"
-        >
-        by <b><span class=" g-hovercard" data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg">Reactions</span></b>
-      </span>
-    </span>
-    <span class="stat view-count">14,711 views</span>
-</a>
-</li><li class="video-list-item related-list-item">  <a href="/watch?v=nPHegSulI_M" class=" related-video spf-link  yt-uix-sessionlink"  data-sessionlink="feature=relmfu&amp;ei=20HYU_PNJIee-gPU5oLACw&amp;ved=CAwQzRooCQ"><span class="yt-uix-simple-thumb-wrap yt-uix-simple-thumb-related" data-vid="nPHegSulI_M"><img data-thumb="//i.ytimg.com/vi/nPHegSulI_M/default.jpg" aria-hidden="true" src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="" width="120" height="90" ><span class="video-time">6:32</span>
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-video-ids="nPHegSulI_M" data-button-menu-id="shared-addto-watch-later-login"><span class="yt-uix-button-icon-wrapper"><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</span>  <span dir="ltr" class="title" title="The Chemistry of Fireworks - Reactions">
-    The Chemistry of Fireworks - Reactions
-  </span>
-    <span class="stat attribution">
-      <span class="g-hovercard"
-          data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg"
-          data-name="relmfu"
-        >
-        by <b><span class=" g-hovercard" data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg">Reactions</span></b>
-      </span>
-    </span>
-    <span class="stat view-count">66,864 views</span>
-</a>
-</li><li class="video-list-item related-list-item">  <a href="/watch?v=C5RZRkhk0OM" class=" related-video spf-link  yt-uix-sessionlink"  data-sessionlink="feature=relmfu&amp;ei=20HYU_PNJIee-gPU5oLACw&amp;ved=CA0QzRooCg"><span class="yt-uix-simple-thumb-wrap yt-uix-simple-thumb-related" data-vid="C5RZRkhk0OM"><img data-thumb="//i.ytimg.com/vi/C5RZRkhk0OM/default.jpg" aria-hidden="true" src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="" width="120" height="90" ><span class="video-time">2:28</span>
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-video-ids="C5RZRkhk0OM" data-button-menu-id="shared-addto-watch-later-login"><span class="yt-uix-button-icon-wrapper"><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</span>  <span dir="ltr" class="title" title="Here Are a Bunch of Chemistry Jokes - Reactions">
-    Here Are a Bunch of Chemistry Jokes - Reactions
-  </span>
-    <span class="stat attribution">
-      <span class="g-hovercard"
-          data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg"
-          data-name="relmfu"
-        >
-        by <b><span class=" g-hovercard" data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg">Reactions</span></b>
-      </span>
-    </span>
-    <span class="stat view-count">51,203 views</span>
-</a>
-</li><li class="video-list-item related-list-item">  <a href="/watch?v=Gnqjh-L4e9g" class=" related-video spf-link  yt-uix-sessionlink"  data-sessionlink="feature=relmfu&amp;ei=20HYU_PNJIee-gPU5oLACw&amp;ved=CA4QzRooCw"><span class="yt-uix-simple-thumb-wrap yt-uix-simple-thumb-related" data-vid="Gnqjh-L4e9g"><img data-thumb="//i.ytimg.com/vi/Gnqjh-L4e9g/default.jpg" aria-hidden="true" src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="" width="120" height="90" ><span class="video-time">4:33</span>
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-video-ids="Gnqjh-L4e9g" data-button-menu-id="shared-addto-watch-later-login"><span class="yt-uix-button-icon-wrapper"><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</span>  <span dir="ltr" class="title" title="4 Amazing Science Facts about Motherhood - Reactions">
-    4 Amazing Science Facts about Motherhood - Reactions
-  </span>
-    <span class="stat attribution">
-      <span class="g-hovercard"
-          data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg"
-          data-name="relmfu"
-        >
-        by <b><span class=" g-hovercard" data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg">Reactions</span></b>
-      </span>
-    </span>
-    <span class="stat view-count">3,872 views</span>
-</a>
-</li><li class="video-list-item related-list-item">  <a href="/watch?v=6UNEpRXcxM4" class=" related-video spf-link  yt-uix-sessionlink"  data-sessionlink="feature=relmfu&amp;ei=20HYU_PNJIee-gPU5oLACw&amp;ved=CA8QzRooDA"><span class="yt-uix-simple-thumb-wrap yt-uix-simple-thumb-related" data-vid="6UNEpRXcxM4"><img data-thumb="//i.ytimg.com/vi/6UNEpRXcxM4/default.jpg" aria-hidden="true" src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="" width="120" height="90" ><span class="video-time">4:16</span>
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-video-ids="6UNEpRXcxM4" data-button-menu-id="shared-addto-watch-later-login"><span class="yt-uix-button-icon-wrapper"><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</span>  <span dir="ltr" class="title" title="Inside the Game of Thrones Poison, the Strangler - Reactions">
-    Inside the Game of Thrones Poison, the Strangler - Reactions
-  </span>
-    <span class="stat attribution">
-      <span class="g-hovercard"
-          data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg"
-          data-name="relmfu"
-        >
-        by <b><span class=" g-hovercard" data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg">Reactions</span></b>
-      </span>
-    </span>
-    <span class="stat view-count">17,906 views</span>
-</a>
-</li><li class="video-list-item related-list-item">  <a href="/watch?v=1XNTfslUzt8" class=" related-video spf-link  yt-uix-sessionlink"  data-sessionlink="feature=relmfu&amp;ei=20HYU_PNJIee-gPU5oLACw&amp;ved=CBAQzRooDQ"><span class="yt-uix-simple-thumb-wrap yt-uix-simple-thumb-related" data-vid="1XNTfslUzt8"><img data-thumb="//i.ytimg.com/vi/1XNTfslUzt8/default.jpg" aria-hidden="true" src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="" width="120" height="90" ><span class="video-time">2:28</span>
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-video-ids="1XNTfslUzt8" data-button-menu-id="shared-addto-watch-later-login"><span class="yt-uix-button-icon-wrapper"><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</span>  <span dir="ltr" class="title" title="World Cup Chemistry: The Science Behind the Brazuca Ball - Reactions">
-    World Cup Chemistry: The Science Behind the Brazuca Ball - Reactions
-  </span>
-    <span class="stat attribution">
-      <span class="g-hovercard"
-          data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg"
-          data-name="relmfu"
-        >
-        by <b><span class=" g-hovercard" data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg">Reactions</span></b>
-      </span>
-    </span>
-    <span class="stat view-count">14,300 views</span>
-</a>
-</li><li class="video-list-item related-list-item">  <a href="/watch?v=2P_0HGRWgXw" class=" related-video spf-link  yt-uix-sessionlink"  data-sessionlink="feature=relmfu&amp;ei=20HYU_PNJIee-gPU5oLACw&amp;ved=CBEQzRooDg"><span class="yt-uix-simple-thumb-wrap yt-uix-simple-thumb-related" data-vid="2P_0HGRWgXw"><img data-thumb="//i.ytimg.com/vi/2P_0HGRWgXw/default.jpg" aria-hidden="true" src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="" width="120" height="90" ><span class="video-time">2:06</span>
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-video-ids="2P_0HGRWgXw" data-button-menu-id="shared-addto-watch-later-login"><span class="yt-uix-button-icon-wrapper"><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</span>  <span dir="ltr" class="title" title="Why Does Bacon Smell So Good? - Reactions">
-    Why Does Bacon Smell So Good? - Reactions
-  </span>
-    <span class="stat attribution">
-      <span class="g-hovercard"
-          data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg"
-          data-name="relmfu"
-        >
-        by <b><span class=" g-hovercard" data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg">Reactions</span></b>
-      </span>
-    </span>
-    <span class="stat view-count">194,309 views</span>
-</a>
-</li><li class="video-list-item related-list-item">  <a href="/watch?v=mnDfPpUC_jg" class=" related-video spf-link  yt-uix-sessionlink"  data-sessionlink="feature=relmfu&amp;ei=20HYU_PNJIee-gPU5oLACw&amp;ved=CBIQzRooDw"><span class="yt-uix-simple-thumb-wrap yt-uix-simple-thumb-related" data-vid="mnDfPpUC_jg"><img data-thumb="//i.ytimg.com/vi/mnDfPpUC_jg/default.jpg" aria-hidden="true" src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="" width="120" height="90" ><span class="video-time">2:51</span>
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-video-ids="mnDfPpUC_jg" data-button-menu-id="shared-addto-watch-later-login"><span class="yt-uix-button-icon-wrapper"><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</span>  <span dir="ltr" class="title" title="How Smartphones Keep You Awake - Reactions">
-    How Smartphones Keep You Awake - Reactions
-  </span>
-    <span class="stat attribution">
-      <span class="g-hovercard"
-          data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg"
-          data-name="relmfu"
-        >
-        by <b><span class=" g-hovercard" data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg">Reactions</span></b>
-      </span>
-    </span>
-    <span class="stat view-count">42,535 views</span>
-</a>
-</li><li class="video-list-item related-list-item">  <a href="/watch?v=09bCTERVrms" class=" related-video spf-link  yt-uix-sessionlink"  data-sessionlink="feature=relmfu&amp;ei=20HYU_PNJIee-gPU5oLACw&amp;ved=CBMQzRooEA"><span class="yt-uix-simple-thumb-wrap yt-uix-simple-thumb-related" data-vid="09bCTERVrms"><img data-thumb="//i.ytimg.com/vi/09bCTERVrms/default.jpg" aria-hidden="true" src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="" width="120" height="90" ><span class="video-time">1:16</span>
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-video-ids="09bCTERVrms" data-button-menu-id="shared-addto-watch-later-login"><span class="yt-uix-button-icon-wrapper"><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</span>  <span dir="ltr" class="title" title="What causes morning sickness? - Reactions">
-    What causes morning sickness? - Reactions
-  </span>
-    <span class="stat attribution">
-      <span class="g-hovercard"
-          data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg"
-          data-name="relmfu"
-        >
-        by <b><span class=" g-hovercard" data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg">Reactions</span></b>
-      </span>
-    </span>
-    <span class="stat view-count">1,856 views</span>
-</a>
-</li><li class="video-list-item related-list-item">  <a href="/watch?v=mn8uGDg_5fA" class=" related-video spf-link  yt-uix-sessionlink"  data-sessionlink="feature=relmfu&amp;ei=20HYU_PNJIee-gPU5oLACw&amp;ved=CBQQzRooEQ"><span class="yt-uix-simple-thumb-wrap yt-uix-simple-thumb-related" data-vid="mn8uGDg_5fA"><img data-thumb="//i.ytimg.com/vi/mn8uGDg_5fA/default.jpg" aria-hidden="true" src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="" width="120" height="90" ><span class="video-time">4:16</span>
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-video-ids="mn8uGDg_5fA" data-button-menu-id="shared-addto-watch-later-login"><span class="yt-uix-button-icon-wrapper"><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</span>  <span dir="ltr" class="title" title="How Thomas Edison Changed The World - Reactions">
-    How Thomas Edison Changed The World - Reactions
-  </span>
-    <span class="stat attribution">
-      <span class="g-hovercard"
-          data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg"
-          data-name="relmfu"
-        >
-        by <b><span class=" g-hovercard" data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg">Reactions</span></b>
-      </span>
-    </span>
-    <span class="stat view-count">4,050 views</span>
-</a>
-</li><li class="video-list-item related-list-item">  <a href="/watch?v=cAWLQ_4DphI" class=" related-video spf-link  yt-uix-sessionlink"  data-sessionlink="feature=relmfu&amp;ei=20HYU_PNJIee-gPU5oLACw&amp;ved=CBUQzRooEg"><span class="yt-uix-simple-thumb-wrap yt-uix-simple-thumb-related" data-vid="cAWLQ_4DphI"><img data-thumb="//i.ytimg.com/vi/cAWLQ_4DphI/default.jpg" aria-hidden="true" src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="" width="120" height="90" ><span class="video-time">2:00</span>
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-video-ids="cAWLQ_4DphI" data-button-menu-id="shared-addto-watch-later-login"><span class="yt-uix-button-icon-wrapper"><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</span>  <span dir="ltr" class="title" title="What Causes Garlic Breath? - Reactions">
-    What Causes Garlic Breath? - Reactions
-  </span>
-    <span class="stat attribution">
-      <span class="g-hovercard"
-          data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg"
-          data-name="relmfu"
-        >
-        by <b><span class=" g-hovercard" data-ytid="UCdJ9oJ2GUF8Vmb-G63ldGWg">Reactions</span></b>
-      </span>
-    </span>
-    <span class="stat view-count">67,040 views</span>
-</a>
-</li>
+</li>';
+}
+?>
       </ul>
     </div>   </div> 
 
@@ -1074,7 +850,7 @@ Policy &amp; Safety
 
 
 <div class="hid">    <div id="shared-addto-watch-later-login" class="hid">
-      <a href="https://accounts.google.com/ServiceLogin?continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Ffeature%3Dplaylist%26next%3D%252Fwatch%253Fv%253DPZlJ8XfwiNg%26hl%3Den%26action_handle_signin%3Dtrue%26app%3Ddesktop&uilel=3&service=youtube&passive=true&hl=en" class="sign-in-link">Sign in</a> to add this to Watch Later
+      <a href="https://accounts.google.com/ServiceLogin?continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Ffeature%3Dplaylist%26next%3D%252Fwatch%253Fv%253D<?php echo $_GET['v']; ?>%26hl%3Den%26action_handle_signin%3Dtrue%26app%3Ddesktop&uilel=3&service=youtube&passive=true&hl=en" class="sign-in-link">Sign in</a> to add this to Watch Later
 
     </div>
   <div id="yt-uix-videoactionmenu-menu" class="yt-ui-menu-content">
@@ -1090,7 +866,7 @@ Add to
   <script src="//s.ytimg.com/yts/jsbin/www-en_US-vfl0MqD-i/base.js" name="www/base"></script>
 <script>spf.script.path({'www/': '//s.ytimg.com/yts/jsbin/www-en_US-vfl0MqD-i/'});var ytdepmap = {"www/base": null, "www/common": "www/base", "www/watch": "www/common", "www/videomanager": "www/common", "www/subscriptionmanager": "www/common", "www/results_starwars": "www/common", "www/results_star_trek": "www/common", "www/results": "www/common", "www/results_harlemshake": "www/common", "www/results_fibonacci": "www/common", "www/promo_join_network": "www/common", "www/legomap": "www/common", "www/feed": "www/common", "www/experiments": "www/common", "www/downloadreports": "www/common", "www/dashboard": "www/common", "www/channels": "www/common", "www/channels_accountupload": "www/common", "www/watch_webdrivertorso": "www/watch", "www/watch_videoshelf": "www/watch", "www/watch_transcript": "www/watch", "www/watch_speedyg": "www/watch", "www/watch_promos": "www/watch", "www/watch_missilecommand": "www/watch", "www/watch_live": "www/watch", "www/watch_editor": "www/watch", "www/watch_edit": "www/watch", "www/watch_commentsrealtime": "www/watch", "www/watch_commentsmoderation": "www/watch", "www/watch_autoplayrenderer": "www/watch", "www/channels_edit": "www/channels"};spf.script.declare(ytdepmap);</script><script>if (window.ytcsi) {window.ytcsi.tick("je", null, '');}</script>      <script>
     yt.setConfig({
-      'VIDEO_ID': "PZlJ8XfwiNg",
+      'VIDEO_ID': "<?php echo $_GET['v']; ?>",
       'THUMB_NON_DELAY_LOAD_COUNT': 0,
       'THUMB_LOADER_PAUSE_MS': 0,
       'THUMB_LOADER_GROUP_PX': 400,
@@ -1138,7 +914,7 @@ Add to
           'BG_IU': "\/\/www.google.com\/js\/bg\/b2WeZoKTGjI-EAoFyFgGA_fP1JUxjtBew07XDJA1nIU.js",
 
       'HL_LOCALE': "en_US",
-      'TTS_URL': "http:\/\/www.youtube.com\/api\/timedtext?expire=1406706763\u0026v=PZlJ8XfwiNg\u0026asr_langs=de%2Cko%2Cja%2Cen%2Cfr%2Ces%2Cru%2Cit%2Cnl%2Cpt\u0026signature=829D3B02F8C32A0637C1BFBF676DD67598C5387B.A8BF4FEF375145168DF3BED826CE4158E85F3EFA\u0026sparams=asr_langs%2Ccaps%2Cv%2Cexpire\u0026caps=asr\u0026hl=en_US\u0026key=yttt1",
+      'TTS_URL': "http:\/\/www.youtube.com\/api\/timedtext?expire=1406706763\u0026v=<?php echo $_GET['v']; ?>\u0026asr_langs=de%2Cko%2Cja%2Cen%2Cfr%2Ces%2Cru%2Cit%2Cnl%2Cpt\u0026signature=829D3B02F8C32A0637C1BFBF676DD67598C5387B.A8BF4FEF375145168DF3BED826CE4158E85F3EFA\u0026sparams=asr_langs%2Ccaps%2Cv%2Cexpire\u0026caps=asr\u0026hl=en_US\u0026key=yttt1",
       'JS_DELAY_LOAD': 0,
       'LIST_AUTO_PLAY_VALUE': 1,
       'SHUFFLE_VALUE': 0,
@@ -1148,7 +924,7 @@ Add to
       'SPF_PREFETCH_MAX': 0,
       'RESUME_COOKIE_NAME': null,
       'LIST_END_TIME': null,
-      'CONVERSION_CONFIG_DICT': {"baseUrl": "http:\/\/googleads.g.doubleclick.net\/pagead\/viewthroughconversion\/962985656\/", "ytfocEnabled": true, "socialEnabled": false, "vid": "PZlJ8XfwiNg", "uid": "dJ9oJ2GUF8Vmb-G63ldGWg", "ytfocHistoryEnabled": false, "rmktPingThreshold": 0, "aid": "P9BWj8HuFTA", "focEnabled": true, "rmktEnabled": true},
+      'CONVERSION_CONFIG_DICT': {"baseUrl": "http:\/\/googleads.g.doubleclick.net\/pagead\/viewthroughconversion\/962985656\/", "ytfocEnabled": true, "socialEnabled": false, "vid": "<?php echo $_GET['v']; ?>", "uid": "dJ9oJ2GUF8Vmb-G63ldGWg", "ytfocHistoryEnabled": false, "rmktPingThreshold": 0, "aid": "P9BWj8HuFTA", "focEnabled": true, "rmktEnabled": true},
       'RESOLUTION_TRACKING_ENABLED': false,
       'MEMORY_TRACKING_ENABLED': false,
       'ADBLOCK_TRACKING_ENABLED': false,
@@ -1156,7 +932,7 @@ Add to
       'WATCH_LEGAL_TEXT_ENABLE_AUTOSCROLL': true,
       'SHARE_ON_VIDEO_END': true,
       'SHARE_ON_VIDEO_START': false,
-      'ADS_DATA': {"gut_vars": {"tag": "\/4061\/ytpwatch\/3406642"}, "log_pyv": false, "pyv_vars": {"iframe_json": "{\"google_ad_client\": \"ca-pub-6219811747049371\", \"google_only_pyv_ads\": true, \"google_page_url\": \"http:\\\/\\\/www.youtube.com\\\/video\\\/PZlJ8XfwiNg\", \"google_ad_host_tier_id\": \"3660190\", \"google_ad_channel\": \"PyvWatchInRelated+PyvYTWatch+PyvWatchNoAdX+pw+non_lpw+yt_mpvid_Hu39qu4brxHm_Q7m+yt_cid_3406642+yt_no_ap+ytdevice_1+afv_user_id_dJ9oJ2GUF8Vmb-G63ldGWg+afv_user_acsreactions\", \"google_loeid\": \"940670,946013\", \"google_ad_block\": \"3\", \"google_language\": \"en\", \"google_ad_output\": \"js\", \"google_lact\": -1, \"google_yt_pt\": \"APb3F28-jMRTdS18GC469KZgOw5wR9H-pa9LeIZ3TtQLAnYwbQAhAQn373c_4GujqpF9tDEjYEXWVuvb7otGxIIPqkWXnUSdAbKp8P4pGw\", \"google_video_doc_id\": \"yt_PZlJ8XfwiNg\", \"google_max_num_ads\": 1, \"google_ad_type\": \"text\", \"google_ad_host\": \"ca-host-pub-4184977541492624\"}"}, "show_afc": false, "check_status": false, "show_afv": true, "use_gut": true, "afv_vars": {"google_lact": -1, "google_ad_client": "ca-pub-6219811747049371", "google_ad_host": "ca-host-pub-4184977541492624", "google_page_url": "http:\/\/www.youtube.com\/video\/PZlJ8XfwiNg", "google_alternate_ad_url": "http:\/\/www.youtube.com\/ad_frame?id=watch-channel-brand-div", "google_yt_pt": "APb3F28-jMRTdS18GC469KZgOw5wR9H-pa9LeIZ3TtQLAnYwbQAhAQn373c_4GujqpF9tDEjYEXWVuvb7otGxIIPqkWXnUSdAbKp8P4pGw", "google_video_doc_id": "yt_PZlJ8XfwiNg", "google_ad_height": "250", "google_ad_format": "300x250_as", "google_ad_host_tier_id": "3660190", "google_ad_channel": "yt_mpvid_Hu39qu4brxHm_Q7m+yt_cid_3406642+yt_no_ap+ytdevice_1+afv_user_id_dJ9oJ2GUF8Vmb-G63ldGWg+afv_user_acsreactions+ytel_detailpage+ytps_default+0854550288+Vertical_211", "google_ad_type": "image", "google_loeid": "940670,946013", "google_ad_block": "2", "google_language": "en"}, "afc_vars": {"ad_type": "image", "ad_host": "ca-host-pub-4184977541492624", "language": "en", "ad_channel": "yt_mpvid_Hu39qu4brxHm_Q7m+yt_cid_3406642+yt_no_ap+ytdevice_1+afv_user_id_dJ9oJ2GUF8Vmb-G63ldGWg+afv_user_acsreactions+ytel_detailpage+ytps_default+0854550287+Vertical_211+afc_on_page", "ad_host_tier_id": "3660190", "format": "300x250_as", "ad_client": "ca-pub-6219811747049371", "ad_block": "2", "alternate_ad_url": "http:\/\/www.youtube.com\/ad_frame?id=watch-channel-brand-div", "video_doc_id": "yt_PZlJ8XfwiNg", "lact": -1}, "show_pyv": true, "show_instream": true},
+      'ADS_DATA': {"gut_vars": {"tag": "\/4061\/ytpwatch\/3406642"}, "log_pyv": false, "pyv_vars": {"iframe_json": "{\"google_ad_client\": \"ca-pub-6219811747049371\", \"google_only_pyv_ads\": true, \"google_page_url\": \"http:\\\/\\\/www.youtube.com\\\/video\\\/<?php echo $_GET['v']; ?>\", \"google_ad_host_tier_id\": \"3660190\", \"google_ad_channel\": \"PyvWatchInRelated+PyvYTWatch+PyvWatchNoAdX+pw+non_lpw+yt_mpvid_Hu39qu4brxHm_Q7m+yt_cid_3406642+yt_no_ap+ytdevice_1+afv_user_id_dJ9oJ2GUF8Vmb-G63ldGWg+afv_user_acsreactions\", \"google_loeid\": \"940670,946013\", \"google_ad_block\": \"3\", \"google_language\": \"en\", \"google_ad_output\": \"js\", \"google_lact\": -1, \"google_yt_pt\": \"APb3F28-jMRTdS18GC469KZgOw5wR9H-pa9LeIZ3TtQLAnYwbQAhAQn373c_4GujqpF9tDEjYEXWVuvb7otGxIIPqkWXnUSdAbKp8P4pGw\", \"google_video_doc_id\": \"yt_<?php echo $_GET['v']; ?>\", \"google_max_num_ads\": 1, \"google_ad_type\": \"text\", \"google_ad_host\": \"ca-host-pub-4184977541492624\"}"}, "show_afc": false, "check_status": false, "show_afv": true, "use_gut": true, "afv_vars": {"google_lact": -1, "google_ad_client": "ca-pub-6219811747049371", "google_ad_host": "ca-host-pub-4184977541492624", "google_page_url": "http:\/\/www.youtube.com\/video\/<?php echo $_GET['v']; ?>", "google_alternate_ad_url": "http:\/\/www.youtube.com\/ad_frame?id=watch-channel-brand-div", "google_yt_pt": "APb3F28-jMRTdS18GC469KZgOw5wR9H-pa9LeIZ3TtQLAnYwbQAhAQn373c_4GujqpF9tDEjYEXWVuvb7otGxIIPqkWXnUSdAbKp8P4pGw", "google_video_doc_id": "yt_<?php echo $_GET['v']; ?>", "google_ad_height": "250", "google_ad_format": "300x250_as", "google_ad_host_tier_id": "3660190", "google_ad_channel": "yt_mpvid_Hu39qu4brxHm_Q7m+yt_cid_3406642+yt_no_ap+ytdevice_1+afv_user_id_dJ9oJ2GUF8Vmb-G63ldGWg+afv_user_acsreactions+ytel_detailpage+ytps_default+0854550288+Vertical_211", "google_ad_type": "image", "google_loeid": "940670,946013", "google_ad_block": "2", "google_language": "en"}, "afc_vars": {"ad_type": "image", "ad_host": "ca-host-pub-4184977541492624", "language": "en", "ad_channel": "yt_mpvid_Hu39qu4brxHm_Q7m+yt_cid_3406642+yt_no_ap+ytdevice_1+afv_user_id_dJ9oJ2GUF8Vmb-G63ldGWg+afv_user_acsreactions+ytel_detailpage+ytps_default+0854550287+Vertical_211+afc_on_page", "ad_host_tier_id": "3660190", "format": "300x250_as", "ad_client": "ca-pub-6219811747049371", "ad_block": "2", "alternate_ad_url": "http:\/\/www.youtube.com\/ad_frame?id=watch-channel-brand-div", "video_doc_id": "yt_<?php echo $_GET['v']; ?>", "lact": -1}, "show_pyv": true, "show_instream": true},
       'PLAYBACK_ID': "AAT_XpLpoGnoRzyB",
       'IS_ACTIVE_LIVE_VIDEO': false,
       'IS_DISTILLER': true,
@@ -1198,7 +974,7 @@ Add to
 
 
       
-      yt.setConfig('DISTILLER_CONFIG', {"page_size": null, "video_id": "PZlJ8XfwiNg", "reauth": false, "host_override": "https:\/\/plus.googleapis.com", "owner_id": "dJ9oJ2GUF8Vmb-G63ldGWg", "privacy_setting": "PUBLIC", "query": "http:\/\/www.youtube.com\/watch?v=PZlJ8XfwiNg", "signin_url": "https:\/\/accounts.google.com\/ServiceLogin?continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Ffeature%3Dcomments%26next%3D%252Fwatch%253Fv%253DPZlJ8XfwiNg%26hl%3Den%26action_handle_signin%3Dtrue%26app%3Ddesktop\u0026uilel=3\u0026service=youtube\u0026passive=true\u0026hl=en", "channel_id": "UCdJ9oJ2GUF8Vmb-G63ldGWg"});
+      yt.setConfig('DISTILLER_CONFIG', {"page_size": null, "video_id": "<?php echo $_GET['v']; ?>", "reauth": false, "host_override": "https:\/\/plus.googleapis.com", "owner_id": "dJ9oJ2GUF8Vmb-G63ldGWg", "privacy_setting": "PUBLIC", "query": "http:\/\/www.youtube.com\/watch?v=<?php echo $_GET['v']; ?>", "signin_url": "https:\/\/accounts.google.com\/ServiceLogin?continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Ffeature%3Dcomments%26next%3D%252Fwatch%253Fv%253D<?php echo $_GET['v']; ?>%26hl%3Den%26action_handle_signin%3Dtrue%26app%3Ddesktop\u0026uilel=3\u0026service=youtube\u0026passive=true\u0026hl=en", "channel_id": "UCdJ9oJ2GUF8Vmb-G63ldGWg"});
 
 
   </script>
