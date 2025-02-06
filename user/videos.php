@@ -130,7 +130,7 @@ yt.www.masthead.sizing.runBeforeBodyIsReady(true,true,true);
   <div id="early-body"></div>
   <div id="body-container"><form name="logoutForm" method="POST" action="/logout"><input type="hidden" name="action_logout" value="1"></form><div id="masthead-positioner">  
   <div id="yt-masthead-container" class="yt-grid-box yt-base-gutter"><div id="yt-masthead" class=""><div class="yt-masthead-logo-container ">    <a id="logo-container" href="/" title="YouTube home" class="     spf-link 
-"><img id="logo" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="YouTube home"></a>
+"><img id="logo" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="YouTube home"><?php include('../templates/contentregion.php'); ?></a>
   <div id="appbar-guide-button-container">
     <button class="yt-uix-button yt-uix-button-size-default yt-uix-button-text yt-uix-button-empty yt-uix-button-has-icon appbar-guide-toggle appbar-guide-clickable-ancestor" type="button" onclick=";return false;" id="appbar-guide-button" aria-controls="appbar-guide-menu" aria-label="Guide"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="" class="yt-uix-button-icon yt-uix-button-icon-appbar-guide yt-sprite"></span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="" class="yt-uix-button-arrow yt-sprite"></button>
     <div id="appbar-guide-button-notification-check" class="yt-valign">
