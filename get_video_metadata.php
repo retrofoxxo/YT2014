@@ -28,7 +28,7 @@ if (file_exists($cache_file) && (time() - filemtime($cache_file) < $cache_durati
 $dataVid = json_decode($data, true);
 
 $title = $dataVid['title'];
-$descriptionBland = str_replace("\n", " ", $dataVid['description']);
+$descriptionBland = str_replace("\n", "\\n", $dataVid['description']);
 $likeCount = number_format($dataVid['likeCount']);
 $dislikeCount = number_format($dataVid['dislikeCount']);
 $viewCount = number_format($dataVid['viewCount']);
