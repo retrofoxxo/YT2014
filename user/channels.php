@@ -1,4 +1,57 @@
+<?php
+// Include config file
+include('../config.php');
 
+// URL of the file you want to request
+$url = $invidApi . '/api/v1/channels/' . $_GET['id'];
+
+// Cache file path
+$cache_file = '../cache/channels/' . $_GET['id'] . '-main.json';
+
+// Cache duration in seconds (24 hours)
+$cache_duration = 24 * 60 * 60;
+
+// Check if cache file exists and is still valid
+if (file_exists($cache_file) && (time() - filemtime($cache_file) < $cache_duration)) {
+    // Read data from cache
+    $data = file_get_contents($cache_file);
+} else {
+    // Fetch data from URL
+    $data = file_get_contents($url);
+
+    // Save data to cache file
+    file_put_contents($cache_file, $data);
+}
+
+$dataChan = json_decode($data, true);
+
+$author = $dataChan['author'];
+$authorId = $dataChan['authorId'];
+
+//Handle fallback
+if (isset($dataChan['authorBanners'][0]['url'])) {
+$authorBanner = $dataChan['authorBanners'][0]['url'];
+} else {
+$authorBanner = "";
+}
+
+$authorThumb = $dataChan['authorThumbnails'][3]['url'];
+$subCount = number_format($dataChan['subCount']);
+$descriptionRaw = str_replace("\n", " ", $dataChan['description']);
+
+if ($dataChan['authorVerified'] == true) {
+$verifiedHtml = '<a class="qualified-channel-title-badge" target="_blank" href="//support.google.com/youtube/bin/answer.py?answer=3046484&amp;hl=en"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-channel-title-icon-verified yt-uix-tooltip yt-sprite" data-tooltip-text="Verified" alt=""></a>';
+} else {
+$verifiedHtml = '';
+}
+
+// Handle Tags
+$words = "";
+
+foreach($dataChan['tags'] as $key => $wordsText) {
+$words = $words . $wordsText . ", ";
+}
+?>
     <!DOCTYPE html><html lang="en" data-cast-api-enabled="true"><head><script>var ytcsi = {gt: function(n) {n = (n || '') + 'data_';return ytcsi[n] || (ytcsi[n] = {tick: {},span: {},info: {}});},tick: function(l, t, n) {ytcsi.gt(n).tick[l] = t || +new Date();},span: function(l, s, n) {ytcsi.gt(n).span[l] = (typeof s == 'number') ? s :+new Date() - ytcsi.data_.tick[l];},info: function(k, v, n) {ytcsi.gt(n).info[k] = v;}};ytcsi.perf = window.performance || window.mozPerformance ||window.msPerformance || window.webkitPerformance;ytcsi.tick('_start', ytcsi.perf ? ytcsi.perf.timing.responseStart : null);if (document.webkitVisibilityState == 'prerender') {ytcsi.info('prerender', 1);document.addEventListener('webkitvisibilitychange', function() {ytcsi.tick('_start');}, false);}</script>  <script>
     try {window.ytbuffer = {};ytbuffer.handleClick = function(e) {var element = e.target || e.srcElement;while (element.parentElement) {if (element.className.match(/(^| )yt-can-buffer( |$)/)) {window.ytbuffer = {bufferedClick: e};element.className += ' yt-is-buffered';break;}element = element.parentElement;}};if (document.addEventListener) {document.addEventListener('click', ytbuffer.handleClick);} else {document.attachEvent('onclick', ytbuffer.handleClick);}} catch(e) {}
     (function(){function a(b,g,k){var h=document.getElementsByTagName("html")[0],e=[h.className];b&&1251<=(window.innerWidth||document.documentElement.clientWidth)&&(e.push("guide-pinned"),g&&e.push("show-guide"));k&&(b=(window.innerWidth||document.documentElement.clientWidth)-21-50,1251<=(window.innerWidth||document.documentElement.clientWidth)&&g&&(b-=230),e.push(" ",1262<=b?"content-snap-width-3":1056<=b?"content-snap-width-2":"content-snap-width-1"));h.className=e.join(" ")}
@@ -16,27 +69,27 @@ yt.www.masthead.sizing.runBeforeBodyIsReady(true,true,true);
 <script>if (window.ytcsi) {window.ytcsi.tick("ce", null, '');}</script>  
 
     
-<title>PewDiePie - YouTube</title><link rel="search" type="application/opensearchdescription+xml" href="http://www.youtube.com/opensearch?locale=en_US" title="YouTube Video Search"><link rel="shortcut icon" href="https://s.ytimg.com/yts/img/favicon-vfldLzJxy.ico" type="image/x-icon">     <link rel="icon" href="//s.ytimg.com/yts/img/favicon_32-vflWoMFGx.png" sizes="32x32"><link rel="canonical" href="http://www.youtube.com/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw"><link rel="alternate" media="handheld" href="https://m.youtube.com/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw/channels?"><link rel="alternate" media="only screen and (max-width: 640px)" href="https://m.youtube.com/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw/channels?">    <meta name="title" content="PewDiePie">
+<title><?php echo $author; ?> - YouTube</title><link rel="search" type="application/opensearchdescription+xml" href="http://www.youtube.com/opensearch?locale=en_US" title="YouTube Video Search"><link rel="shortcut icon" href="https://s.ytimg.com/yts/img/favicon-vfldLzJxy.ico" type="image/x-icon">     <link rel="icon" href="//s.ytimg.com/yts/img/favicon_32-vflWoMFGx.png" sizes="32x32"><link rel="canonical" href="http://www.youtube.com/channel/<?php echo $authorId; ?>"><link rel="alternate" media="handheld" href="https://m.youtube.com/channel/<?php echo $authorId; ?>/channels?"><link rel="alternate" media="only screen and (max-width: 640px)" href="https://m.youtube.com/channel/<?php echo $authorId; ?>/channels?">    <meta name="title" content="<?php echo $author; ?>">
 
-    <meta name="description" content="Businessy stuff: business dot pewdiepie at gmail dot com">
+    <meta name="description" content="<?php echo $descriptionRaw; ?>">
 
-<meta name="keywords" content="Pewdiepie pewds pewdie slender amnesia &quot;happy wheels&quot; &quot;the last of us&quot; &quot;last of us&quot; &quot;walking dead&quot; &quot;the walking dead&quot; deadpool gameplay walkthrough playthrough &quot;let&#39;s play&quot;">    <link rel="image_src" href="https://yt3.ggpht.com/-rJq9gk1QIis/AAAAAAAAAAI/AAAAAAAAAAA/Kx4wkvKOfxY/s48-c-k-no/photo.jpg">
-    <link rel="alternate" type="application/rss+xml" title="RSS" href="http://gdata.youtube.com/feeds/base/users/PewDiePie/uploads?alt=rss&amp;v=2&amp;orderby=published&amp;client=ytapi-youtube-profile">
+<meta name="keywords" content="<?php echo $words; ?>">    <link rel="image_src" href="<?php echo $authorThumb; ?>">
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="http://gdata.youtube.com/feeds/base/channel/<?php echo $authorId; ?>/uploads?alt=rss&amp;v=2&amp;orderby=published&amp;client=ytapi-youtube-profile">
     <link rel="publisher" href="https://plus.google.com/117663191659499528404">
           <meta property="og:site_name" content="YouTube">
-    <meta property="og:url" content="http://www.youtube.com/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw">
-    <meta property="og:title" content="PewDiePie">
-    <meta property="og:image" content="https://yt3.ggpht.com/-rJq9gk1QIis/AAAAAAAAAAI/AAAAAAAAAAA/Kx4wkvKOfxY/s900-c-k-no/photo.jpg">
+    <meta property="og:url" content="http://www.youtube.com/channel/<?php echo $authorId; ?>">
+    <meta property="og:title" content="<?php echo $author; ?>">
+    <meta property="og:image" content="<?php echo $authorThumb; ?>">
 
-      <meta property="og:description" content="Businessy stuff: business dot pewdiepie at gmail dot com">
+      <meta property="og:description" content="<?php echo $descriptionRaw; ?>">
 
     <meta property="al:ios:app_store_id" content="544007664">
     <meta property="al:ios:app_name" content="YouTube">
-      <meta property="al:ios:url" content="vnd.youtube://user/UC-lHJZR3Gqxm24_Vd_AJ5Yw">
-    <meta property="al:android:url" content="http://www.youtube.com/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw?feature=applinks">
+      <meta property="al:ios:url" content="vnd.youtube://user/<?php echo $authorId; ?>">
+    <meta property="al:android:url" content="http://www.youtube.com/channel/<?php echo $authorId; ?>?feature=applinks">
     <meta property="al:android:app_name" content="YouTube">
     <meta property="al:android:package" content="com.google.android.youtube">
-    <meta property="al:web:url" content="http://www.youtube.com/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw?feature=applinks">
+    <meta property="al:web:url" content="http://www.youtube.com/channel/<?php echo $authorId; ?>?feature=applinks">
 
     <meta property="og:type" content="profile">
 
@@ -44,38 +97,38 @@ yt.www.masthead.sizing.runBeforeBodyIsReady(true,true,true);
 
       <meta name="twitter:card" content="summary">
     <meta name="twitter:site" content="@youtube">
-    <meta name="twitter:url" content="http://www.youtube.com/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw">
-    <meta name="twitter:title" content="PewDiePie">
-    <meta name="twitter:description" content="Businessy stuff: business dot pewdiepie at gmail dot com">
-    <meta name="twitter:image" content="https://yt3.ggpht.com/-rJq9gk1QIis/AAAAAAAAAAI/AAAAAAAAAAA/Kx4wkvKOfxY/s900-c-k-no/photo.jpg">
+    <meta name="twitter:url" content="http://www.youtube.com/channel/<?php echo $authorId; ?>">
+    <meta name="twitter:title" content="<?php echo $author; ?>">
+    <meta name="twitter:description" content="<?php echo $descriptionRaw; ?>">
+    <meta name="twitter:image" content="<?php echo $authorThumb; ?>">
     <meta name="twitter:app:name:iphone" content="YouTube">
     <meta name="twitter:app:id:iphone" content="544007664">
     <meta name="twitter:app:name:ipad" content="YouTube">
     <meta name="twitter:app:id:ipad" content="544007664">
-      <meta name="twitter:app:url:iphone" content="vnd.youtube://user/UC-lHJZR3Gqxm24_Vd_AJ5Yw">
-      <meta name="twitter:app:url:ipad" content="vnd.youtube://user/UC-lHJZR3Gqxm24_Vd_AJ5Yw">
+      <meta name="twitter:app:url:iphone" content="vnd.youtube://user/<?php echo $authorId; ?>">
+      <meta name="twitter:app:url:ipad" content="vnd.youtube://user/<?php echo $authorId; ?>">
     <meta name="twitter:app:name:googleplay" content="YouTube">
     <meta name="twitter:app:id:googleplay" content="com.google.android.youtube">
-    <meta name="twitter:app:url:googleplay" content="http://www.youtube.com/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw">
+    <meta name="twitter:app:url:googleplay" content="http://www.youtube.com/channel/<?php echo $authorId; ?>">
 
-      <link itemprop="url" href="http://www.youtube.com/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw">
-    <meta itemprop="name" content="PewDiePie">
-    <meta itemprop="description" content="Businessy stuff: business dot pewdiepie at gmail dot com">
+      <link itemprop="url" href="http://www.youtube.com/channel/<?php echo $authorId; ?>">
+    <meta itemprop="name" content="<?php echo $author; ?>">
+    <meta itemprop="description" content="<?php echo $descriptionRaw; ?>">
     <meta itemprop="paid" content="False">
 
-      <meta itemprop="channelId" content="UC-lHJZR3Gqxm24_Vd_AJ5Yw">
+      <meta itemprop="channelId" content="<?php echo $authorId; ?>">
 
 
         <span itemprop="author" itemscope itemtype="http://schema.org/Person">
-          <link itemprop="url" href="http://www.youtube.com/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw">
+          <link itemprop="url" href="http://www.youtube.com/channel/<?php echo $authorId; ?>">
         </span>
         <span itemprop="author" itemscope itemtype="http://schema.org/Person">
           <link itemprop="url" href="https://plus.google.com/117663191659499528404">
         </span>
 
-    <link itemprop="thumbnailUrl" href="https://yt3.ggpht.com/-rJq9gk1QIis/AAAAAAAAAAI/AAAAAAAAAAA/Kx4wkvKOfxY/s900-c-k-no/photo.jpg">
+    <link itemprop="thumbnailUrl" href="<?php echo $authorThumb; ?>">
     <span itemprop="thumbnail" itemscope itemtype="http://schema.org/ImageObject">
-      <link itemprop="url" href="https://yt3.ggpht.com/-rJq9gk1QIis/AAAAAAAAAAI/AAAAAAAAAAA/Kx4wkvKOfxY/s900-c-k-no/photo.jpg">
+      <link itemprop="url" href="<?php echo $authorThumb; ?>">
       <meta itemprop="width" content="900">
       <meta itemprop="height" content="900">
     </span>
@@ -85,24 +138,24 @@ yt.www.masthead.sizing.runBeforeBodyIsReady(true,true,true);
       <meta itemprop="regionsAllowed" content="AD,AE,AF,AG,AI,AL,AM,AO,AQ,AR,AS,AT,AU,AW,AX,AZ,BA,BB,BD,BE,BF,BG,BH,BI,BJ,BL,BM,BN,BO,BQ,BR,BS,BT,BV,BW,BY,BZ,CA,CC,CD,CF,CG,CH,CI,CK,CL,CM,CN,CO,CR,CU,CV,CW,CX,CY,CZ,DE,DJ,DK,DM,DO,DZ,EC,EE,EG,EH,ER,ES,ET,FI,FJ,FK,FM,FO,FR,GA,GB,GD,GE,GF,GG,GH,GI,GL,GM,GN,GP,GQ,GR,GS,GT,GU,GW,GY,HK,HM,HN,HR,HT,HU,ID,IE,IL,IM,IN,IO,IQ,IR,IS,IT,JE,JM,JO,JP,KE,KG,KH,KI,KM,KN,KP,KR,KW,KY,KZ,LA,LB,LC,LI,LK,LR,LS,LT,LU,LV,LY,MA,MC,MD,ME,MF,MG,MH,MK,ML,MM,MN,MO,MP,MQ,MR,MS,MT,MU,MV,MW,MX,MY,MZ,NA,NC,NE,NF,NG,NI,NL,NO,NP,NR,NU,NZ,OM,PA,PE,PF,PG,PH,PK,PL,PM,PN,PR,PS,PT,PW,PY,QA,RE,RO,RS,RU,RW,SA,SB,SC,SD,SE,SG,SH,SI,SJ,SK,SL,SM,SN,SO,SR,SS,ST,SV,SX,SY,SZ,TC,TD,TF,TG,TH,TJ,TK,TL,TM,TN,TO,TR,TT,TV,TW,TZ,UA,UG,UM,US,UY,UZ,VA,VC,VE,VG,VI,VN,VU,WF,WS,YE,YT,ZA,ZM,ZW">
 
   <div id="watch-container" itemid="" itemscope itemtype="http://schema.org/YoutubeChannelV2">
-        <link itemprop="url" href="http://www.youtube.com/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw">
-    <meta itemprop="name" content="PewDiePie">
-    <meta itemprop="description" content="Businessy stuff: business dot pewdiepie at gmail dot com">
+        <link itemprop="url" href="http://www.youtube.com/channel/<?php echo $authorId; ?>">
+    <meta itemprop="name" content="<?php echo $author; ?>">
+    <meta itemprop="description" content="<?php echo $descriptionRaw; ?>">
     <meta itemprop="paid" content="False">
 
-      <meta itemprop="channelId" content="UC-lHJZR3Gqxm24_Vd_AJ5Yw">
+      <meta itemprop="channelId" content="<?php echo $authorId; ?>">
 
 
         <span itemprop="author" itemscope itemtype="http://schema.org/Person">
-          <link itemprop="url" href="http://www.youtube.com/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw">
+          <link itemprop="url" href="http://www.youtube.com/channel/<?php echo $authorId; ?>">
         </span>
         <span itemprop="author" itemscope itemtype="http://schema.org/Person">
           <link itemprop="url" href="https://plus.google.com/117663191659499528404">
         </span>
 
-    <link itemprop="thumbnailUrl" href="https://yt3.ggpht.com/-rJq9gk1QIis/AAAAAAAAAAI/AAAAAAAAAAA/Kx4wkvKOfxY/s900-c-k-no/photo.jpg">
+    <link itemprop="thumbnailUrl" href="<?php echo $authorThumb; ?>">
     <span itemprop="thumbnail" itemscope itemtype="http://schema.org/ImageObject">
-      <link itemprop="url" href="https://yt3.ggpht.com/-rJq9gk1QIis/AAAAAAAAAAI/AAAAAAAAAAA/Kx4wkvKOfxY/s900-c-k-no/photo.jpg">
+      <link itemprop="url" href="<?php echo $authorThumb; ?>">
       <meta itemprop="width" content="900">
       <meta itemprop="height" content="900">
     </span>
@@ -113,7 +166,7 @@ yt.www.masthead.sizing.runBeforeBodyIsReady(true,true,true);
 
   </div>
 
-      <div class="cmt_iframe_holder" data-href="http://www.youtube.com/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw/channels" data-viewtype="FILTERED" style="display: none;"></div>
+      <div class="cmt_iframe_holder" data-href="http://www.youtube.com/channel/<?php echo $authorId; ?>/channels" data-viewtype="FILTERED" style="display: none;"></div>
 
 
   <link rel="stylesheet" href="//s.ytimg.com/yts/cssbin/www-pageframe-vflF__vZT.css" name="www-pageframe">
@@ -138,19 +191,19 @@ yt.www.masthead.sizing.runBeforeBodyIsReady(true,true,true);
     </div>
   </div>
   <div id="appbar-main-guide-notification-container"></div>
-</div><div id="yt-masthead-signin"><span id="appbar-onebar-upload-group"><a href="//www.youtube.com/upload" class="yt-uix-button   yt-uix-sessionlink yt-uix-button-default yt-uix-button-size-default" data-sessionlink="ei=rfLWU43uGaqo-APjz4GYDA&amp;feature=mhsb" id="upload-btn"><span class="yt-uix-button-content">Upload </span></a></span><button class="yt-uix-button yt-uix-button-size-default yt-uix-button-primary" type="button" onclick=";window.location.href=this.getAttribute(&#39;href&#39;);return false;" href="https://accounts.google.com/ServiceLogin?service=youtube&amp;hl=en&amp;uilel=3&amp;continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Fhl%3Den%26next%3D%252Fuser%252FPewDiePie%252Fchannels%26feature%3Dsign_in_button%26app%3Ddesktop%26action_handle_signin%3Dtrue&amp;passive=true"><span class="yt-uix-button-content">Sign in </span></button></div><div id="yt-masthead-content"><form id="masthead-search" class="search-form consolidated-form" action="/results" onsubmit="if (_gel(&#39;masthead-search-term&#39;).value == &#39;&#39;) return false;"><button class="yt-uix-button yt-uix-button-size-default yt-uix-button-default search-btn-component search-button" type="submit" onclick="if (_gel(&#39;masthead-search-term&#39;).value == &#39;&#39;) return false; _gel(&#39;masthead-search&#39;).submit(); return false;;return true;" dir="ltr" tabindex="2" id="search-btn"><span class="yt-uix-button-content">Search </span></button><div id="masthead-search-terms" class="masthead-search-terms-border" dir="ltr"><label><input id="masthead-search-term" autocomplete="off"  class="search-term yt-uix-form-input-bidi" name="search_query" value="" type="text" tabindex="1" title="Search"></label></div></form></div></div></div>
+</div><div id="yt-masthead-signin"><span id="appbar-onebar-upload-group"><a href="//www.youtube.com/upload" class="yt-uix-button   yt-uix-sessionlink yt-uix-button-default yt-uix-button-size-default" data-sessionlink="ei=rfLWU43uGaqo-APjz4GYDA&amp;feature=mhsb" id="upload-btn"><span class="yt-uix-button-content">Upload </span></a></span><button class="yt-uix-button yt-uix-button-size-default yt-uix-button-primary" type="button" onclick=";window.location.href=this.getAttribute(&#39;href&#39;);return false;" href="https://accounts.google.com/ServiceLogin?service=youtube&amp;hl=en&amp;uilel=3&amp;continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Fhl%3Den%26next%3D%252Fchannel%252F<?php echo $authorId; ?>%252Fchannels%26feature%3Dsign_in_button%26app%3Ddesktop%26action_handle_signin%3Dtrue&amp;passive=true"><span class="yt-uix-button-content">Sign in </span></button></div><div id="yt-masthead-content"><form id="masthead-search" class="search-form consolidated-form" action="/results" onsubmit="if (_gel(&#39;masthead-search-term&#39;).value == &#39;&#39;) return false;"><button class="yt-uix-button yt-uix-button-size-default yt-uix-button-default search-btn-component search-button" type="submit" onclick="if (_gel(&#39;masthead-search-term&#39;).value == &#39;&#39;) return false; _gel(&#39;masthead-search&#39;).submit(); return false;;return true;" dir="ltr" tabindex="2" id="search-btn"><span class="yt-uix-button-content">Search </span></button><div id="masthead-search-terms" class="masthead-search-terms-border" dir="ltr"><label><input id="masthead-search-term" autocomplete="off"  class="search-term yt-uix-form-input-bidi" name="search_query" value="" type="text" tabindex="1" title="Search"></label></div></form></div></div></div>
     <div id="masthead-appbar-container" class="clearfix"><div id="masthead-appbar"><div id="appbar-content" class="">      <div id="appbar-nav" class="appbar-content-hidable">
-  <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw">
-    <img class="appbar-nav-avatar" src="https://yt3.ggpht.com/-rJq9gk1QIis/AAAAAAAAAAI/AAAAAAAAAAA/Kx4wkvKOfxY/s100-c-k-no/photo.jpg" title="PewDiePie" alt="PewDiePie" height="23" width="23">
+  <a href="/channel/<?php echo $authorId; ?>">
+    <img class="appbar-nav-avatar" src="<?php echo $authorThumb; ?>" title="<?php echo $author; ?>" alt="<?php echo $author; ?>" height="23" width="23">
   </a>
-<ul class="appbar-nav-menu"><li>    <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw/featured" class="yt-uix-button   spf-link yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=rfLWU43uGaqo-APjz4GYDA&amp;ved=CBgQwy0oAA"><span class="yt-uix-button-content">PewDiePie </span></a>
-</li><li>    <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw/videos" class="yt-uix-button   spf-link yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=rfLWU43uGaqo-APjz4GYDA&amp;ved=CBkQwy0oAQ"><span class="yt-uix-button-content">Videos </span></a>
-</li><li>    <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw/playlists" class="yt-uix-button   spf-link yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=rfLWU43uGaqo-APjz4GYDA&amp;ved=CBoQwy0oAg"><span class="yt-uix-button-content">Playlists </span></a>
+<ul class="appbar-nav-menu"><li>    <a href="/channel/<?php echo $authorId; ?>/featured" class="yt-uix-button   spf-link yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=rfLWU43uGaqo-APjz4GYDA&amp;ved=CBgQwy0oAA"><span class="yt-uix-button-content"><?php echo $author; ?> </span></a>
+</li><li>    <a href="/channel/<?php echo $authorId; ?>/videos" class="yt-uix-button   spf-link yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=rfLWU43uGaqo-APjz4GYDA&amp;ved=CBkQwy0oAQ"><span class="yt-uix-button-content">Videos </span></a>
+</li><li>    <a href="/channel/<?php echo $authorId; ?>/playlists" class="yt-uix-button   spf-link yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=rfLWU43uGaqo-APjz4GYDA&amp;ved=CBoQwy0oAg"><span class="yt-uix-button-content">Playlists </span></a>
 </li><li>    <h2 class="epic-nav-item-heading ">
       Channels
     </h2>
-</li><li>    <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw/discussion" class="yt-uix-button   spf-link yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=rfLWU43uGaqo-APjz4GYDA&amp;ved=CBwQwy0oBA"><span class="yt-uix-button-content">Discussion </span></a>
-</li><li>    <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw/about" class="yt-uix-button   spf-link yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=rfLWU43uGaqo-APjz4GYDA&amp;ved=CB0Qwy0oBQ"><span class="yt-uix-button-content">About </span></a>
+</li><li>    <a href="/channel/<?php echo $authorId; ?>/discussion" class="yt-uix-button   spf-link yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=rfLWU43uGaqo-APjz4GYDA&amp;ved=CBwQwy0oBA"><span class="yt-uix-button-content">Discussion </span></a>
+</li><li>    <a href="/channel/<?php echo $authorId; ?>/about" class="yt-uix-button   spf-link yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=rfLWU43uGaqo-APjz4GYDA&amp;ved=CB0Qwy0oBQ"><span class="yt-uix-button-content">About </span></a>
 </li></ul>  </div>
 
 </div></div></div>
@@ -534,7 +587,7 @@ yt.www.masthead.sizing.runBeforeBodyIsReady(true,true,true);
       Sign in now to see your channels and recommendations!
     </p>
     <div id="guide-builder-promo-buttons" class="signed-out clearfix">
-      <a href="https://accounts.google.com/ServiceLogin?service=youtube&amp;hl=en&amp;uilel=3&amp;continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Fhl%3Den%26next%3D%252Fuser%252FPewDiePie%252Fchannels%26feature%3Dsign_in_promo%26app%3Ddesktop%26action_handle_signin%3Dtrue&amp;passive=true" class="yt-uix-button   yt-uix-sessionlink yt-uix-button-primary yt-uix-button-size-default" data-sessionlink="ei=rfLWU43uGaqo-APjz4GYDA"><span class="yt-uix-button-content">Sign In </span></a>
+      <a href="https://accounts.google.com/ServiceLogin?service=youtube&amp;hl=en&amp;uilel=3&amp;continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Fhl%3Den%26next%3D%252Fchannel%252F<?php echo $authorId; ?>%252Fchannels%26feature%3Dsign_in_promo%26app%3Ddesktop%26action_handle_signin%3Dtrue&amp;passive=true" class="yt-uix-button   yt-uix-sessionlink yt-uix-button-primary yt-uix-button-size-default" data-sessionlink="ei=rfLWU43uGaqo-APjz4GYDA"><span class="yt-uix-button-content">Sign In </span></a>
     </div>
   </li>
 
@@ -760,19 +813,19 @@ yt.www.masthead.sizing.runBeforeBodyIsReady(true,true,true);
     <div id="gh-banner">
           <style>
       #c4-header-bg-container {
-      background-image: url(//i.ytimg.com/u/-lHJZR3Gqxm24_Vd_AJ5Yw/channels4_banner.jpg?v=513b5e90);
+      background-image: url(<?php echo $authorBanner; ?>);
   }
 
 
   @media screen and (-webkit-min-device-pixel-ratio: 1.5),
          screen and (min-resolution: 1.5dppx) {
 #c4-header-bg-container {
-        background-image: url(//i.ytimg.com/u/-lHJZR3Gqxm24_Vd_AJ5Yw/channels4_banner_hd.jpg?v=513b5e90);
+        background-image: url(<?php echo $authorBanner; ?>);
     }
   }
 
 #c4-header-bg-container .hd-banner-image {
-      background-image: url(//i.ytimg.com/u/-lHJZR3Gqxm24_Vd_AJ5Yw/channels4_banner_hd.jpg?v=513b5e90);
+      background-image: url(<?php echo $authorBanner; ?>);
   }
 
     </style>
@@ -782,51 +835,12 @@ yt.www.masthead.sizing.runBeforeBodyIsReady(true,true,true);
       <div class="hd-banner-image"></div>
     </div>
     
-      <div id="header-links">
-      <ul class="about-network-links">
-            <li class="channel-links-item">
-    <a href="https://plus.google.com/117663191659499528404" rel="me nofollow" target="_blank" title="" class="about-channel-link yt-uix-redirect-link about-channel-link-with-icon">
-        <img src="//s2.googleusercontent.com/s2/favicons?feature=youtube_channel&amp;domain=plus.google.com" class="about-channel-link-favicon" alt="" width="16" height="16">
-    </a>
-  </li>
-
-            <li class="channel-links-item">
-    <a href="http://www.facebook.com/PewDiePie" rel="me nofollow" target="_blank" title="" class="about-channel-link yt-uix-redirect-link about-channel-link-with-icon">
-        <img src="//s2.googleusercontent.com/s2/favicons?feature=youtube_channel&amp;domain=www.facebook.com" class="about-channel-link-favicon" alt="" width="16" height="16">
-    </a>
-  </li>
-
-            <li class="channel-links-item">
-    <a href="http://www.twitter.com/pewdiepie" rel="me nofollow" target="_blank" title="" class="about-channel-link yt-uix-redirect-link about-channel-link-with-icon">
-        <img src="//s2.googleusercontent.com/s2/favicons?feature=youtube_channel&amp;domain=www.twitter.com" class="about-channel-link-favicon" alt="" width="16" height="16">
-    </a>
-  </li>
-
-            <li class="channel-links-item">
-    <a href="http://pewdiepie.spreadshirt.com/" rel="me nofollow" target="_blank" title="" class="about-channel-link yt-uix-redirect-link about-channel-link-with-icon">
-        <img src="//s2.googleusercontent.com/s2/favicons?feature=youtube_channel&amp;domain=pewdiepie.spreadshirt.com" class="about-channel-link-favicon" alt="" width="16" height="16">
-    </a>
-  </li>
-
-      </ul>
-
-      <ul class="about-custom-links">
-            <li class="channel-links-item">
-    <a href="http://bit.ly/JoinBroArmy" rel="me nofollow" target="_blank" title="BECOME A BRO" class="about-channel-link yt-uix-redirect-link about-channel-link-with-icon">
-        <img src="//s2.googleusercontent.com/s2/favicons?feature=youtube_channel&amp;domain=bit.ly" class="about-channel-link-favicon" alt="" width="16" height="16">
-        <span class="about-channel-link-text">
-          BECOME A BRO
-        </span>
-    </a>
-  </li>
-
-      </ul>
-  </div>
+      <div id="header-links"></div>
 
 
 
-          <a class="channel-header-profile-image-container spf-link" href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw">
-      <img class="channel-header-profile-image" src="https://yt3.ggpht.com/-rJq9gk1QIis/AAAAAAAAAAI/AAAAAAAAAAA/Kx4wkvKOfxY/s100-c-k-no/photo.jpg" title="PewDiePie" alt="PewDiePie">
+          <a class="channel-header-profile-image-container spf-link" href="/channel/<?php echo $authorId; ?>">
+      <img class="channel-header-profile-image" src="<?php echo $authorThumb; ?>" title="<?php echo $author; ?>" alt="<?php echo $author; ?>">
     </a>
 
   </div>
@@ -836,7 +850,7 @@ yt.www.masthead.sizing.runBeforeBodyIsReady(true,true,true);
   <div class="">
       <div class="primary-header-contents clearfix" id="c4-primary-header-contents">
     <div class="primary-header-actions clearfix">
-                <span class="channel-header-subscription-button-container yt-uix-button-subscription-container with-preferences" ><button class="yt-uix-button yt-uix-button-size-default yt-uix-button-subscribe-branded yt-uix-button-has-icon yt-uix-subscription-button yt-can-buffer" type="button" onclick=";return false;" aria-busy="false" aria-live="polite" aria-role="button" data-sessionlink="ei=rfLWU43uGaqo-APjz4GYDA&amp;feature=channels4&amp;ved=CBMQmys" data-style-type="branded" data-href="https://accounts.google.com/ServiceLogin?service=youtube&amp;hl=en&amp;uilel=3&amp;continue=http%3A%2F%2Fwww.youtube.com%2Fsignin%3Fhl%3Den%26next%3D%252Fchannel%252FUC-lHJZR3Gqxm24_Vd_AJ5Yw%26feature%3Dsubscribe%26app%3Ddesktop%26continue_action%3DQUFFLUhqbUZxdlFBTXgwRGZ0LUlJNHhPbXhHaGMtbEM5QXxBQ3Jtc0tsZ3pCaXFLdnA4cG02el9FZHlXcmVFaGhwbVI4SnNvcDd2MmJuQ1RxUWF2S2JRT1VoY2d1eTI2bE92QXNuNGtpeDRVaGJBNzF1WE9ZZWpmMklqR3k3ems2Qm91THRtV05VWFVmeHFyMGo5ekRkTG0xRTUwd1R1WjlJYmU1OFRTNXJibVpTUnZDbk10NEdDMkttTmdFWG5UYkNGb0paVXdrR1hpSVlMLXM1Vk1YZG45OHd3ajN5NVp6UFR4Umx2bWJyU0hQRHU%253D%26action_handle_signin%3Dtrue&amp;passive=true" data-channel-external-id="UC-lHJZR3Gqxm24_Vd_AJ5Yw"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-subscribe yt-sprite" alt=""></span><span class="yt-uix-button-content"><span class="subscribe-label" aria-label="Subscribe">Subscribe</span><span class="subscribed-label" aria-label="Unsubscribe">Subscribed</span><span class="unsubscribe-label" aria-label="Unsubscribe">Unsubscribe</span> </span></button><button class="yt-uix-button yt-uix-button-size-default yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon yt-uix-subscription-preferences-button" type="button" onclick=";return false;" data-channel-external-id="UC-lHJZR3Gqxm24_Vd_AJ5Yw"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-subscription-preferences yt-sprite" alt=""></span></button><span class="yt-subscription-button-subscriber-count-branded-horizontal subscribed" title="29,061,038">29,061,038</span>  <span class="yt-subscription-button-disabled-mask" title=""></span>
+                <span class="channel-header-subscription-button-container yt-uix-button-subscription-container with-preferences" ><button class="yt-uix-button yt-uix-button-size-default yt-uix-button-subscribe-branded yt-uix-button-has-icon yt-uix-subscription-button yt-can-buffer" type="button" onclick=";return false;" aria-busy="false" aria-live="polite" aria-role="button" data-sessionlink="ei=rfLWU43uGaqo-APjz4GYDA&amp;feature=channels4&amp;ved=CBMQmys" data-style-type="branded" data-href="https://accounts.google.com/ServiceLogin?service=youtube&amp;hl=en&amp;uilel=3&amp;continue=http%3A%2F%2Fwww.youtube.com%2Fsignin%3Fhl%3Den%26next%3D%252Fchannel%252F<?php echo $authorId; ?>%26feature%3Dsubscribe%26app%3Ddesktop%26continue_action%3DQUFFLUhqbUZxdlFBTXgwRGZ0LUlJNHhPbXhHaGMtbEM5QXxBQ3Jtc0tsZ3pCaXFLdnA4cG02el9FZHlXcmVFaGhwbVI4SnNvcDd2MmJuQ1RxUWF2S2JRT1VoY2d1eTI2bE92QXNuNGtpeDRVaGJBNzF1WE9ZZWpmMklqR3k3ems2Qm91THRtV05VWFVmeHFyMGo5ekRkTG0xRTUwd1R1WjlJYmU1OFRTNXJibVpTUnZDbk10NEdDMkttTmdFWG5UYkNGb0paVXdrR1hpSVlMLXM1Vk1YZG45OHd3ajN5NVp6UFR4Umx2bWJyU0hQRHU%253D%26action_handle_signin%3Dtrue&amp;passive=true" data-channel-external-id="<?php echo $authorId; ?>"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-subscribe yt-sprite" alt=""></span><span class="yt-uix-button-content"><span class="subscribe-label" aria-label="Subscribe">Subscribe</span><span class="subscribed-label" aria-label="Unsubscribe">Subscribed</span><span class="unsubscribe-label" aria-label="Unsubscribe">Unsubscribe</span> </span></button><button class="yt-uix-button yt-uix-button-size-default yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon yt-uix-subscription-preferences-button" type="button" onclick=";return false;" data-channel-external-id="<?php echo $authorId; ?>"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-subscription-preferences yt-sprite" alt=""></span></button><span class="yt-subscription-button-subscriber-count-branded-horizontal subscribed" title="<?php echo $subCount; ?>"><?php echo $subCount; ?></span>  <span class="yt-subscription-button-disabled-mask" title=""></span>
   
   <div class="yt-uix-overlay " data-overlay-style="primary"data-overlay-shape="tiny">
     
@@ -896,32 +910,32 @@ Loading...
 
     </div>
     <h1 class="branded-page-header-title">
-      <span class="qualified-channel-title ellipsized has-badge"><span class="qualified-channel-title-wrapper"><span dir="ltr" class="qualified-channel-title-text" ><a dir="ltr" href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw" class="spf-link branded-page-header-title-link yt-uix-sessionlink" title="PewDiePie" data-sessionlink="ei=rfLWU43uGaqo-APjz4GYDA"      >PewDiePie</a></span></span><a target="_blank" class="qualified-channel-title-badge" href="//support.google.com/youtube/bin/answer.py?answer=3046484&amp;hl=en"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Verified" class="yt-channel-title-icon-verified yt-uix-tooltip yt-sprite" alt=""></a></span>
+      <span class="qualified-channel-title ellipsized has-badge"><span class="qualified-channel-title-wrapper"><span dir="ltr" class="qualified-channel-title-text" ><a dir="ltr" href="/channel/<?php echo $authorId; ?>" class="spf-link branded-page-header-title-link yt-uix-sessionlink" title="<?php echo $author; ?>" data-sessionlink="ei=rfLWU43uGaqo-APjz4GYDA"      ><?php echo $author; ?></a></span></span><?php echo $verifiedHtml; ?></span>
     </h1>
   </div>
 
       <div id="channel-subheader" class="clearfix branded-page-gutter-padding appbar-content-trigger">
     <ul id="channel-navigation-menu" class="clearfix">
         <li>
-          <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw/featured" class="yt-uix-button  spf-link  yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=rfLWU43uGaqo-APjz4GYDA"><span class="yt-uix-button-content">Home </span></a>
+          <a href="/channel/<?php echo $authorId; ?>/featured" class="yt-uix-button  spf-link  yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=rfLWU43uGaqo-APjz4GYDA"><span class="yt-uix-button-content">Home </span></a>
         </li>
         <li>
-          <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw/videos" class="yt-uix-button  spf-link  yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=rfLWU43uGaqo-APjz4GYDA"><span class="yt-uix-button-content">Videos </span></a>
+          <a href="/channel/<?php echo $authorId; ?>/videos" class="yt-uix-button  spf-link  yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=rfLWU43uGaqo-APjz4GYDA"><span class="yt-uix-button-content">Videos </span></a>
         </li>
         <li>
-          <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw/playlists" class="yt-uix-button  spf-link  yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=rfLWU43uGaqo-APjz4GYDA"><span class="yt-uix-button-content">Playlists </span></a>
+          <a href="/channel/<?php echo $authorId; ?>/playlists" class="yt-uix-button  spf-link  yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=rfLWU43uGaqo-APjz4GYDA"><span class="yt-uix-button-content">Playlists </span></a>
         </li>
         <li>
           <h2 class="epic-nav-item-heading ">Channels</h2>
         </li>
         <li>
-          <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw/discussion" class="yt-uix-button  spf-link  yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=rfLWU43uGaqo-APjz4GYDA"><span class="yt-uix-button-content">Discussion </span></a>
+          <a href="/channel/<?php echo $authorId; ?>/discussion" class="yt-uix-button  spf-link  yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=rfLWU43uGaqo-APjz4GYDA"><span class="yt-uix-button-content">Discussion </span></a>
         </li>
         <li>
-          <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw/about" class="yt-uix-button  spf-link  yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=rfLWU43uGaqo-APjz4GYDA"><span class="yt-uix-button-content">About </span></a>
+          <a href="/channel/<?php echo $authorId; ?>/about" class="yt-uix-button  spf-link  yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=rfLWU43uGaqo-APjz4GYDA"><span class="yt-uix-button-content">About </span></a>
         </li>
         <li>
-          <div id="channel-search" ><label class="show-search epic-nav-item secondary-nav" for="channels-search-field"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="epic-nav-item-heading-icon yt-sprite" alt=""></label><form class="search-form epic-nav-item secondary-nav"action="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw/search"method="get"><span class=" yt-uix-form-input-container yt-uix-form-input-text-container ">    <input class="yt-uix-form-input-text search-field" name="query" id="channels-search-field" type="text" placeholder="Search Channel" maxlength="100" autocomplete="off">
+          <div id="channel-search" ><label class="show-search epic-nav-item secondary-nav" for="channels-search-field"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="epic-nav-item-heading-icon yt-sprite" alt=""></label><form class="search-form epic-nav-item secondary-nav"action="/channel/<?php echo $authorId; ?>/search"method="get"><span class=" yt-uix-form-input-container yt-uix-form-input-text-container ">    <input class="yt-uix-form-input-text search-field" name="query" id="channels-search-field" type="text" placeholder="Search Channel" maxlength="100" autocomplete="off">
 </span></form></div>
         </li>
     </ul>
@@ -953,7 +967,7 @@ This channel doesn't feature any other channels.
 
   <div id="ad_creative_1" class="ad-div hid" style="z-index: 1">
     <div id="ad_creative_div_1"></div>
-    <script>(function() {function tagMpuIframe() {var containerEl = document.getElementById('ad_creative_div_1');if (!containerEl) {return;}var iframeEl = document.createElement('iframe');var iframeSrc = 'https://ad.doubleclick.net/N4061/adi/com.ytbc/PewDiePie;sz=1x1;kpu=PewDiePie;kpeid=-lHJZR3Gqxm24_Vd_AJ5Yw;tile=1;ssl=1;dc_yt=1;kga=-1;kgg=-1;klg=en;kmyd=ad_creative_1;ytexp=934601,941421,924626,941424,923346,946013,951902;ord=' +Math.floor(Math.random() * 10000000000000000) +'?';iframeEl.id = 'ad_creative_iframe_1';iframeEl.width = '1';iframeEl.height = '1';iframeEl.style.cssText = 'z-index:1;';iframeEl.scrolling = 'no';iframeEl.frameBorder = '0';containerEl.appendChild(iframeEl);iframeEl.src = iframeSrc;}tagMpuIframe();})();</script>
+    <script>(function() {function tagMpuIframe() {var containerEl = document.getElementById('ad_creative_div_1');if (!containerEl) {return;}var iframeEl = document.createElement('iframe');var iframeSrc = 'https://ad.doubleclick.net/N4061/adi/com.ytbc/<?php echo $author; ?>;sz=1x1;kpu=<?php echo $author; ?>;kpeid=-lHJZR3Gqxm24_Vd_AJ5Yw;tile=1;ssl=1;dc_yt=1;kga=-1;kgg=-1;klg=en;kmyd=ad_creative_1;ytexp=934601,941421,924626,941424,923346,946013,951902;ord=' +Math.floor(Math.random() * 10000000000000000) +'?';iframeEl.id = 'ad_creative_iframe_1';iframeEl.width = '1';iframeEl.height = '1';iframeEl.style.cssText = 'z-index:1;';iframeEl.scrolling = 'no';iframeEl.frameBorder = '0';containerEl.appendChild(iframeEl);iframeEl.src = iframeSrc;}tagMpuIframe();})();</script>
   </div>
 
 
@@ -1079,7 +1093,7 @@ Policy &amp; Safety
 
 
 <div class="hid">    <div id="shared-addto-watch-later-login" class="hid">
-      <a href="https://accounts.google.com/ServiceLogin?service=youtube&hl=en&uilel=3&continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Fhl%3Den%26next%3D%252Fuser%252FPewDiePie%252Fchannels%26feature%3Dplaylist%26app%3Ddesktop%26action_handle_signin%3Dtrue&passive=true" class="sign-in-link">Sign in</a> to add this to Watch Later
+      <a href="https://accounts.google.com/ServiceLogin?service=youtube&hl=en&uilel=3&continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Fhl%3Den%26next%3D%252Fchannel%252F<?php echo $authorId; ?>%252Fchannels%26feature%3Dplaylist%26app%3Ddesktop%26action_handle_signin%3Dtrue&passive=true" class="sign-in-link">Sign in</a> to add this to Watch Later
 
     </div>
   <div id="yt-uix-videoactionmenu-menu" class="yt-ui-menu-content">
@@ -1126,7 +1140,7 @@ Add to
 
 
     
-    yt.setConfig('CHANNEL_ID', "UC-lHJZR3Gqxm24_Vd_AJ5Yw");
+    yt.setConfig('CHANNEL_ID', "<?php echo $authorId; ?>");
     yt.setConfig('JS_PAGE_MODULES', [
       'www/channels',
       ''

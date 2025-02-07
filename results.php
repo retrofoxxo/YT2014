@@ -7,7 +7,7 @@ $searchQ = urlencode($_GET['search_query']);
 if (isset($_GET['page'])) {
 $page = $_GET['page'];
 } else {
-$page = 1;
+$page = "1";
 }
 
 // URL of the file you want to request
@@ -899,10 +899,10 @@ foreach($dataSearch as $key => $search) {
 if ($search['type'] == "video") {
 // Time on vid
 if ($search['lengthSeconds'] > 3600) {
-$length = ltrim(gmdate("H:i:s", $search['lengthSeconds']),"0");
+$length = ltrim(gmdate("H:i:s", $search['lengthSeconds'] - 1),"0");
 } else {
 $lengthM = ltrim(gmdate("i", $search['lengthSeconds']),"0");
-$lengthS = gmdate("s", $search['lengthSeconds']);
+$lengthS = gmdate("s", $search['lengthSeconds'] - 1);
 
 // Prevent things like :48 length
 if ($lengthM == "") {
@@ -938,7 +938,7 @@ echo '<li><div class="yt-lockup yt-lockup-tile yt-lockup-video yt-uix-tile clear
 </a></div><div class="yt-lockup-content"><h3 class="yt-lockup-title"><a href="/watch?v=' . $search['videoId'] . '" class="yt-uix-tile-link yt-ui-ellipsis yt-ui-ellipsis-2 yt-uix-sessionlink spf-link " data-sessionlink="itct=CD4Q3DAYACITCMmRrZ-H5b8CFYkD3Qod8iYAUCj0JFIWZWFnbGUgY2Fkc29mdCB0dXRvcmlhbA" dir="ltr">' . $search['title'] . '</a></h3><div class="yt-lockup-meta"><ul class="yt-lockup-meta-info"><li>by <b><a href="/channel/' . $search['authorId'] . '" class=" yt-uix-sessionlink spf-link  g-hovercard" data-sessionlink="itct=CD4Q3DAYACITCMmRrZ-H5b8CFYkD3Qod8iYAUCj0JA" data-ytid="' . $search['authorId'] . '">' . $search['author'] . '</a></b></li><li>' . $search['publishedText'] . '</li><li>' . number_format($search['viewCount']) . ' views</li></ul></div><div class="yt-lockup-description yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr">' . $search['descriptionHtml'] . '</div><div class="yt-lockup-badges"><ul class="yt-badge-list ">' . $badgeList . '</ul> </div></div></div></li>';
 } else if ($search['type'] == "channel") {
 if ($search['authorVerified'] == true) {
-$verifiedHtml = '<img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-tooltip yt-channel-title-icon-verified yt-sprite" alt="" title="Verified">';
+$verifiedHtml = '<img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-channel-title-icon-verified yt-uix-tooltip yt-sprite" data-tooltip-text="Verified" alt="">';
 } else {
 $verifiedHtml = '';
 }
