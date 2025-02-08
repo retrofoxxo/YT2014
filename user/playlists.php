@@ -973,9 +973,6 @@ Loading...
 
   <ul class="shelf-content clearfix "  data-context-subsource="">
 <?php
-// Include config file
-include('../config.php');
-
 // URL of the file you want to request
 $url = $invidApi . '/api/v1/channels/' . $_GET['id'] . '/playlists';
 
@@ -999,6 +996,11 @@ if (file_exists($cache_file) && (time() - filemtime($cache_file) < $cache_durati
 
 $dataPlay = json_decode($data, true);
 
+if (empty($dataPlay['playlists'])) {
+echo '            <p class="no-content-message">
+This channel doesn\'t have any playlists.
+  </p>';
+} else {
 foreach($dataPlay['playlists'] as $key => $playlist) {
 if ($playlist['videoCount'] > 1) {
 $textS = "s";
@@ -1076,8 +1078,7 @@ Play all
 
       </li>';
 }
-?>
-        <li class="channels-content-item yt-shelf-grid-item yt-uix-shelfslider-item compact-shelf-view-all-card">
+echo '        <li class="channels-content-item yt-shelf-grid-item yt-uix-shelfslider-item compact-shelf-view-all-card">
     <a class="compact-shelf-view-all-card-link yt-valign" href="    /channel/<?php echo $authorId; ?>/playlists?sort=dd&amp;view=1
 "     href=&quot;/channel/<?php echo $authorId; ?>/playlists?sort=dd&amp;view=1&quot; class=&quot; yt-uix-sessionlink spf-link &quot; data-sessionlink=&quot;&quot;
 >
@@ -1092,7 +1093,9 @@ Play all
   </div>
 
 
-        </li>
+        </li>';
+}
+?>
     </ul>
   </div>
 
