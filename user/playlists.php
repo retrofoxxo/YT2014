@@ -953,25 +953,6 @@ Loading...
         <div class="branded-page-v2-primary-col">
           <div class="   yt-card  clearfix">
               <div class="branded-page-v2-body branded-page-v2-primary-column-content" id="gh-overviewtab">
-            <div id="video-page-subnav" class="branded-page-v2-subnav-container branded-page-gutter-padding clearfix">
-
-      <button type="button" id="videos-filter-select" onclick=";return false;" class="subnav-view-menu yt-uix-button yt-uix-button-default yt-uix-button-size-default" data-button-menu-indicate-selected="true" role="button" aria-pressed="false" aria-expanded="false" aria-haspopup="true" aria-activedescendant=""><span class="yt-uix-button-content">All playlists </span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="" class="yt-uix-button-arrow yt-sprite"><ul class=" yt-uix-button-menu yt-uix-button-menu-default" role="menu" aria-haspopup="true" style="display: none;"><li role="menuitem" id="aria-id-53480745331"><span href="/channel/<?php echo $authorId; ?>/playlists?flow=grid&amp;view=1" class=" yt-uix-button-menu-item spf-link" onclick=";yt.window.navigate(this.getAttribute(&#39;href&#39;));return false;" >Created playlists</span></li></ul></button>
-  </div>
-
-      <div id="playlist-page-shelf-content">
-        <div id="c4-shelves-container">
-                  <div class="multirow-shelf shelf-item vve-check branded-page-box yt-section-hover-container"  id= data-sessionlink="ved=CAcQ3BwoAA&amp;ei=rPLWU5eNHsOG-QODx4G4Dw">
-                <h2 class="branded-page-module-title">
-      <a href="/channel/<?php echo $authorId; ?>/playlists?sort=dd&amp;view=1" class="yt-uix-sessionlink branded-page-module-title-link spf-nolink" data-sessionlink="ei=rPLWU5eNHsOG-QODx4G4Dw">
-            <span class="branded-page-module-title-text">
-      <span class="" >Playlists by <?php echo $author; ?></span>
-    </span>
-
-      </a>
-  </h2>
-
-
-  <ul class="shelf-content clearfix "  data-context-subsource="">
 <?php
 // URL of the file you want to request
 $url = $invidApi . '/api/v1/channels/' . $_GET['id'] . '/playlists';
@@ -1001,6 +982,26 @@ echo '            <p class="no-content-message">
 This channel doesn\'t have any playlists.
   </p>';
 } else {
+echo '            <div id="video-page-subnav" class="branded-page-v2-subnav-container branded-page-gutter-padding clearfix">
+
+      <button type="button" id="videos-filter-select" onclick=";return false;" class="subnav-view-menu yt-uix-button yt-uix-button-default yt-uix-button-size-default" data-button-menu-indicate-selected="true" role="button" aria-pressed="false" aria-expanded="false" aria-haspopup="true" aria-activedescendant=""><span class="yt-uix-button-content">All playlists </span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="" class="yt-uix-button-arrow yt-sprite"><ul class=" yt-uix-button-menu yt-uix-button-menu-default" role="menu" aria-haspopup="true" style="display: none;"><li role="menuitem" id="aria-id-53480745331"><span href="/channel/<?php echo $authorId; ?>/playlists?flow=grid&amp;view=1" class=" yt-uix-button-menu-item spf-link" onclick=";yt.window.navigate(this.getAttribute(&#39;href&#39;));return false;" >Created playlists</span></li></ul></button>
+  </div>
+
+      <div id="playlist-page-shelf-content">
+        <div id="c4-shelves-container">
+                  <div class="multirow-shelf shelf-item vve-check branded-page-box yt-section-hover-container"  id= data-sessionlink="ved=CAcQ3BwoAA&amp;ei=rPLWU5eNHsOG-QODx4G4Dw">
+                <h2 class="branded-page-module-title">
+      <a href="/channel/<?php echo $authorId; ?>/playlists?sort=dd&amp;view=1" class="yt-uix-sessionlink branded-page-module-title-link spf-nolink" data-sessionlink="ei=rPLWU5eNHsOG-QODx4G4Dw">
+            <span class="branded-page-module-title-text">
+      <span class="" >Playlists by <?php echo $author; ?></span>
+    </span>
+
+      </a>
+  </h2>
+
+
+  <ul class="shelf-content clearfix "  data-context-subsource="">
+';
 foreach($dataPlay['playlists'] as $key => $playlist) {
 if ($playlist['videoCount'] > 1) {
 $textS = "s";
@@ -1093,11 +1094,11 @@ echo '        <li class="channels-content-item yt-shelf-grid-item yt-uix-shelfsl
   </div>
 
 
-        </li>';
+        </li>
+    </ul>
+  </div>';
 }
 ?>
-    </ul>
-  </div>
 
 
       <button class="yt-uix-button yt-uix-button-size-default yt-uix-button-shelf-slider-pager yt-uix-shelfslider-prev" type="button" onclick=";return false;"><span class="yt-uix-button-content">  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="" class="yt-uix-shelfslider-prev-arrow yt-uix-tooltip yt-sprite" data-tooltip-text="Previous">
