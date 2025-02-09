@@ -983,9 +983,21 @@ echo '            <p class="no-content-message">
 This channel doesn\'t have any video\'s.
   </p>';
 } else {
+if (!isset($_GET['flow']) || $_GET['flow'] == "grid") {
+$gridF = 'yt-uix-button-toggled';
+} else {
+$gridF = '';
+}
+
+if (isset($_GET['flow']) && $_GET['flow'] == "list") {
+$gridL = 'yt-uix-button-toggled';
+} else {
+$gridL = '';
+}
+
 echo '      <div id="video-page-subnav" class="branded-page-v2-subnav-container branded-page-gutter-padding clearfix">
 
-      <span id="content-flow-select" class="yt-uix-button-group subnav-flow-menu" data-button-toggle-group="required"><button class="yt-uix-button yt-uix-button-size-default yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon start yt-uix-button-toggled" type="button" onclick=";window.location.href=this.getAttribute(&#39;href&#39;);return false;" href="/channel/' . $authorId . '/videos?flow=grid&amp;live_view=500&amp;sort=dd&amp;view=0" data-button-toggle="true"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="" class="yt-uix-button-icon yt-uix-button-icon-c4-grid-flow yt-sprite"></span></button><button class="yt-uix-button yt-uix-button-size-default yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon end" type="button" onclick=";window.location.href=this.getAttribute(&#39;href&#39;);return false;" href="/channel/' . $authorId . '/videos?flow=list&amp;live_view=500&amp;sort=dd&amp;view=0" data-button-toggle="true"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="" class="yt-uix-button-icon yt-uix-button-icon-c4-list-flow yt-sprite"></span></button></span>
+      <span id="content-flow-select" class="yt-uix-button-group subnav-flow-menu" data-button-toggle-group="required"><button class="yt-uix-button yt-uix-button-size-default yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon start ' . $gridF . '" type="button" onclick=";window.location.href=this.getAttribute(&#39;href&#39;);return false;" href="/channel/' . $authorId . '/videos?flow=grid&amp;live_view=500&amp;sort=dd&amp;view=0" data-button-toggle="true"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="" class="yt-uix-button-icon yt-uix-button-icon-c4-grid-flow yt-sprite"></span></button><button class="yt-uix-button yt-uix-button-size-default yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon end ' . $gridL . '" type="button" onclick=";window.location.href=this.getAttribute(&#39;href&#39;);return false;" href="/channel/' . $authorId . '/videos?flow=list&amp;live_view=500&amp;sort=dd&amp;view=0" data-button-toggle="true"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="" class="yt-uix-button-icon yt-uix-button-icon-c4-list-flow yt-sprite"></span></button></span>
 
       <button onclick=";return false;" class="subnav-sort-menu yt-uix-button yt-uix-button-default yt-uix-button-size-default" type="button" data-button-menu-indicate-selected="true" role="button" aria-pressed="false" aria-expanded="false" aria-haspopup="true" aria-activedescendant=""><span class="yt-uix-button-content">Date added (newest - oldest) </span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="" class="yt-uix-button-arrow yt-sprite"><ul class=" yt-uix-button-menu yt-uix-button-menu-default" role="menu" aria-haspopup="true" style="display: none;"><li role="menuitem" id="aria-id-17716570702"><span class=" yt-uix-button-menu-item spf-link" onclick=";yt.window.navigate(this.getAttribute(&#39;href&#39;));return false;" href="/channel/<?php echo $authorId; ?>/videos?flow=grid&amp;sort=p&amp;view=0" >Most popular</span></li><li role="menuitem" id="aria-id-23782485576"><span class=" yt-uix-button-menu-item spf-link" onclick=";yt.window.navigate(this.getAttribute(&#39;href&#39;));return false;" href="/channel/' . $authorId . '/videos?flow=grid&amp;sort=da&amp;view=0" >Date added (oldest - newest)</span></li></ul></button>
       <button id="videos-filter-select" onclick=";return false;" class="subnav-view-menu yt-uix-button yt-uix-button-default yt-uix-button-size-default" type="button" data-button-menu-indicate-selected="true" role="button" aria-pressed="false" aria-expanded="false" aria-haspopup="true" aria-activedescendant=""><span class="yt-uix-button-content">Uploads </span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="" class="yt-uix-button-arrow yt-sprite"><ul class=" yt-uix-button-menu yt-uix-button-menu-default" role="menu" aria-haspopup="true" style="display: none;"><li role="menuitem" id="aria-id-44584396395"><span class=" yt-uix-button-menu-item spf-link" onclick=";yt.window.navigate(this.getAttribute(&#39;href&#39;));return false;" href="/channel/' . $authorId . '/videos?flow=grid&amp;view=57" >All videos</span></li><li role="menuitem" id="aria-id-6303377112"><span class=" yt-uix-button-menu-item spf-link" onclick=";yt.window.navigate(this.getAttribute(&#39;href&#39;));return false;" href="/channel/' . $authorId . '/videos?flow=grid&amp;view=2" >Events</span></li><li role="menuitem" id="aria-id-22567526802"><span class=" yt-uix-button-menu-item spf-link" onclick=";yt.window.navigate(this.getAttribute(&#39;href&#39;));return false;" href="/channel/' . $authorId . '/videos?flow=grid&amp;view=15" >Liked videos</span></li></ul></button>
@@ -1010,6 +1022,57 @@ $lengthM = "0";
 $length = $lengthM . ":" . $lengthS;
 }
 
+if (isset($_GET['flow']) && $_GET['flow'] == "list") {
+echo '<li class="expanded-shelf-content-item-wrapper">
+
+
+
+
+    <div class="yt-lockup clearfix expanded-shelf-content-item yt-lockup-video yt-lockup-tile fluid"
+      data-context-item-id="' . $video['videoId'] . '"
+  >
+    <div class="yt-lockup-thumbnail"
+    >
+        <a href="/watch?v=' . $video['videoId'] . '" class="ux-thumb-wrap yt-uix-sessionlink yt-fluid-thumb-link contains-addto  spf-link "  data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CCsQwBs">    <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
+      >
+      <span class="yt-thumb-default">
+        <span class="yt-thumb-clip">
+          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/' . $video['videoId'] . '/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
+          <span class="vertical-align"></span>
+        </span>
+      </span>
+    </span>
+    <span class="video-time">' . $length . '</span>
+
+
+  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-button-menu-id="shared-addto-watch-later-login" data-video-ids="' . $video['videoId'] . '"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
+</a>
+
+    </div>
+    <div class="yt-lockup-content">
+          <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="Sculpturing Kim K&#39;s Butt!" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CCwQvxs" href="/watch?v=' . $video['videoId'] . '">' . $video['title'] . '</a></h3>
+
+  <div class="yt-lockup-meta">
+    <ul class="yt-lockup-meta-info">
+<li>' . $video['publishedText'] . '</li><li>' . number_format($video['viewCount']) . ' views</li>    </ul>
+  </div>
+
+
+      <div class="yt-lockup-description yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr">
+        ' . $video['descriptionHtml'] . '
+    </div>
+
+
+  
+
+  
+
+    </div>
+    
+  </div>
+
+</li>';
+} else {
 echo '    <li class="channels-content-item yt-shelf-grid-item">
         
 
@@ -1060,6 +1123,7 @@ echo '    <li class="channels-content-item yt-shelf-grid-item">
     </li>
 ';
 }
+}
 echo '  </ul>
 
       
@@ -1067,7 +1131,13 @@ echo '  </ul>
 ';
 
 if (isset($dataVids['continuation'])) {
-echo '    <button class="yt-uix-button yt-uix-button-size-default yt-uix-button-default load-more-button yt-uix-load-more browse-items-load-more-button" type="button" onclick=";return false;" data-uix-load-more-href="/c4_browse_ajax?action_load_more_videos=1&amp;flow=grid&amp;sort=dd&amp;channel_id=' . $authorId . '&amp;continuation=' . $dataVids['continuation'] . '&amp;view=0&amp;fluid=True" data-uix-load-more-target-id="channels-browse-content-grid"><span class="yt-uix-button-content">  <span class="load-more-loading hid">
+if (isset($_GET['flow']) && $_GET['flow'] == "list") {
+$flow = 'list';
+} else {
+$flow = 'grid';
+}
+
+echo '    <button class="yt-uix-button yt-uix-button-size-default yt-uix-button-default load-more-button yt-uix-load-more browse-items-load-more-button" type="button" onclick=";return false;" data-uix-load-more-href="/c4_browse_ajax?action_load_more_videos=1&amp;flow=' . $flow . '&amp;sort=dd&amp;channel_id=' . $authorId . '&amp;continuation=' . $dataVids['continuation'] . '&amp;view=0&amp;fluid=True" data-uix-load-more-target-id="channels-browse-content-grid"><span class="yt-uix-button-content">  <span class="load-more-loading hid">
       <span class="yt-spinner">
       <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="Loading icon" class="yt-spinner-img yt-sprite">
 
