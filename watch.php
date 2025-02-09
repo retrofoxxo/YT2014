@@ -73,7 +73,7 @@ $words = $words . $wordsText . ", ";
 }
 
 if (!empty($dataVid['captions'])) {
-$captionsSup = '"ttsurl": "http:\/\/www.youtube.com\/api\/timedtext?expire=1406706763\u0026v=' . $_GET['v'] .'\u0026asr_langs=de%2Cko%2Cja%2Cen%2Cfr%2Ces%2Cru%2Cit%2Cnl%2Cpt\u0026signature=829D3B02F8C32A0637C1BFBF676DD67598C5387B.A8BF4FEF375145168DF3BED826CE4158E85F3EFA\u0026sparams=asr_langs%2Ccaps%2Cv%2Cexpire\u0026caps=asr\u0026hl=en_US\u0026key=yttt1", ';
+$captionsSup = '"ttsurl": "\/api\/timedtext?expire=1406706763\u0026v=' . $_GET['v'] . '\u0026asr_langs=de%2Cko%2Cja%2Cen%2Cfr%2Ces%2Cru%2Cit%2Cnl%2Cpt\u0026signature=829D3B02F8C32A0637C1BFBF676DD67598C5387B.A8BF4FEF375145168DF3BED826CE4158E85F3EFA\u0026sparams=asr_langs%2Ccaps%2Cv%2Cexpire\u0026caps=asr\u0026hl=en_US\u0026key=yttt1", ';
 } else {
 $captionsSup = '';
 }
@@ -938,7 +938,7 @@ Add to
       'HL_LOCALE': "en_US",
 <?php
 if (!empty($dataVid['captions'])) {
-echo '      \'TTS_URL\': "http:\/\/www.youtube.com\/api\/timedtext?expire=1406706763\u0026v=' . $_GET['v'] . '\u0026asr_langs=de%2Cko%2Cja%2Cen%2Cfr%2Ces%2Cru%2Cit%2Cnl%2Cpt\u0026signature=829D3B02F8C32A0637C1BFBF676DD67598C5387B.A8BF4FEF375145168DF3BED826CE4158E85F3EFA\u0026sparams=asr_langs%2Ccaps%2Cv%2Cexpire\u0026caps=asr\u0026hl=en_US\u0026key=yttt1",';
+echo '      \'TTS_URL\': "\/api\/timedtext?expire=1406706763\u0026v=' . $_GET['v'] . '\u0026asr_langs=de%2Cko%2Cja%2Cen%2Cfr%2Ces%2Cru%2Cit%2Cnl%2Cpt\u0026signature=829D3B02F8C32A0637C1BFBF676DD67598C5387B.A8BF4FEF375145168DF3BED826CE4158E85F3EFA\u0026sparams=asr_langs%2Ccaps%2Cv%2Cexpire\u0026caps=asr\u0026hl=en_US\u0026key=yttt1",';
 }
 ?>
       'JS_DELAY_LOAD': 0,
