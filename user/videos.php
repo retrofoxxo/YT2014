@@ -32,7 +32,7 @@ $authorId = $dataChan['authorId'];
 if (isset($dataChan['authorBanners'][0]['url'])) {
 $authorBanner = $dataChan['authorBanners'][0]['url'];
 } else {
-$authorBanner = "";
+$authorBanner = "//s.ytimg.com/yts/img/channels/c4/default_banner-vfl7DRgTn.png";
 }
 
 $authorThumb = $dataChan['authorThumbnails'][3]['url'];
@@ -1064,8 +1064,10 @@ echo '  </ul>
 
       
 
+';
 
-    <button class="yt-uix-button yt-uix-button-size-default yt-uix-button-default load-more-button yt-uix-load-more browse-items-load-more-button" type="button" onclick=";return false;" data-uix-load-more-href="/c4_browse_ajax?action_load_more_videos=1&amp;flow=grid&amp;sort=dd&amp;channel_id=' . $authorId . '&amp;paging=2&amp;view=0&amp;fluid=True" data-uix-load-more-target-id="channels-browse-content-grid"><span class="yt-uix-button-content">  <span class="load-more-loading hid">
+if (isset($dataVids['continuation'])) {
+echo '    <button class="yt-uix-button yt-uix-button-size-default yt-uix-button-default load-more-button yt-uix-load-more browse-items-load-more-button" type="button" onclick=";return false;" data-uix-load-more-href="/c4_browse_ajax?action_load_more_videos=1&amp;flow=grid&amp;sort=dd&amp;channel_id=' . $authorId . '&amp;continuation=' . $dataVids['continuation'] . '&amp;view=0&amp;fluid=True" data-uix-load-more-target-id="channels-browse-content-grid"><span class="yt-uix-button-content">  <span class="load-more-loading hid">
       <span class="yt-spinner">
       <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" alt="Loading icon" class="yt-spinner-img yt-sprite">
 
@@ -1080,6 +1082,7 @@ Load more
 
 
 ';
+}
 }
 ?>
     </div>

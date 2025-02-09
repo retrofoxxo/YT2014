@@ -32,7 +32,7 @@ $authorId = $dataChan['authorId'];
 if (isset($dataChan['authorBanners'][0]['url'])) {
 $authorBanner = $dataChan['authorBanners'][0]['url'];
 } else {
-$authorBanner = "";
+$authorBanner = "//s.ytimg.com/yts/img/channels/c4/default_banner-vfl7DRgTn.png";
 }
 
 $authorThumb = $dataChan['authorThumbnails'][3]['url'];
