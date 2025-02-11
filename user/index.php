@@ -1,4 +1,57 @@
+<?php
+// Include config file
+include('../config.php');
 
+// URL of the file you want to request
+$url = $invidApi . '/api/v1/channels/' . $_GET['id'];
+
+// Cache file path
+$cache_file = '../cache/channels/' . $_GET['id'] . '-main.json';
+
+// Cache duration in seconds (24 hours)
+$cache_duration = 24 * 60 * 60;
+
+// Check if cache file exists and is still valid
+if (file_exists($cache_file) && (time() - filemtime($cache_file) < $cache_duration)) {
+    // Read data from cache
+    $data = file_get_contents($cache_file);
+} else {
+    // Fetch data from URL
+    $data = file_get_contents($url);
+
+    // Save data to cache file
+    file_put_contents($cache_file, $data);
+}
+
+$dataChan = json_decode($data, true);
+
+$author = $dataChan['author'];
+$authorId = $dataChan['authorId'];
+
+//Handle fallback
+if (isset($dataChan['authorBanners'][0]['url'])) {
+$authorBanner = $dataChan['authorBanners'][0]['url'];
+} else {
+$authorBanner = "//s.ytimg.com/yts/img/channels/c4/default_banner-vfl7DRgTn.png";
+}
+
+$authorThumb = $dataChan['authorThumbnails'][3]['url'];
+$subCount = number_format($dataChan['subCount']);
+$descriptionRaw = str_replace("\n", " ", $dataChan['description']);
+
+if ($dataChan['authorVerified'] == true) {
+$verifiedHtml = '<a class="qualified-channel-title-badge" target="_blank" href="//support.google.com/youtube/bin/answer.py?answer=3046484&amp;hl=en"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-channel-title-icon-verified yt-uix-tooltip yt-sprite" data-tooltip-text="Verified" alt=""></a>';
+} else {
+$verifiedHtml = '';
+}
+
+// Handle Tags
+$words = "";
+
+foreach($dataChan['tags'] as $key => $wordsText) {
+$words = $words . $wordsText . ", ";
+}
+?>
     <!DOCTYPE html><html lang="en" data-cast-api-enabled="true"><head><script>var ytcsi = {gt: function(n) {n = (n || '') + 'data_';return ytcsi[n] || (ytcsi[n] = {tick: {},span: {},info: {}});},tick: function(l, t, n) {ytcsi.gt(n).tick[l] = t || +new Date();},span: function(l, s, n) {ytcsi.gt(n).span[l] = (typeof s == 'number') ? s :+new Date() - ytcsi.data_.tick[l];},info: function(k, v, n) {ytcsi.gt(n).info[k] = v;}};ytcsi.perf = window.performance || window.mozPerformance ||window.msPerformance || window.webkitPerformance;ytcsi.tick('_start', ytcsi.perf ? ytcsi.perf.timing.responseStart : null);if (document.webkitVisibilityState == 'prerender') {ytcsi.info('prerender', 1);document.addEventListener('webkitvisibilitychange', function() {ytcsi.tick('_start');}, false);}</script>  <script>
     try {window.ytbuffer = {};ytbuffer.handleClick = function(e) {var element = e.target || e.srcElement;while (element.parentElement) {if (element.className.match(/(^| )yt-can-buffer( |$)/)) {window.ytbuffer = {bufferedClick: e};element.className += ' yt-is-buffered';break;}element = element.parentElement;}};if (document.addEventListener) {document.addEventListener('click', ytbuffer.handleClick);} else {document.attachEvent('onclick', ytbuffer.handleClick);}} catch(e) {}
     (function(){function a(b,g,k){var h=document.getElementsByTagName("html")[0],e=[h.className];b&&1251<=(window.innerWidth||document.documentElement.clientWidth)&&(e.push("guide-pinned"),g&&e.push("show-guide"));k&&(b=(window.innerWidth||document.documentElement.clientWidth)-21-50,1251<=(window.innerWidth||document.documentElement.clientWidth)&&g&&(b-=230),e.push(" ",1262<=b?"content-snap-width-3":1056<=b?"content-snap-width-2":"content-snap-width-1"));h.className=e.join(" ")}
@@ -16,27 +69,27 @@ yt.www.masthead.sizing.runBeforeBodyIsReady(true,true,true);
 <script>if (window.ytcsi) {window.ytcsi.tick("ce", null, '');}</script>  
 
     
-<title>PewDiePie - YouTube</title><link rel="search" type="application/opensearchdescription+xml" href="http://www.youtube.com/opensearch?locale=en_US" title="YouTube Video Search"><link rel="shortcut icon" href="https://s.ytimg.com/yts/img/favicon-vfldLzJxy.ico" type="image/x-icon">     <link rel="icon" href="//s.ytimg.com/yts/img/favicon_32-vflWoMFGx.png" sizes="32x32"><link rel="canonical" href="http://www.youtube.com/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw"><link rel="alternate" media="handheld" href="https://m.youtube.com/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw?"><link rel="alternate" media="only screen and (max-width: 640px)" href="https://m.youtube.com/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw?">    <meta name="title" content="PewDiePie">
+<title><?php echo $author; ?> - YouTube</title><link rel="search" type="application/opensearchdescription+xml" href="http://www.youtube.com/opensearch?locale=en_US" title="YouTube Video Search"><link rel="shortcut icon" href="https://s.ytimg.com/yts/img/favicon-vfldLzJxy.ico" type="image/x-icon">     <link rel="icon" href="//s.ytimg.com/yts/img/favicon_32-vflWoMFGx.png" sizes="32x32"><link rel="canonical" href="http://www.youtube.com/channel/<?php echo $authorId; ?>"><link rel="alternate" media="handheld" href="https://m.youtube.com/channel/<?php echo $authorId; ?>?"><link rel="alternate" media="only screen and (max-width: 640px)" href="https://m.youtube.com/channel/<?php echo $authorId; ?>?">    <meta name="title" content="<?php echo $author; ?>">
 
-    <meta name="description" content="Businessy stuff: business dot pewdiepie at gmail dot com">
+    <meta name="description" content="<?php echo $descriptionRaw; ?>">
 
-<meta name="keywords" content="Pewdiepie pewds pewdie slender amnesia &quot;happy wheels&quot; &quot;the last of us&quot; &quot;last of us&quot; &quot;walking dead&quot; &quot;the walking dead&quot; deadpool gameplay walkthrough playthrough &quot;let&#39;s play&quot;">    <link rel="image_src" href="https://yt3.ggpht.com/-rJq9gk1QIis/AAAAAAAAAAI/AAAAAAAAAAA/Kx4wkvKOfxY/s48-c-k-no/photo.jpg">
-    <link rel="alternate" type="application/rss+xml" title="RSS" href="http://gdata.youtube.com/feeds/base/users/PewDiePie/uploads?alt=rss&amp;v=2&amp;orderby=published&amp;client=ytapi-youtube-profile">
+<meta name="keywords" content="<?php echo $words; ?>">    <link rel="image_src" href="<?php echo $authorThumb; ?>">
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="http://gdata.youtube.com/feeds/base/channel/<?php echo $authorId; ?>/uploads?alt=rss&amp;v=2&amp;orderby=published&amp;client=ytapi-youtube-profile">
     <link rel="publisher" href="https://plus.google.com/117663191659499528404">
           <meta property="og:site_name" content="YouTube">
-    <meta property="og:url" content="http://www.youtube.com/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw">
-    <meta property="og:title" content="PewDiePie">
-    <meta property="og:image" content="https://yt3.ggpht.com/-rJq9gk1QIis/AAAAAAAAAAI/AAAAAAAAAAA/Kx4wkvKOfxY/s900-c-k-no/photo.jpg">
+    <meta property="og:url" content="http://www.youtube.com/channel/<?php echo $authorId; ?>">
+    <meta property="og:title" content="<?php echo $author; ?>">
+    <meta property="og:image" content="<?php echo $authorThumb; ?>">
 
-      <meta property="og:description" content="Businessy stuff: business dot pewdiepie at gmail dot com">
+      <meta property="og:description" content="<?php echo $descriptionRaw; ?>">
 
     <meta property="al:ios:app_store_id" content="544007664">
     <meta property="al:ios:app_name" content="YouTube">
-      <meta property="al:ios:url" content="vnd.youtube://user/UC-lHJZR3Gqxm24_Vd_AJ5Yw">
-    <meta property="al:android:url" content="http://www.youtube.com/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw?feature=applinks">
+      <meta property="al:ios:url" content="vnd.youtube://user/<?php echo $authorId; ?>">
+    <meta property="al:android:url" content="http://www.youtube.com/channel/<?php echo $authorId; ?>?feature=applinks">
     <meta property="al:android:app_name" content="YouTube">
     <meta property="al:android:package" content="com.google.android.youtube">
-    <meta property="al:web:url" content="http://www.youtube.com/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw?feature=applinks">
+    <meta property="al:web:url" content="http://www.youtube.com/channel/<?php echo $authorId; ?>?feature=applinks">
 
     <meta property="og:type" content="profile">
 
@@ -44,38 +97,38 @@ yt.www.masthead.sizing.runBeforeBodyIsReady(true,true,true);
 
       <meta name="twitter:card" content="summary">
     <meta name="twitter:site" content="@youtube">
-    <meta name="twitter:url" content="http://www.youtube.com/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw">
-    <meta name="twitter:title" content="PewDiePie">
-    <meta name="twitter:description" content="Businessy stuff: business dot pewdiepie at gmail dot com">
-    <meta name="twitter:image" content="https://yt3.ggpht.com/-rJq9gk1QIis/AAAAAAAAAAI/AAAAAAAAAAA/Kx4wkvKOfxY/s900-c-k-no/photo.jpg">
+    <meta name="twitter:url" content="http://www.youtube.com/channel/<?php echo $authorId; ?>">
+    <meta name="twitter:title" content="<?php echo $author; ?>">
+    <meta name="twitter:description" content="<?php echo $descriptionRaw; ?>">
+    <meta name="twitter:image" content="<?php echo $authorThumb; ?>">
     <meta name="twitter:app:name:iphone" content="YouTube">
     <meta name="twitter:app:id:iphone" content="544007664">
     <meta name="twitter:app:name:ipad" content="YouTube">
     <meta name="twitter:app:id:ipad" content="544007664">
-      <meta name="twitter:app:url:iphone" content="vnd.youtube://user/UC-lHJZR3Gqxm24_Vd_AJ5Yw">
-      <meta name="twitter:app:url:ipad" content="vnd.youtube://user/UC-lHJZR3Gqxm24_Vd_AJ5Yw">
+      <meta name="twitter:app:url:iphone" content="vnd.youtube://user/<?php echo $authorId; ?>">
+      <meta name="twitter:app:url:ipad" content="vnd.youtube://user/<?php echo $authorId; ?>">
     <meta name="twitter:app:name:googleplay" content="YouTube">
     <meta name="twitter:app:id:googleplay" content="com.google.android.youtube">
-    <meta name="twitter:app:url:googleplay" content="http://www.youtube.com/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw">
+    <meta name="twitter:app:url:googleplay" content="http://www.youtube.com/channel/<?php echo $authorId; ?>">
 
-      <link itemprop="url" href="http://www.youtube.com/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw">
-    <meta itemprop="name" content="PewDiePie">
-    <meta itemprop="description" content="Businessy stuff: business dot pewdiepie at gmail dot com">
+      <link itemprop="url" href="http://www.youtube.com/channel/<?php echo $authorId; ?>">
+    <meta itemprop="name" content="<?php echo $author; ?>">
+    <meta itemprop="description" content="<?php echo $descriptionRaw; ?>">
     <meta itemprop="paid" content="False">
 
-      <meta itemprop="channelId" content="UC-lHJZR3Gqxm24_Vd_AJ5Yw">
+      <meta itemprop="channelId" content="<?php echo $authorId; ?>">
 
 
         <span itemprop="author" itemscope itemtype="http://schema.org/Person">
-          <link itemprop="url" href="http://www.youtube.com/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw">
+          <link itemprop="url" href="http://www.youtube.com/channel/<?php echo $authorId; ?>">
         </span>
         <span itemprop="author" itemscope itemtype="http://schema.org/Person">
           <link itemprop="url" href="https://plus.google.com/117663191659499528404">
         </span>
 
-    <link itemprop="thumbnailUrl" href="https://yt3.ggpht.com/-rJq9gk1QIis/AAAAAAAAAAI/AAAAAAAAAAA/Kx4wkvKOfxY/s900-c-k-no/photo.jpg">
+    <link itemprop="thumbnailUrl" href="<?php echo $authorThumb; ?>">
     <span itemprop="thumbnail" itemscope itemtype="http://schema.org/ImageObject">
-      <link itemprop="url" href="https://yt3.ggpht.com/-rJq9gk1QIis/AAAAAAAAAAI/AAAAAAAAAAA/Kx4wkvKOfxY/s900-c-k-no/photo.jpg">
+      <link itemprop="url" href="<?php echo $authorThumb; ?>">
       <meta itemprop="width" content="900">
       <meta itemprop="height" content="900">
     </span>
@@ -85,24 +138,24 @@ yt.www.masthead.sizing.runBeforeBodyIsReady(true,true,true);
       <meta itemprop="regionsAllowed" content="AD,AE,AF,AG,AI,AL,AM,AO,AQ,AR,AS,AT,AU,AW,AX,AZ,BA,BB,BD,BE,BF,BG,BH,BI,BJ,BL,BM,BN,BO,BQ,BR,BS,BT,BV,BW,BY,BZ,CA,CC,CD,CF,CG,CH,CI,CK,CL,CM,CN,CO,CR,CU,CV,CW,CX,CY,CZ,DE,DJ,DK,DM,DO,DZ,EC,EE,EG,EH,ER,ES,ET,FI,FJ,FK,FM,FO,FR,GA,GB,GD,GE,GF,GG,GH,GI,GL,GM,GN,GP,GQ,GR,GS,GT,GU,GW,GY,HK,HM,HN,HR,HT,HU,ID,IE,IL,IM,IN,IO,IQ,IR,IS,IT,JE,JM,JO,JP,KE,KG,KH,KI,KM,KN,KP,KR,KW,KY,KZ,LA,LB,LC,LI,LK,LR,LS,LT,LU,LV,LY,MA,MC,MD,ME,MF,MG,MH,MK,ML,MM,MN,MO,MP,MQ,MR,MS,MT,MU,MV,MW,MX,MY,MZ,NA,NC,NE,NF,NG,NI,NL,NO,NP,NR,NU,NZ,OM,PA,PE,PF,PG,PH,PK,PL,PM,PN,PR,PS,PT,PW,PY,QA,RE,RO,RS,RU,RW,SA,SB,SC,SD,SE,SG,SH,SI,SJ,SK,SL,SM,SN,SO,SR,SS,ST,SV,SX,SY,SZ,TC,TD,TF,TG,TH,TJ,TK,TL,TM,TN,TO,TR,TT,TV,TW,TZ,UA,UG,UM,US,UY,UZ,VA,VC,VE,VG,VI,VN,VU,WF,WS,YE,YT,ZA,ZM,ZW">
 
   <div id="watch-container" itemid="" itemscope itemtype="http://schema.org/YoutubeChannelV2">
-        <link itemprop="url" href="http://www.youtube.com/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw">
-    <meta itemprop="name" content="PewDiePie">
-    <meta itemprop="description" content="Businessy stuff: business dot pewdiepie at gmail dot com">
+        <link itemprop="url" href="http://www.youtube.com/channel/<?php echo $authorId; ?>">
+    <meta itemprop="name" content="<?php echo $author; ?>">
+    <meta itemprop="description" content="<?php echo $descriptionRaw; ?>">
     <meta itemprop="paid" content="False">
 
-      <meta itemprop="channelId" content="UC-lHJZR3Gqxm24_Vd_AJ5Yw">
+      <meta itemprop="channelId" content="<?php echo $authorId; ?>">
 
 
         <span itemprop="author" itemscope itemtype="http://schema.org/Person">
-          <link itemprop="url" href="http://www.youtube.com/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw">
+          <link itemprop="url" href="http://www.youtube.com/channel/<?php echo $authorId; ?>">
         </span>
         <span itemprop="author" itemscope itemtype="http://schema.org/Person">
           <link itemprop="url" href="https://plus.google.com/117663191659499528404">
         </span>
 
-    <link itemprop="thumbnailUrl" href="https://yt3.ggpht.com/-rJq9gk1QIis/AAAAAAAAAAI/AAAAAAAAAAA/Kx4wkvKOfxY/s900-c-k-no/photo.jpg">
+    <link itemprop="thumbnailUrl" href="<?php echo $authorThumb; ?>">
     <span itemprop="thumbnail" itemscope itemtype="http://schema.org/ImageObject">
-      <link itemprop="url" href="https://yt3.ggpht.com/-rJq9gk1QIis/AAAAAAAAAAI/AAAAAAAAAAA/Kx4wkvKOfxY/s900-c-k-no/photo.jpg">
+      <link itemprop="url" href="<?php echo $authorThumb; ?>">
       <meta itemprop="width" content="900">
       <meta itemprop="height" content="900">
     </span>
@@ -113,7 +166,7 @@ yt.www.masthead.sizing.runBeforeBodyIsReady(true,true,true);
 
   </div>
 
-      <div class="cmt_iframe_holder" data-href="http://www.youtube.com/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw" data-viewtype="FILTERED" style="display: none;"></div>
+      <div class="cmt_iframe_holder" data-href="http://www.youtube.com/channel/<?php echo $authorId; ?>" data-viewtype="FILTERED" style="display: none;"></div>
 
 
   <link rel="stylesheet" href="//s.ytimg.com/yts/cssbin/www-pageframe-vflF__vZT.css" name="www-pageframe">
@@ -138,19 +191,19 @@ yt.www.masthead.sizing.runBeforeBodyIsReady(true,true,true);
     </div>
   </div>
   <div id="appbar-main-guide-notification-container"></div>
-</div><div id="yt-masthead-signin"><span id="appbar-onebar-upload-group"><a href="//www.youtube.com/upload" class="yt-uix-button   yt-uix-sessionlink yt-uix-button-default yt-uix-button-size-default" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=mhsb" id="upload-btn"><span class="yt-uix-button-content">Upload </span></a></span><button class="yt-uix-button yt-uix-button-size-default yt-uix-button-primary" type="button" onclick=";window.location.href=this.getAttribute(&#39;href&#39;);return false;" href="https://accounts.google.com/ServiceLogin?hl=en&amp;service=youtube&amp;uilel=3&amp;continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Fhl%3Den%26next%3D%252Fuser%252FPewDiePie%26feature%3Dsign_in_button%26app%3Ddesktop%26action_handle_signin%3Dtrue&amp;passive=true"><span class="yt-uix-button-content">Sign in </span></button></div><div id="yt-masthead-content"><form id="masthead-search" class="search-form consolidated-form" action="/results" onsubmit="if (_gel(&#39;masthead-search-term&#39;).value == &#39;&#39;) return false;"><button class="yt-uix-button yt-uix-button-size-default yt-uix-button-default search-btn-component search-button" type="submit" onclick="if (_gel(&#39;masthead-search-term&#39;).value == &#39;&#39;) return false; _gel(&#39;masthead-search&#39;).submit(); return false;;return true;" dir="ltr" tabindex="2" id="search-btn"><span class="yt-uix-button-content">Search </span></button><div id="masthead-search-terms" class="masthead-search-terms-border" dir="ltr"><label><input id="masthead-search-term" autocomplete="off"  class="search-term yt-uix-form-input-bidi" name="search_query" value="" type="text" tabindex="1" title="Search"></label></div></form></div></div></div>
+</div><div id="yt-masthead-signin"><span id="appbar-onebar-upload-group"><a href="//www.youtube.com/upload" class="yt-uix-button   yt-uix-sessionlink yt-uix-button-default yt-uix-button-size-default" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=mhsb" id="upload-btn"><span class="yt-uix-button-content">Upload </span></a></span><button class="yt-uix-button yt-uix-button-size-default yt-uix-button-primary" type="button" onclick=";window.location.href=this.getAttribute(&#39;href&#39;);return false;" href="https://accounts.google.com/ServiceLogin?hl=en&amp;service=youtube&amp;uilel=3&amp;continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Fhl%3Den%26next%3D%252Fchannel%252F<?php echo $authorId; ?>%26feature%3Dsign_in_button%26app%3Ddesktop%26action_handle_signin%3Dtrue&amp;passive=true"><span class="yt-uix-button-content">Sign in </span></button></div><div id="yt-masthead-content"><form id="masthead-search" class="search-form consolidated-form" action="/results" onsubmit="if (_gel(&#39;masthead-search-term&#39;).value == &#39;&#39;) return false;"><button class="yt-uix-button yt-uix-button-size-default yt-uix-button-default search-btn-component search-button" type="submit" onclick="if (_gel(&#39;masthead-search-term&#39;).value == &#39;&#39;) return false; _gel(&#39;masthead-search&#39;).submit(); return false;;return true;" dir="ltr" tabindex="2" id="search-btn"><span class="yt-uix-button-content">Search </span></button><div id="masthead-search-terms" class="masthead-search-terms-border" dir="ltr"><label><input id="masthead-search-term" autocomplete="off"  class="search-term yt-uix-form-input-bidi" name="search_query" value="" type="text" tabindex="1" title="Search"></label></div></form></div></div></div>
     <div id="masthead-appbar-container" class="clearfix"><div id="masthead-appbar"><div id="appbar-content" class="    appbar-content-hidden">      <div id="appbar-nav" class="appbar-content-hidable">
-  <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw">
-    <img class="appbar-nav-avatar" src="https://yt3.ggpht.com/-rJq9gk1QIis/AAAAAAAAAAI/AAAAAAAAAAA/Kx4wkvKOfxY/s100-c-k-no/photo.jpg" title="PewDiePie" alt="PewDiePie" height="23" width="23">
+  <a href="/channel/<?php echo $authorId; ?>">
+    <img class="appbar-nav-avatar" src="<?php echo $authorThumb; ?>" title="<?php echo $author; ?>" alt="<?php echo $author; ?>" height="23" width="23">
   </a>
 <ul class="appbar-nav-menu"><li>    <h2 class="epic-nav-item-heading ">
-      PewDiePie
+      <?php echo $author; ?>
     </h2>
-</li><li>    <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw/videos" class="yt-uix-button   spf-link yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;ved=CAMQwy0oAQ"><span class="yt-uix-button-content">Videos </span></a>
-</li><li>    <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw/playlists" class="yt-uix-button   spf-link yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;ved=CAQQwy0oAg"><span class="yt-uix-button-content">Playlists </span></a>
-</li><li>    <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw/channels" class="yt-uix-button   spf-link yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;ved=CAUQwy0oAw"><span class="yt-uix-button-content">Channels </span></a>
-</li><li>    <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw/discussion" class="yt-uix-button   spf-link yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;ved=CAYQwy0oBA"><span class="yt-uix-button-content">Discussion </span></a>
-</li><li>    <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw/about" class="yt-uix-button   spf-link yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;ved=CAcQwy0oBQ"><span class="yt-uix-button-content">About </span></a>
+</li><li>    <a href="/channel/<?php echo $authorId; ?>/videos" class="yt-uix-button   spf-link yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;ved=CAMQwy0oAQ"><span class="yt-uix-button-content">Videos </span></a>
+</li><li>    <a href="/channel/<?php echo $authorId; ?>/playlists" class="yt-uix-button   spf-link yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;ved=CAQQwy0oAg"><span class="yt-uix-button-content">Playlists </span></a>
+</li><li>    <a href="/channel/<?php echo $authorId; ?>/channels" class="yt-uix-button   spf-link yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;ved=CAUQwy0oAw"><span class="yt-uix-button-content">Channels </span></a>
+</li><li>    <a href="/channel/<?php echo $authorId; ?>/discussion" class="yt-uix-button   spf-link yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;ved=CAYQwy0oBA"><span class="yt-uix-button-content">Discussion </span></a>
+</li><li>    <a href="/channel/<?php echo $authorId; ?>/about" class="yt-uix-button   spf-link yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;ved=CAcQwy0oBQ"><span class="yt-uix-button-content">About </span></a>
 </li></ul>  </div>
 
 </div></div></div>
@@ -534,7 +587,7 @@ yt.www.masthead.sizing.runBeforeBodyIsReady(true,true,true);
       Sign in now to see your channels and recommendations!
     </p>
     <div id="guide-builder-promo-buttons" class="signed-out clearfix">
-      <a href="https://accounts.google.com/ServiceLogin?hl=en&amp;service=youtube&amp;uilel=3&amp;continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Fhl%3Den%26next%3D%252Fuser%252FPewDiePie%26feature%3Dsign_in_promo%26app%3Ddesktop%26action_handle_signin%3Dtrue&amp;passive=true" class="yt-uix-button   yt-uix-sessionlink yt-uix-button-primary yt-uix-button-size-default" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA"><span class="yt-uix-button-content">Sign In </span></a>
+      <a href="https://accounts.google.com/ServiceLogin?hl=en&amp;service=youtube&amp;uilel=3&amp;continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Fhl%3Den%26next%3D%252Fchannel%252F<?php echo $authorId; ?>%26feature%3Dsign_in_promo%26app%3Ddesktop%26action_handle_signin%3Dtrue&amp;passive=true" class="yt-uix-button   yt-uix-sessionlink yt-uix-button-primary yt-uix-button-size-default" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA"><span class="yt-uix-button-content">Sign In </span></a>
     </div>
   </li>
 
@@ -760,19 +813,19 @@ yt.www.masthead.sizing.runBeforeBodyIsReady(true,true,true);
     <div id="gh-banner">
           <style>
       #c4-header-bg-container {
-      background-image: url(//i.ytimg.com/u/-lHJZR3Gqxm24_Vd_AJ5Yw/channels4_banner.jpg?v=513b5e90);
+      background-image: url(<?php echo $authorBanner; ?>);
   }
 
 
   @media screen and (-webkit-min-device-pixel-ratio: 1.5),
          screen and (min-resolution: 1.5dppx) {
 #c4-header-bg-container {
-        background-image: url(//i.ytimg.com/u/-lHJZR3Gqxm24_Vd_AJ5Yw/channels4_banner_hd.jpg?v=513b5e90);
+        background-image: url(<?php echo $authorBanner; ?>);
     }
   }
 
 #c4-header-bg-container .hd-banner-image {
-      background-image: url(//i.ytimg.com/u/-lHJZR3Gqxm24_Vd_AJ5Yw/channels4_banner_hd.jpg?v=513b5e90);
+      background-image: url(<?php echo $authorBanner; ?>);
   }
 
     </style>
@@ -783,50 +836,12 @@ yt.www.masthead.sizing.runBeforeBodyIsReady(true,true,true);
     </div>
     
       <div id="header-links">
-      <ul class="about-network-links">
-            <li class="channel-links-item">
-    <a href="https://plus.google.com/117663191659499528404" rel="me nofollow" target="_blank" title="" class="about-channel-link yt-uix-redirect-link about-channel-link-with-icon">
-        <img src="//s2.googleusercontent.com/s2/favicons?feature=youtube_channel&amp;domain=plus.google.com" class="about-channel-link-favicon" alt="" width="16" height="16">
-    </a>
-  </li>
-
-            <li class="channel-links-item">
-    <a href="http://www.facebook.com/PewDiePie" rel="me nofollow" target="_blank" title="" class="about-channel-link yt-uix-redirect-link about-channel-link-with-icon">
-        <img src="//s2.googleusercontent.com/s2/favicons?feature=youtube_channel&amp;domain=www.facebook.com" class="about-channel-link-favicon" alt="" width="16" height="16">
-    </a>
-  </li>
-
-            <li class="channel-links-item">
-    <a href="http://www.twitter.com/pewdiepie" rel="me nofollow" target="_blank" title="" class="about-channel-link yt-uix-redirect-link about-channel-link-with-icon">
-        <img src="//s2.googleusercontent.com/s2/favicons?feature=youtube_channel&amp;domain=www.twitter.com" class="about-channel-link-favicon" alt="" width="16" height="16">
-    </a>
-  </li>
-
-            <li class="channel-links-item">
-    <a href="http://pewdiepie.spreadshirt.com/" rel="me nofollow" target="_blank" title="" class="about-channel-link yt-uix-redirect-link about-channel-link-with-icon">
-        <img src="//s2.googleusercontent.com/s2/favicons?feature=youtube_channel&amp;domain=pewdiepie.spreadshirt.com" class="about-channel-link-favicon" alt="" width="16" height="16">
-    </a>
-  </li>
-
-      </ul>
-
-      <ul class="about-custom-links">
-            <li class="channel-links-item">
-    <a href="http://bit.ly/JoinBroArmy" rel="me nofollow" target="_blank" title="BECOME A BRO" class="about-channel-link yt-uix-redirect-link about-channel-link-with-icon">
-        <img src="//s2.googleusercontent.com/s2/favicons?feature=youtube_channel&amp;domain=bit.ly" class="about-channel-link-favicon" alt="" width="16" height="16">
-        <span class="about-channel-link-text">
-          BECOME A BRO
-        </span>
-    </a>
-  </li>
-
-      </ul>
   </div>
 
 
 
-          <a class="channel-header-profile-image-container spf-link" href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw">
-      <img class="channel-header-profile-image" src="https://yt3.ggpht.com/-rJq9gk1QIis/AAAAAAAAAAI/AAAAAAAAAAA/Kx4wkvKOfxY/s100-c-k-no/photo.jpg" title="PewDiePie" alt="PewDiePie">
+          <a class="channel-header-profile-image-container spf-link" href="/channel/<?php echo $authorId; ?>">
+      <img class="channel-header-profile-image" src="<?php echo $authorThumb; ?>" title="<?php echo $author; ?>" alt="<?php echo $author; ?>">
     </a>
 
   </div>
@@ -836,7 +851,7 @@ yt.www.masthead.sizing.runBeforeBodyIsReady(true,true,true);
   <div class="">
       <div class="primary-header-contents clearfix" id="c4-primary-header-contents">
     <div class="primary-header-actions clearfix">
-                <span class="channel-header-subscription-button-container yt-uix-button-subscription-container with-preferences" ><button class="yt-uix-button yt-uix-button-size-default yt-uix-button-subscribe-branded yt-uix-button-has-icon yt-uix-subscription-button yt-can-buffer" type="button" onclick=";return false;" aria-busy="false" aria-live="polite" aria-role="button" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=channels4&amp;ved=CMQBEJsr" data-style-type="branded" data-href="https://accounts.google.com/ServiceLogin?hl=en&amp;service=youtube&amp;uilel=3&amp;continue=http%3A%2F%2Fwww.youtube.com%2Fsignin%3Fhl%3Den%26next%3D%252Fchannel%252FUC-lHJZR3Gqxm24_Vd_AJ5Yw%26app%3Ddesktop%26continue_action%3DQUFFLUhqbUxJbjZTMkQ3QnBoeU5jdk1EbkdwUU1PZEkwUXxBQ3Jtc0tuVDVvdllKN0VZZzlFY3BlVVJyeFdYRkNxdUVZSml2eXdGZm5SVnFCYWJCTUh1N1ZVdDdPaU9xaHMycHhDVk5RUlZpRWNPTURNeWc4T2lrRnY1WV9IT0JXTFhUaU1qc1JBdUd4MW1veUpIUmU3emQwNUdsY0RjdXdPcDc2R1VMSU9OZDNldUdLS2ltMDJfRVJoR3pNM0UyRy16VzdMbG1PUEtNV3hqSjZPN1A1OTBMQjl0eUdjNWdKSmtGOWo3c1hFNTdOZmc%253D%26feature%3Dsubscribe%26action_handle_signin%3Dtrue&amp;passive=true" data-channel-external-id="UC-lHJZR3Gqxm24_Vd_AJ5Yw"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-subscribe yt-sprite" alt=""></span><span class="yt-uix-button-content"><span class="subscribe-label" aria-label="Subscribe">Subscribe</span><span class="subscribed-label" aria-label="Unsubscribe">Subscribed</span><span class="unsubscribe-label" aria-label="Unsubscribe">Unsubscribe</span> </span></button><button class="yt-uix-button yt-uix-button-size-default yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon yt-uix-subscription-preferences-button" type="button" onclick=";return false;" data-channel-external-id="UC-lHJZR3Gqxm24_Vd_AJ5Yw"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-subscription-preferences yt-sprite" alt=""></span></button><span class="yt-subscription-button-subscriber-count-branded-horizontal subscribed" title="29,062,349">29,062,349</span>  <span class="yt-subscription-button-disabled-mask" title=""></span>
+                <span class="channel-header-subscription-button-container yt-uix-button-subscription-container with-preferences" ><button class="yt-uix-button yt-uix-button-size-default yt-uix-button-subscribe-branded yt-uix-button-has-icon yt-uix-subscription-button yt-can-buffer" type="button" onclick=";return false;" aria-busy="false" aria-live="polite" aria-role="button" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=channels4&amp;ved=CMQBEJsr" data-style-type="branded" data-href="https://accounts.google.com/ServiceLogin?hl=en&amp;service=youtube&amp;uilel=3&amp;continue=http%3A%2F%2Fwww.youtube.com%2Fsignin%3Fhl%3Den%26next%3D%252Fchannel%252F<?php echo $authorId; ?>%26app%3Ddesktop%26continue_action%3DQUFFLUhqbUxJbjZTMkQ3QnBoeU5jdk1EbkdwUU1PZEkwUXxBQ3Jtc0tuVDVvdllKN0VZZzlFY3BlVVJyeFdYRkNxdUVZSml2eXdGZm5SVnFCYWJCTUh1N1ZVdDdPaU9xaHMycHhDVk5RUlZpRWNPTURNeWc4T2lrRnY1WV9IT0JXTFhUaU1qc1JBdUd4MW1veUpIUmU3emQwNUdsY0RjdXdPcDc2R1VMSU9OZDNldUdLS2ltMDJfRVJoR3pNM0UyRy16VzdMbG1PUEtNV3hqSjZPN1A1OTBMQjl0eUdjNWdKSmtGOWo3c1hFNTdOZmc%253D%26feature%3Dsubscribe%26action_handle_signin%3Dtrue&amp;passive=true" data-channel-external-id="<?php echo $authorId; ?>"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-subscribe yt-sprite" alt=""></span><span class="yt-uix-button-content"><span class="subscribe-label" aria-label="Subscribe">Subscribe</span><span class="subscribed-label" aria-label="Unsubscribe">Subscribed</span><span class="unsubscribe-label" aria-label="Unsubscribe">Unsubscribe</span> </span></button><button class="yt-uix-button yt-uix-button-size-default yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon yt-uix-subscription-preferences-button" type="button" onclick=";return false;" data-channel-external-id="<?php echo $authorId; ?>"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-subscription-preferences yt-sprite" alt=""></span></button><span class="yt-subscription-button-subscriber-count-branded-horizontal subscribed" title="<?php echo $subCount; ?>"><?php echo $subCount; ?></span>  <span class="yt-subscription-button-disabled-mask" title=""></span>
   
   <div class="yt-uix-overlay " data-overlay-style="primary"data-overlay-shape="tiny">
     
@@ -896,7 +911,7 @@ Loading...
 
     </div>
     <h1 class="branded-page-header-title">
-      <span class="qualified-channel-title ellipsized has-badge"><span class="qualified-channel-title-wrapper"><span dir="ltr" class="qualified-channel-title-text" ><a dir="ltr" href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw" class="spf-link branded-page-header-title-link yt-uix-sessionlink" title="PewDiePie" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA"      >PewDiePie</a></span></span><a target="_blank" class="qualified-channel-title-badge" href="//support.google.com/youtube/bin/answer.py?answer=3046484&amp;hl=en"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Verified" class="yt-channel-title-icon-verified yt-uix-tooltip yt-sprite" alt=""></a></span>
+      <span class="qualified-channel-title ellipsized has-badge"><span class="qualified-channel-title-wrapper"><span dir="ltr" class="qualified-channel-title-text" ><a dir="ltr" href="/channel/<?php echo $authorId; ?>" class="spf-link branded-page-header-title-link yt-uix-sessionlink" title="<?php echo $author; ?>" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA"      ><?php echo $author; ?></a></span></span><?php echo $verifiedHtml; ?></span>
     </h1>
   </div>
 
@@ -906,22 +921,22 @@ Loading...
           <h2 class="epic-nav-item-heading ">Home</h2>
         </li>
         <li>
-          <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw/videos" class="yt-uix-button  spf-link  yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA"><span class="yt-uix-button-content">Videos </span></a>
+          <a href="/channel/<?php echo $authorId; ?>/videos" class="yt-uix-button  spf-link  yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA"><span class="yt-uix-button-content">Videos </span></a>
         </li>
         <li>
-          <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw/playlists" class="yt-uix-button  spf-link  yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA"><span class="yt-uix-button-content">Playlists </span></a>
+          <a href="/channel/<?php echo $authorId; ?>/playlists" class="yt-uix-button  spf-link  yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA"><span class="yt-uix-button-content">Playlists </span></a>
         </li>
         <li>
-          <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw/channels" class="yt-uix-button  spf-link  yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA"><span class="yt-uix-button-content">Channels </span></a>
+          <a href="/channel/<?php echo $authorId; ?>/channels" class="yt-uix-button  spf-link  yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA"><span class="yt-uix-button-content">Channels </span></a>
         </li>
         <li>
-          <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw/discussion" class="yt-uix-button  spf-link  yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA"><span class="yt-uix-button-content">Discussion </span></a>
+          <a href="/channel/<?php echo $authorId; ?>/discussion" class="yt-uix-button  spf-link  yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA"><span class="yt-uix-button-content">Discussion </span></a>
         </li>
         <li>
-          <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw/about" class="yt-uix-button  spf-link  yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA"><span class="yt-uix-button-content">About </span></a>
+          <a href="/channel/<?php echo $authorId; ?>/about" class="yt-uix-button  spf-link  yt-uix-sessionlink yt-uix-button-epic-nav-item yt-uix-button-size-default" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA"><span class="yt-uix-button-content">About </span></a>
         </li>
         <li>
-          <div id="channel-search" ><label class="show-search epic-nav-item secondary-nav" for="channels-search-field"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="epic-nav-item-heading-icon yt-sprite" alt=""></label><form class="search-form epic-nav-item secondary-nav"action="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw/search"method="get"><span class=" yt-uix-form-input-container yt-uix-form-input-text-container ">    <input class="yt-uix-form-input-text search-field" name="query" id="channels-search-field" type="text" placeholder="Search Channel" maxlength="100" autocomplete="off">
+          <div id="channel-search" ><label class="show-search epic-nav-item secondary-nav" for="channels-search-field"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="epic-nav-item-heading-icon yt-sprite" alt=""></label><form class="search-form epic-nav-item secondary-nav"action="/channel/<?php echo $authorId; ?>/search"method="get"><span class=" yt-uix-form-input-container yt-uix-form-input-text-container ">    <input class="yt-uix-form-input-text search-field" name="query" id="channels-search-field" type="text" placeholder="Search Channel" maxlength="100" autocomplete="off">
 </span></form></div>
         </li>
     </ul>
@@ -945,56 +960,16 @@ Loading...
       <div class="c4-spotlight-module  yt-section-hover-container">
       <div class="c4-spotlight-module-component upsell">
           
-  <div class="upsell-video-container yt-section-hover-container">
-          <div class="video-player-view-component branded-page-box">
-    <div class="video-content clearfix ">
-        <div class="c4-player-container  c4-flexible-player-container">
-      <div class="c4-flexible-height-setter"></div>
-      <div id="upsell-video" class="c4-flexible-player-box" data-video-id="MkXVM6ad9nI" data-swf-config="{&amp;quot;html5&amp;quot;: false, &amp;quot;url_v8&amp;quot;: &amp;quot;https:\/\/s.ytimg.com\/yts\/swfbin\/player-vflSotbD3\/cps.swf&amp;quot;, &amp;quot;url_v9as2&amp;quot;: &amp;quot;https:\/\/s.ytimg.com\/yts\/swfbin\/player-vflSotbD3\/cps.swf&amp;quot;, &amp;quot;min_version&amp;quot;: &amp;quot;8.0.0&amp;quot;, &amp;quot;assets&amp;quot;: {&amp;quot;css&amp;quot;: &amp;quot;\/\/s.ytimg.com\/yts\/cssbin\/www-player-vfl_UOZc_.css&amp;quot;, &amp;quot;js&amp;quot;: &amp;quot;\/\/s.ytimg.com\/yts\/jsbin\/html5player-en_US-vflCGk6yw\/html5player.js&amp;quot;, &amp;quot;html&amp;quot;: &amp;quot;\/html5_player_template&amp;quot;}, &amp;quot;url&amp;quot;: &amp;quot;https:\/\/s.ytimg.com\/yts\/swfbin\/player-vflSotbD3\/watch_as3.swf&amp;quot;, &amp;quot;sts&amp;quot;: 16275, &amp;quot;params&amp;quot;: {&amp;quot;allowscriptaccess&amp;quot;: &amp;quot;always&amp;quot;, &amp;quot;allowfullscreen&amp;quot;: &amp;quot;true&amp;quot;, &amp;quot;bgcolor&amp;quot;: &amp;quot;#000000&amp;quot;}, &amp;quot;attrs&amp;quot;: {&amp;quot;id&amp;quot;: &amp;quot;c4-player&amp;quot;}, &amp;quot;args&amp;quot;: {&amp;quot;vid&amp;quot;: &amp;quot;MkXVM6ad9nI&amp;quot;, &amp;quot;iv_module&amp;quot;: &amp;quot;https:\/\/s.ytimg.com\/yts\/swfbin\/player-vflSotbD3\/iv_module.swf&amp;quot;, &amp;quot;allow_ratings&amp;quot;: 1, &amp;quot;avg_rating&amp;quot;: 4.95448479273, &amp;quot;ttsurl&amp;quot;: &amp;quot;https:\/\/www.youtube.com\/api\/timedtext?asr_langs=es%2Cnl%2Cit%2Cfr%2Cru%2Cpt%2Cja%2Cen%2Cko%2Cde\u0026caps=asr\u0026hl=en_US\u0026signature=5659403732B6912DF14B97CB7B2E50D75106EEC4.BB8FFD83B3FB1ECAAA21E4E5E8B2A0C0EEC40E4F\u0026v=MkXVM6ad9nI\u0026key=yttt1\u0026sparams=asr_langs%2Ccaps%2Cv%2Cexpire\u0026expire=1406628687&amp;quot;, &amp;quot;allow_embed&amp;quot;: 1, &amp;quot;plid&amp;quot;: &amp;quot;AAT_TGU0srkR_wa4&amp;quot;, &amp;quot;iurlhq&amp;quot;: &amp;quot;https:\/\/i.ytimg.com\/vi\/MkXVM6ad9nI\/hqdefault.jpg&amp;quot;, &amp;quot;ps&amp;quot;: &amp;quot;default&amp;quot;, &amp;quot;timestamp&amp;quot;: 1406603487, &amp;quot;fexp&amp;quot;: &amp;quot;902408,908555,911305,924222,927622,934024,934030,937407,944312,946011,948200&amp;quot;, &amp;quot;eurl&amp;quot;: &amp;quot;http:\/\/www.youtube.com\/user\/PewDiePie&amp;quot;, &amp;quot;cc3_module&amp;quot;: &amp;quot;1&amp;quot;, &amp;quot;eventid&amp;quot;: &amp;quot;3xDXU5-cDciS-gOdqILYDA&amp;quot;, &amp;quot;baseUrl&amp;quot;: &amp;quot;https:\/\/googleads.g.doubleclick.net\/pagead\/viewthroughconversion\/962985656\/&amp;quot;, &amp;quot;quality_cap&amp;quot;: &amp;quot;highres&amp;quot;, &amp;quot;is_purchased&amp;quot;: false, &amp;quot;iv_load_policy&amp;quot;: 1, &amp;quot;token&amp;quot;: &amp;quot;vjVQa1PpcFPgG4fJmHREMpZfEFOMqyV_K_T9WiCpm38=&amp;quot;, &amp;quot;is_video_preview&amp;quot;: false, &amp;quot;iurlmq&amp;quot;: &amp;quot;https:\/\/i.ytimg.com\/vi\/MkXVM6ad9nI\/mqdefault.jpg&amp;quot;, &amp;quot;ss&amp;quot;: false, &amp;quot;aid&amp;quot;: &amp;quot;P8nR0u7zuRQ&amp;quot;, &amp;quot;hl&amp;quot;: &amp;quot;en_US&amp;quot;, &amp;quot;autohide&amp;quot;: &amp;quot;1&amp;quot;, &amp;quot;track_embed&amp;quot;: 1, &amp;quot;rmktPingThreshold&amp;quot;: 0, &amp;quot;use_cipher_signature&amp;quot;: false, &amp;quot;focEnabled&amp;quot;: &amp;quot;1&amp;quot;, &amp;quot;dashmpd&amp;quot;: &amp;quot;http:\/\/manifest.googlevideo.com\/api\/manifest\/dash\/id\/o-ADgcnIHNnW22nZf7aQlkTK2VMa2AyASI87EzylnjZ4bt\/as\/fmp4_audio_clear%2Cwebm_audio_clear%2Cfmp4_sd_hd_clear%2Cwebm_sd_hd_clear%2Cwebm2_sd_hd_clear\/sver\/3\/mt\/1406603385\/signature\/B8B113BC5342F7F360BD6DBA5EAAF6E4CE7FDAD1.3D39C2308610A58938F47E93251A4ACB8831C4D5\/playback_host\/r5---sn-nwj7knl7.googlevideo.com\/mws\/yes\/ipbits\/0\/ms\/au\/itag\/0\/fexp\/902408%2C908555%2C911305%2C924222%2C927622%2C934024%2C934030%2C937407%2C944312%2C946011%2C948200\/gcr\/us\/source\/youtube\/key\/yt5\/mm\/31\/ip\/207.241.229.190\/sparams\/as%2Cgcr%2Cid%2Cip%2Cipbits%2Citag%2Cplayback_host%2Csource%2Cexpire\/expire\/1406625087\/upn\/ghmlne_uKaA\/mv\/m&amp;quot;, &amp;quot;ptk&amp;quot;: &amp;quot;thegamestation&amp;quot;, &amp;quot;width&amp;quot;: &amp;quot;360&amp;quot;, &amp;quot;cc_module&amp;quot;: &amp;quot;https:\/\/s.ytimg.com\/yts\/swfbin\/player-vflSotbD3\/subtitle_module.swf&amp;quot;, &amp;quot;uid&amp;quot;: &amp;quot;-lHJZR3Gqxm24_Vd_AJ5Yw&amp;quot;, &amp;quot;status&amp;quot;: &amp;quot;ok&amp;quot;, &amp;quot;enablejsapi&amp;quot;: 1, &amp;quot;length_seconds&amp;quot;: 636, &amp;quot;iurl&amp;quot;: &amp;quot;https:\/\/i.ytimg.com\/vi\/MkXVM6ad9nI\/hqdefault.jpg&amp;quot;, &amp;quot;idpj&amp;quot;: &amp;quot;-9&amp;quot;, &amp;quot;iv_invideo_url&amp;quot;: &amp;quot;https:\/\/www.youtube.com\/annotations_invideo?cap_hist=1\u0026cta=2\u0026video_id=MkXVM6ad9nI&amp;quot;, &amp;quot;iurlsd&amp;quot;: &amp;quot;https:\/\/i.ytimg.com\/vi\/MkXVM6ad9nI\/sddefault.jpg&amp;quot;, &amp;quot;no_get_video_log&amp;quot;: &amp;quot;1&amp;quot;, &amp;quot;tmi&amp;quot;: &amp;quot;1&amp;quot;, &amp;quot;keywords&amp;quot;: &amp;quot;pewdiepie,pewdie,pewds,let&amp;#39;s play,playthrough,walkthrough,play,walk,through,walk through,video games,montage,funny montage&amp;quot;, &amp;quot;has_cc&amp;quot;: true, &amp;quot;author&amp;quot;: &amp;quot;PewDiePie&amp;quot;, &amp;quot;delay&amp;quot;: &amp;quot;9&amp;quot;, &amp;quot;cr&amp;quot;: &amp;quot;US&amp;quot;, &amp;quot;rel&amp;quot;: 0, &amp;quot;rmktEnabled&amp;quot;: &amp;quot;1&amp;quot;, &amp;quot;muted&amp;quot;: &amp;quot;0&amp;quot;, &amp;quot;cc_asr&amp;quot;: 1, &amp;quot;autoplay&amp;quot;: &amp;quot;1&amp;quot;, &amp;quot;iv3_module&amp;quot;: &amp;quot;1&amp;quot;, &amp;quot;vq&amp;quot;: &amp;quot;auto&amp;quot;, &amp;quot;showinfo&amp;quot;: &amp;quot;0&amp;quot;, &amp;quot;account_playback_token&amp;quot;: &amp;quot;QUFFLUhqbmlTNlpva2dTZ3VXb1FQbm5ZZmNVdEdrSG5Vd3xBQ3Jtc0trcExENTlkdG9lejcwYlVTdmpPSmFxakF4YTlkekR2aGZnWUZ2NmliWUVXXzlsNDBIM0NFTDc0TmlqVWhyTTNjcGFWcnY4dkRTaWtnalNGOXVfMm50TEdURW5mNFBjOEZTY0ZuUXlPMm9zUVpoVUdWQQ==&amp;quot;, &amp;quot;dash&amp;quot;: &amp;quot;1&amp;quot;, &amp;quot;cc_font&amp;quot;: &amp;quot;Arial Unicode MS, arial, verdana, _sans&amp;quot;, &amp;quot;el&amp;quot;: &amp;quot;profilepage&amp;quot;, &amp;quot;height&amp;quot;: &amp;quot;203&amp;quot;, &amp;quot;ytfocEnabled&amp;quot;: &amp;quot;1&amp;quot;, &amp;quot;thumbnail_url&amp;quot;: &amp;quot;https:\/\/i.ytimg.com\/vi\/MkXVM6ad9nI\/default.jpg&amp;quot;, &amp;quot;view_count&amp;quot;: 20230845, &amp;quot;ldpj&amp;quot;: &amp;quot;-16&amp;quot;, &amp;quot;ptchn&amp;quot;: &amp;quot;-lHJZR3Gqxm24_Vd_AJ5Yw&amp;quot;, &amp;quot;fmt_list&amp;quot;: &amp;quot;22\/1280x720\/9\/0\/115,43\/640x360\/99\/0\/0,18\/640x360\/9\/0\/115,5\/320x240\/7\/0\/0,36\/320x240\/99\/1\/0,17\/176x144\/99\/1\/0&amp;quot;, &amp;quot;iurlmaxres&amp;quot;: &amp;quot;https:\/\/i.ytimg.com\/vi\/MkXVM6ad9nI\/maxresdefault.jpg&amp;quot;, &amp;quot;watermark&amp;quot;: &amp;quot;,https:\/\/s.ytimg.com\/yts\/img\/watermark\/youtube_watermark-vflHX6b6E.png,https:\/\/s.ytimg.com\/yts\/img\/watermark\/youtube_hd_watermark-vflAzLcD6.png&amp;quot;, &amp;quot;oid&amp;quot;: &amp;quot;LXruUYJFkVEM_5Wkyw42-Q&amp;quot;, &amp;quot;referrer&amp;quot;: &amp;quot;http:\/\/www.nbcnews.com\/storyline\/slender-man-stabbing&amp;quot;, &amp;quot;url_encoded_fmt_stream_map&amp;quot;: &amp;quot;itag=22\u0026type=video%2Fmp4%3B+codecs%3D%22avc1.64001F%2C+mp4a.40.2%22\u0026fallback_host=tc.v15.cache5.googlevideo.com\u0026quality=hd720\u0026url=http%3A%2F%2Fr5---sn-nwj7knl7.googlevideo.com%2Fvideoplayback%3Fmm%3D31%26ipbits%3D0%26ms%3Dau%26itag%3D22%26initcwndbps%3D5275000%26mv%3Dm%26mt%3D1406603385%26pm_type%3Dstatic%26id%3Do-ADgcnIHNnW22nZf7aQlkTK2VMa2AyASI87EzylnjZ4bt%26sparams%3Did%252Cinitcwndbps%252Cip%252Cipbits%252Citag%252Cpbr%252Cpfa%252Cpm_type%252Cratebypass%252Csource%252Cupn%252Cexpire%26fexp%3D902408%252C908555%252C911305%252C924222%252C927622%252C934024%252C934030%252C937407%252C944312%252C946011%252C948200%26pfa%3D5s%26expire%3D1406625087%26ratebypass%3Dyes%26signature%3D7345219F772E647AF7C84FC05313D92749A4B154.9258E0DAF87A3634F37F3327FF236F76DB90A494%26pbr%3Dyes%26source%3Dyoutube%26ip%3D207.241.229.190%26key%3Dyt5%26upn%3DGEecBNNnhhw%26mws%3Dyes%26sver%3D3,itag=43\u0026type=video%2Fwebm%3B+codecs%3D%22vp8.0%2C+vorbis%22\u0026fallback_host=tc.v12.cache4.googlevideo.com\u0026quality=medium\u0026url=http%3A%2F%2Fr5---sn-nwj7knl7.googlevideo.com%2Fvideoplayback%3Fmm%3D31%26ipbits%3D0%26ms%3Dau%26itag%3D43%26initcwndbps%3D5275000%26mv%3Dm%26mt%3D1406603385%26pm_type%3Dstatic%26id%3Do-ADgcnIHNnW22nZf7aQlkTK2VMa2AyASI87EzylnjZ4bt%26sparams%3Did%252Cinitcwndbps%252Cip%252Cipbits%252Citag%252Cpbr%252Cpfa%252Cpm_type%252Cratebypass%252Csource%252Cupn%252Cexpire%26fexp%3D902408%252C908555%252C911305%252C924222%252C927622%252C934024%252C934030%252C937407%252C944312%252C946011%252C948200%26pfa%3D5s%26expire%3D1406625087%26ratebypass%3Dyes%26signature%3DF49944ED105B287BD759DD40929B88AE268CA6D4.887565F4873B7441F4E431F917484A97B79149C2%26pbr%3Dyes%26source%3Dyoutube%26ip%3D207.241.229.190%26key%3Dyt5%26upn%3DGEecBNNnhhw%26mws%3Dyes%26sver%3D3,itag=18\u0026type=video%2Fmp4%3B+codecs%3D%22avc1.42001E%2C+mp4a.40.2%22\u0026fallback_host=tc.v14.cache3.googlevideo.com\u0026quality=medium\u0026url=http%3A%2F%2Fr5---sn-nwj7knl7.googlevideo.com%2Fvideoplayback%3Fmm%3D31%26ipbits%3D0%26ms%3Dau%26itag%3D18%26initcwndbps%3D5275000%26mv%3Dm%26mt%3D1406603385%26pm_type%3Dstatic%26id%3Do-ADgcnIHNnW22nZf7aQlkTK2VMa2AyASI87EzylnjZ4bt%26sparams%3Did%252Cinitcwndbps%252Cip%252Cipbits%252Citag%252Cpbr%252Cpfa%252Cpm_type%252Cratebypass%252Csource%252Cupn%252Cexpire%26fexp%3D902408%252C908555%252C911305%252C924222%252C927622%252C934024%252C934030%252C937407%252C944312%252C946011%252C948200%26pfa%3D5s%26expire%3D1406625087%26ratebypass%3Dyes%26signature%3D7EE8F117DD0FA252249FF00F523B111E7CB080A7.3DFB57FAD377E7AD9015914CF1FB292AED55DF1F%26pbr%3Dyes%26source%3Dyoutube%26ip%3D207.241.229.190%26key%3Dyt5%26upn%3DGEecBNNnhhw%26mws%3Dyes%26sver%3D3,itag=5\u0026type=video%2Fx-flv\u0026fallback_host=tc.v3.cache7.googlevideo.com\u0026quality=small\u0026url=http%3A%2F%2Fr5---sn-nwj7knl7.googlevideo.com%2Fvideoplayback%3Fid%3Do-ADgcnIHNnW22nZf7aQlkTK2VMa2AyASI87EzylnjZ4bt%26sver%3D3%26pbr%3Dyes%26signature%3DCEEEC685ADF0C6BC3C7D5CFAF6C7D8DBE82A73B9.28A105EB3D5C3B9F482A7FC4D459056B4286146C%26mt%3D1406603385%26mws%3Dyes%26ipbits%3D0%26ms%3Dau%26itag%3D5%26initcwndbps%3D5275000%26fexp%3D902408%252C908555%252C911305%252C924222%252C927622%252C934024%252C934030%252C937407%252C944312%252C946011%252C948200%26mv%3Dm%26pfa%3D5s%26source%3Dyoutube%26key%3Dyt5%26pm_type%3Dstatic%26mm%3D31%26ip%3D207.241.229.190%26sparams%3Did%252Cinitcwndbps%252Cip%252Cipbits%252Citag%252Cpbr%252Cpfa%252Cpm_type%252Csource%252Cupn%252Cexpire%26expire%3D1406625087%26upn%3DGEecBNNnhhw,itag=36\u0026type=video%2F3gpp%3B+codecs%3D%22mp4v.20.3%2C+mp4a.40.2%22\u0026fallback_host=tc.v10.cache6.googlevideo.com\u0026quality=small\u0026url=http%3A%2F%2Fr5---sn-nwj7knl7.googlevideo.com%2Fvideoplayback%3Fid%3Do-ADgcnIHNnW22nZf7aQlkTK2VMa2AyASI87EzylnjZ4bt%26sver%3D3%26pbr%3Dyes%26signature%3D76DA917463F950588C009D8DA4B65D723612011A.83055A4F9A54A9432BBC4104919818E18EA1579C%26mt%3D1406603385%26mws%3Dyes%26ipbits%3D0%26ms%3Dau%26itag%3D36%26initcwndbps%3D5275000%26fexp%3D902408%252C908555%252C911305%252C924222%252C927622%252C934024%252C934030%252C937407%252C944312%252C946011%252C948200%26mv%3Dm%26pfa%3D5s%26source%3Dyoutube%26key%3Dyt5%26pm_type%3Dstatic%26mm%3D31%26ip%3D207.241.229.190%26sparams%3Did%252Cinitcwndbps%252Cip%252Cipbits%252Citag%252Cpbr%252Cpfa%252Cpm_type%252Csource%252Cupn%252Cexpire%26expire%3D1406625087%26upn%3DGEecBNNnhhw,itag=17\u0026type=video%2F3gpp%3B+codecs%3D%22mp4v.20.3%2C+mp4a.40.2%22\u0026fallback_host=tc.v23.cache3.googlevideo.com\u0026quality=small\u0026url=http%3A%2F%2Fr5---sn-nwj7knl7.googlevideo.com%2Fvideoplayback%3Fid%3Do-ADgcnIHNnW22nZf7aQlkTK2VMa2AyASI87EzylnjZ4bt%26sver%3D3%26pbr%3Dyes%26signature%3DAFA777F6DF27524F50E8C48140292A484B0D5735.556C42E13FB67C870E201F091476AB6C58366D%26mt%3D1406603385%26mws%3Dyes%26ipbits%3D0%26ms%3Dau%26itag%3D17%26initcwndbps%3D5275000%26fexp%3D902408%252C908555%252C911305%252C924222%252C927622%252C934024%252C934030%252C937407%252C944312%252C946011%252C948200%26mv%3Dm%26pfa%3D5s%26source%3Dyoutube%26key%3Dyt5%26pm_type%3Dstatic%26mm%3D31%26ip%3D207.241.229.190%26sparams%3Did%252Cinitcwndbps%252Cip%252Cipbits%252Citag%252Cpbr%252Cpfa%252Cpm_type%252Csource%252Cupn%252Cexpire%26expire%3D1406625087%26upn%3DGEecBNNnhhw&amp;quot;, &amp;quot;pltype&amp;quot;: &amp;quot;content&amp;quot;, &amp;quot;ssl&amp;quot;: &amp;quot;1&amp;quot;, &amp;quot;video_id&amp;quot;: &amp;quot;MkXVM6ad9nI&amp;quot;}}">
-  </div>
 
-  </div>
 
-        <div class="video-detail">
-      <h3 class="title">
-        <a href="/watch?v=MkXVM6ad9nI" title="FUNNY MONTAGE.. #2" class="yt-uix-sessionlink yt-ui-ellipsis yt-ui-ellipsis-2  spf-link " data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview">
-          FUNNY MONTAGE.. #2
-        </a>
-      </h3>
-      <div class="view-count">
-        <span class="count">
-          20,230,845 views
-        </span>
-          <span class="content-item-time-created">
-            3 months ago
-          </span>
-      </div>
-      <div class="description yt-uix-expander yt-uix-expander-ellipsis yt-ui-ellipsis-10 yt-uix-expander-collapsed">
-        <div class="yt-ui-ellipsis yt-ui-ellipsis-10" >
-          More montages ► <a href="http://bit.ly/MontagesPewDiePie" target="_blank" title="http://bit.ly/MontagesPewDiePie" rel="nofollow" dir="ltr" class="yt-uix-redirect-link">http://bit.ly/MontagesPewDi...</a><br />Click Here To Subscribe! ► <a href="http://bit.ly/JoinBroArmy" target="_blank" title="http://bit.ly/JoinBroArmy" rel="nofollow" dir="ltr" class="yt-uix-redirect-link">http://bit.ly/JoinBroArmy</a><br /><br />Like my headphones? <br /><a href="http://rzr.to/QhxzU" target="_blank" title="http://rzr.to/QhxzU" rel="nofollow" dir="ltr" class="yt-uix-redirect-link">http://rzr.to/QhxzU</a><br /><br />Website ► <a href="http://bit.ly/PewDiePieNet" target="_blank" title="http://bit.ly/PewDiePieNet" rel="nofollow" dir="ltr" class="yt-uix-redirect-link">http://bit.ly/PewDiePieNet</a><br />Facebook ► <a href="http://facebook.com/pewdiepie" target="_blank" title="http://facebook.com/pewdiepie" rel="nofollow" dir="ltr" class="yt-uix-redirect-link">http://facebook.com/pewdiepie</a><br />Twitter ► <a href="https://twitter.com/pewdiepie" target="_blank" title="https://twitter.com/pewdiepie" rel="nofollow" dir="ltr" class="yt-uix-redirect-link">https://twitter.com/pewdiepie</a><br />Awesome PewDiePie merch<br />► Newest collection! <a href="http://bit.ly/TshirtsPewdiepie" target="_blank" title="http://bit.ly/TshirtsPewdiepie" rel="nofollow" dir="ltr" class="yt-uix-redirect-link">http://bit.ly/TshirtsPewdiepie</a><br />► <a href="http://pewdiepie.spreadshirt.com/" target="_blank" title="http://pewdiepie.spreadshirt.com/" rel="nofollow" dir="ltr" class="yt-uix-redirect-link">http://pewdiepie.spreadshir...</a> (EU+US)<br />------------------------------<wbr>&shy;-------------<br />Please:<br />Respect each other in the comments. <br /><br />Thanks for all your support bros, rating the video and leaving a comment<br />is always appreciated! <br />...........<br />...................__<br />............./´¯/&#39;...&#39;/´¯¯`·¸<br />........../&#39;/.../..../......./<wbr>&shy;¨¯\<br />........(&#39;(...´...´.... ¯~/&#39;...&#39;)<br />.........\.................&#39;..<wbr>&shy;.../<br />..........&#39;&#39;...\.......... _.·´<br />............\..............(<br />BROFIST ...........
-          <a class="yt-uix-expander-head">
-Show less
-          </a>
-        </div>
-        <a class="yt-uix-expander-head">
-Read more
-        </a>
-      </div>
-  </div>
 
-      <div class="video-content-info">
-      </div>
-    </div>
-  </div>
-
-  </div>
 
       </div>
   </div>
 
       <div id="c4-shelves-container">
                 <div class="expanded-shelf shelf-item vve-check branded-page-box yt-section-hover-container"  id="" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;ved=CCYQ3BwoAA"><div >        <h2 class="branded-page-module-title">
-      <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw/videos?view=0&amp;shelf_id=0&amp;sort=dd" class="yt-uix-sessionlink branded-page-module-title-link spf-nolink" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA">
+      <a href="/channel/<?php echo $authorId; ?>/videos?view=0&amp;shelf_id=0&amp;sort=dd" class="yt-uix-sessionlink branded-page-module-title-link spf-nolink" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA">
             <span class="branded-page-module-title-text">
       <span class="" >Uploads</span>
     </span>
@@ -1004,43 +979,88 @@ Read more
 
   </h2>
 
-</div><ul class="expanded-shelf-content-list clearfix has-multiple-items"><li class="expanded-shelf-content-item-wrapper">
+</div><ul class="expanded-shelf-content-list clearfix has-multiple-items"><?php
+// URL of the file you want to request
+$url = $invidApi . '/api/v1/channels/' . $_GET['id'] . '/videos';
+
+// Cache file path
+$cache_file = '../cache/channels/' . $_GET['id'] . '-videos.json';
+
+// Cache duration in seconds (24 hours)
+$cache_duration = 24 * 60 * 60;
+
+// Check if cache file exists and is still valid
+if (file_exists($cache_file) && (time() - filemtime($cache_file) < $cache_duration)) {
+    // Read data from cache
+    $data = file_get_contents($cache_file);
+} else {
+    // Fetch data from URL
+    $data = file_get_contents($url);
+
+    // Save data to cache file
+    file_put_contents($cache_file, $data);
+}
+
+$dataVids = json_decode($data, true);
+
+if (empty($dataVids['videos'])) {
+echo '            <p class="no-content-message">
+This channel doesn\'t have any video\'s.
+  </p>';
+} else {
+foreach($dataVids['videos'] as $key => $video) {
+// Time on vid
+if ($video['lengthSeconds'] > 3600) {
+$length = ltrim(gmdate("H:i:s", $video['lengthSeconds'] - 1),"0");
+} else {
+$lengthM = ltrim(gmdate("i", $video['lengthSeconds']),"0");
+$lengthS = gmdate("s", $video['lengthSeconds'] - 1);
+
+// Prevent things like :48 length
+if ($lengthM == "") {
+$lengthM = "0";
+}
+
+$length = $lengthM . ":" . $lengthS;
+}
+
+echo '<li class="expanded-shelf-content-item-wrapper">
 
 
 
 
     <div class="yt-lockup clearfix expanded-shelf-content-item yt-lockup-video yt-lockup-tile fluid"
-      data-context-item-id="7V9a-s5kdu8"
+      data-context-item-id="' . $video['videoId'] . '"
   >
     <div class="yt-lockup-thumbnail"
     >
-        <a href="/watch?v=7V9a-s5kdu8&amp;list=UU-lHJZR3Gqxm24_Vd_AJ5Yw" class="ux-thumb-wrap yt-uix-sessionlink yt-fluid-thumb-link contains-addto  spf-link "  data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CCgQwBs">    <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
+        <a href="/watch?v=' . $video['videoId'] . '" class="ux-thumb-wrap yt-uix-sessionlink yt-fluid-thumb-link contains-addto  spf-link "  data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CCsQwBs">    <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
       >
       <span class="yt-thumb-default">
         <span class="yt-thumb-clip">
-          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/7V9a-s5kdu8/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
+          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/' . $video['videoId'] . '/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
           <span class="vertical-align"></span>
         </span>
       </span>
     </span>
-    <span class="video-time">35:18</span>
+    <span class="video-time">' . $length . '</span>
 
 
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-button-menu-id="shared-addto-watch-later-login" data-video-ids="7V9a-s5kdu8"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
+  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-button-menu-id="shared-addto-watch-later-login" data-video-ids="' . $video['videoId'] . '"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
 </a>
 
     </div>
     <div class="yt-lockup-content">
-          <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="RAGE HORROR." data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CCkQvxs" href="/watch?v=7V9a-s5kdu8&amp;list=UU-lHJZR3Gqxm24_Vd_AJ5Yw">RAGE HORROR.</a></h3>
+          <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="Sculpturing Kim K&#39;s Butt!" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CCwQvxs" href="/watch?v=' . $video['videoId'] . '">' . $video['title'] . '</a></h3>
 
   <div class="yt-lockup-meta">
     <ul class="yt-lockup-meta-info">
-<li>11 hours ago</li><li>1,565,377 views</li>    </ul>
+<li>' . $video['publishedText'] . '</li><li>' . number_format($video['viewCount']) . ' views</li>    </ul>
   </div>
 
 
       <div class="yt-lockup-description yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr">
-        Into The Gloom: <a href="http://bit.ly/1nBb4QA" target="_blank" title="http://bit.ly/1nBb4QA" rel="nofollow" dir="ltr" class="yt-uix-redirect-link">http://bit.ly/1nBb4QA</a><br /><br />Get awesome games for half the price, check out:<br /><a href="http://www.g2a.com/PewDiePie" target="_blank" title="http://www.g2a.com/PewDiePie" rel="nofollow" dir="ltr" class="yt-uix-redirect-link">http://www.g2a.com/PewDiePie</a><br /><br />Check out our Website! ► <a href="http://www.pewdiepie.net" target="_blank" title="http://www.pewdiepie.net" rel="nofollow" dir="ltr" class="yt-uix-redirect-link">http://www.pewdiepie.net</a><br />Click Here To Subscribe! ► ht...
+        ' . $video['descriptionHtml'] . '
     </div>
 
 
@@ -1052,2019 +1072,11 @@ Read more
     
   </div>
 
-</li><li class="expanded-shelf-content-item-wrapper">
-
-
-
-
-    <div class="yt-lockup clearfix expanded-shelf-content-item yt-lockup-video yt-lockup-tile fluid"
-      data-context-item-id="ACmQY8vyjAw"
-  >
-    <div class="yt-lockup-thumbnail"
-    >
-        <a href="/watch?v=ACmQY8vyjAw&amp;list=UU-lHJZR3Gqxm24_Vd_AJ5Yw" class="ux-thumb-wrap yt-uix-sessionlink yt-fluid-thumb-link contains-addto  spf-link "  data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CCsQwBs">    <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
-      >
-      <span class="yt-thumb-default">
-        <span class="yt-thumb-clip">
-          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/ACmQY8vyjAw/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
-          <span class="vertical-align"></span>
-        </span>
-      </span>
-    </span>
-    <span class="video-time">5:39</span>
-
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-button-menu-id="shared-addto-watch-later-login" data-video-ids="ACmQY8vyjAw"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</a>
-
-    </div>
-    <div class="yt-lockup-content">
-          <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="Sculpturing Kim K&#39;s Butt!" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CCwQvxs" href="/watch?v=ACmQY8vyjAw&amp;list=UU-lHJZR3Gqxm24_Vd_AJ5Yw">Sculpturing Kim K&#39;s Butt!</a></h3>
-
-  <div class="yt-lockup-meta">
-    <ul class="yt-lockup-meta-info">
-<li>1 day ago</li><li>3,485,718 views</li>    </ul>
-  </div>
-
-
-      <div class="yt-lockup-description yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr">
-        123D Sculpt: <a href="http://www.autode.sk/1ruMynq" target="_blank" title="http://www.autode.sk/1ruMynq" rel="nofollow" dir="ltr" class="yt-uix-redirect-link">http://www.autode.sk/1ruMynq</a><br /><br />Get awesome games for half the price, check out:<br /><a href="http://www.g2a.com/PewDiePie" target="_blank" title="http://www.g2a.com/PewDiePie" rel="nofollow" dir="ltr" class="yt-uix-redirect-link">http://www.g2a.com/PewDiePie</a><br /><br />Check out our Website! ► <a href="http://www.pewdiepie.net" target="_blank" title="http://www.pewdiepie.net" rel="nofollow" dir="ltr" class="yt-uix-redirect-link">http://www.pewdiepie.net</a><br />Click Here To Subscribe! ...
-    </div>
-
-
-  
-
-  
-
-    </div>
-    
-  </div>
-
-</li><li class="expanded-shelf-content-item-wrapper">
-
-
-
-
-    <div class="yt-lockup clearfix expanded-shelf-content-item yt-lockup-video yt-lockup-tile fluid"
-      data-context-item-id="14qSjwQEx9I"
-  >
-    <div class="yt-lockup-thumbnail"
-    >
-        <a href="/watch?v=14qSjwQEx9I&amp;list=UU-lHJZR3Gqxm24_Vd_AJ5Yw" class="ux-thumb-wrap yt-uix-sessionlink yt-fluid-thumb-link contains-addto  spf-link "  data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CC4QwBs">    <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
-      >
-      <span class="yt-thumb-default">
-        <span class="yt-thumb-clip">
-          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/14qSjwQEx9I/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
-          <span class="vertical-align"></span>
-        </span>
-      </span>
-    </span>
-    <span class="video-time">1:13</span>
-
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-button-menu-id="shared-addto-watch-later-login" data-video-ids="14qSjwQEx9I"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</a>
-
-    </div>
-    <div class="yt-lockup-content">
-          <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="SURVIVING IN THE FOREST - Pewds Animated (By Coyotemation)" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CC8Qvxs" href="/watch?v=14qSjwQEx9I&amp;list=UU-lHJZR3Gqxm24_Vd_AJ5Yw">SURVIVING IN THE FOREST - Pewds Animated (By Coyotemation)</a></h3>
-
-  <div class="yt-lockup-meta">
-    <ul class="yt-lockup-meta-info">
-<li>1 day ago</li><li>2,757,705 views</li>    </ul>
-  </div>
-
-
-      <div class="yt-lockup-description yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr">
-        Check out Coyotemation ► <a href="http://bit.ly/1gPJ2eR" target="_blank" title="http://bit.ly/1gPJ2eR" rel="nofollow" dir="ltr" class="yt-uix-redirect-link">http://bit.ly/1gPJ2eR</a><br />(He animated this). <br /><br />Get awesome games for half the price, check out:<br /><a href="http://www.g2a.com/PewDiePie" target="_blank" title="http://www.g2a.com/PewDiePie" rel="nofollow" dir="ltr" class="yt-uix-redirect-link">http://www.g2a.com/PewDiePie</a><br /><br />Check out our Website! ► <a href="http://www.pewdiepie.net" target="_blank" title="http://www.pewdiepie.net" rel="nofollow" dir="ltr" class="yt-uix-redirect-link">http://www.pewdiepie.net</a>...
-    </div>
-
-
-  
-
-  
-
-    </div>
-    
-  </div>
-
-</li><li class="expanded-shelf-content-item-wrapper last-single-col-shelf-item">
-
-
-
-
-    <div class="yt-lockup clearfix expanded-shelf-content-item yt-lockup-video yt-lockup-tile fluid"
-      data-context-item-id="nhYk_Qv6eiU"
-  >
-    <div class="yt-lockup-thumbnail"
-    >
-        <a href="/watch?v=nhYk_Qv6eiU&amp;list=UU-lHJZR3Gqxm24_Vd_AJ5Yw" class="ux-thumb-wrap yt-uix-sessionlink yt-fluid-thumb-link contains-addto  spf-link "  data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CDEQwBs">    <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
-      >
-      <span class="yt-thumb-default">
-        <span class="yt-thumb-clip">
-          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/nhYk_Qv6eiU/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
-          <span class="vertical-align"></span>
-        </span>
-      </span>
-    </span>
-    <span class="video-time">6:27</span>
-
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-button-menu-id="shared-addto-watch-later-login" data-video-ids="nhYk_Qv6eiU"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</a>
-
-    </div>
-    <div class="yt-lockup-content">
-          <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="Playing Your Worst Nightmares." data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CDIQvxs" href="/watch?v=nhYk_Qv6eiU&amp;list=UU-lHJZR3Gqxm24_Vd_AJ5Yw">Playing Your Worst Nightmares.</a></h3>
-
-  <div class="yt-lockup-meta">
-    <ul class="yt-lockup-meta-info">
-<li>2 days ago</li><li>3,218,429 views</li>    </ul>
-  </div>
-
-
-      <div class="yt-lockup-description yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr">
-        Games:<br /><a href="https://share.oculusvr.com/app/dark-deception-demo" target="_blank" title="https://share.oculusvr.com/app/dark-deception-demo" rel="nofollow" dir="ltr" class="yt-uix-redirect-link">https://share.oculusvr.com/app/dark-deception-demo</a><br /><a href="https://share.oculusvr.com/app/a-chair-in-a-room" target="_blank" title="https://share.oculusvr.com/app/a-chair-in-a-room" rel="nofollow" dir="ltr" class="yt-uix-redirect-link">https://share.oculusvr.com/app/a-chair-in-a-room</a><br />Get awesome games for half the price, check out:<br /><a href="http://www.g2a.com/PewDiePie" target="_blank" title="http://www.g2a.com/PewDiePie" rel="nofollow" dir="ltr" class="yt-uix-redirect-link">http://www.g2a.com/PewDiePie</a><br /><br />Check out o...
-    </div>
-
-
-  
-
-  
-
-    </div>
-    
-  </div>
-
-</li><li class="expanded-shelf-content-item-wrapper hidden-when-compact">
-
-
-
-
-    <div class="yt-lockup clearfix expanded-shelf-content-item yt-lockup-video yt-lockup-tile fluid"
-      data-context-item-id="J-tc1_AQ_zc"
-  >
-    <div class="yt-lockup-thumbnail"
-    >
-        <a href="/watch?v=J-tc1_AQ_zc&amp;list=UU-lHJZR3Gqxm24_Vd_AJ5Yw" class="ux-thumb-wrap yt-uix-sessionlink yt-fluid-thumb-link contains-addto  spf-link "  data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CDQQwBs">    <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
-      >
-      <span class="yt-thumb-default">
-        <span class="yt-thumb-clip">
-          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/J-tc1_AQ_zc/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
-          <span class="vertical-align"></span>
-        </span>
-      </span>
-    </span>
-    <span class="video-time">3:53</span>
-
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-button-menu-id="shared-addto-watch-later-login" data-video-ids="J-tc1_AQ_zc"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</a>
-
-    </div>
-    <div class="yt-lockup-content">
-          <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="How To Be Attractive (According to Russian Dating Websites)" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CDUQvxs" href="/watch?v=J-tc1_AQ_zc&amp;list=UU-lHJZR3Gqxm24_Vd_AJ5Yw">How To Be Attractive (According to Russian Dating Websites)</a></h3>
-
-  <div class="yt-lockup-meta">
-    <ul class="yt-lockup-meta-info">
-<li>2 days ago</li><li>4,486,194 views</li>    </ul>
-  </div>
-
-
-      <div class="yt-lockup-description yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr">
-        Source: <a href="http://mogul.ws/25-hilarious-photos-from-russian-dating-sites-that-dont-make-sense-at-all-i-cringed-so-hard-at-5/" target="_blank" title="http://mogul.ws/25-hilarious-photos-from-russian-dating-sites-that-dont-make-sense-at-all-i-cringed-so-hard-at-5/" rel="nofollow" dir="ltr" class="yt-uix-redirect-link">http://mogul.ws/25-hilarious-photos-from-russian-dating-s...</a><br />Click Here To Subscribe! ► <a href="http://bit.ly/JoinBroArmy" target="_blank" title="http://bit.ly/JoinBroArmy" rel="nofollow" dir="ltr" class="yt-uix-redirect-link">http://bit.ly/JoinBroArmy</a><br /><br />Get awesome games for...
-    </div>
-
-
-  
-
-  
-
-    </div>
-    
-  </div>
-
-</li><li class="expanded-shelf-content-item-wrapper hidden-when-compact">
-
-
-
-
-    <div class="yt-lockup clearfix expanded-shelf-content-item yt-lockup-video yt-lockup-tile fluid"
-      data-context-item-id="aoVdPf4cnTw"
-  >
-    <div class="yt-lockup-thumbnail"
-    >
-        <a href="/watch?v=aoVdPf4cnTw&amp;list=UU-lHJZR3Gqxm24_Vd_AJ5Yw" class="ux-thumb-wrap yt-uix-sessionlink yt-fluid-thumb-link contains-addto  spf-link "  data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CDcQwBs">    <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
-      >
-      <span class="yt-thumb-default">
-        <span class="yt-thumb-clip">
-          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/aoVdPf4cnTw/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
-          <span class="vertical-align"></span>
-        </span>
-      </span>
-    </span>
-    <span class="video-time">34:35</span>
-
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-button-menu-id="shared-addto-watch-later-login" data-video-ids="aoVdPf4cnTw"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</a>
-
-    </div>
-    <div class="yt-lockup-content">
-          <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="#ZABIE IS REAL!? - Walking Dead: Season 2: Episode 4 - Part 3 - END" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CDgQvxs" href="/watch?v=aoVdPf4cnTw&amp;list=UU-lHJZR3Gqxm24_Vd_AJ5Yw">#ZABIE IS REAL!? - Walking Dead: Season 2: Episode 4 - Part 3 - END</a></h3>
-
-  <div class="yt-lockup-meta">
-    <ul class="yt-lockup-meta-info">
-<li>3 days ago</li><li>2,963,840 views</li>    </ul>
-  </div>
-
-
-      <div class="yt-lockup-description yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr">
-        The Walking Dead: <a href="http://bit.ly/18HLhkU" target="_blank" title="http://bit.ly/18HLhkU" rel="nofollow" dir="ltr" class="yt-uix-redirect-link">http://bit.ly/18HLhkU</a><br />All Episodes: <a href="http://bit.ly/1liYkZU" target="_blank" title="http://bit.ly/1liYkZU" rel="nofollow" dir="ltr" class="yt-uix-redirect-link">http://bit.ly/1liYkZU</a><br /><br />Get awesome games for half the price, check out:<br /><a href="http://www.g2a.com/PewDiePie" target="_blank" title="http://www.g2a.com/PewDiePie" rel="nofollow" dir="ltr" class="yt-uix-redirect-link">http://www.g2a.com/PewDiePie</a><br /><br />Check out our Website! ► <a href="http://www.pewdi" target="_blank" title="http://www.pewdi" rel="nofollow" dir="ltr" class="yt-uix-redirect-link">http://www.pewdi</a>...
-    </div>
-
-
-  
-
-  
-
-    </div>
-    
-  </div>
-
-</li></ul></div>
-  
-
-
-                  <div class="compact-shelf shelf-item yt-uix-shelfslider yt-uix-shelfslider-at-head yt-uix-shelfslider-at-tail vve-check clearfix branded-page-box yt-section-hover-container fluid-shelf yt-uix-tdl"  id="" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;ved=CEsQ3BwoAQ">
-              <h2 class="branded-page-module-title">
-      <a href="/playlist?list=PL501CA12E38536E7C" class="yt-uix-sessionlink branded-page-module-title-link spf-nolink" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA">
-            <span class="branded-page-module-title-text">
-      <span class="" >PewDiePie Montages</span>
-    </span>
-
-      </a>
-        <a href="/watch?v=MkXVM6ad9nI&amp;list=PL501CA12E38536E7C" class="yt-uix-button  shelves-play yt-uix-sessionlink yt-uix-button-default yt-uix-button-size-small" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-play-all yt-sprite" alt=""></span><span class="yt-uix-button-content">Play </span></a>
-
-  </h2>
-
-
-    
-
-    <div class="compact-shelf-content-container">
-        <div class="yt-uix-shelfslider-body">
-    <ul class="yt-uix-shelfslider-list">
-        <li class="channels-content-item yt-shelf-grid-item yt-uix-shelfslider-item ">
-            
-
-
-
-    <div class="yt-lockup clearfix  yt-lockup-video yt-lockup-grid"
-      data-context-item-id="MkXVM6ad9nI"
-  >
-    <div class="yt-lockup-thumbnail"
-    >
-        <a href="/watch?v=MkXVM6ad9nI&amp;list=PL501CA12E38536E7C" class="ux-thumb-wrap yt-uix-sessionlink yt-fluid-thumb-link contains-addto  spf-link "  data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CE0QwBs">    <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
-      >
-      <span class="yt-thumb-default">
-        <span class="yt-thumb-clip">
-          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/MkXVM6ad9nI/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
-          <span class="vertical-align"></span>
-        </span>
-      </span>
-    </span>
-    <span class="video-time">10:36</span>
-
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-button-menu-id="shared-addto-watch-later-login" data-video-ids="MkXVM6ad9nI"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</a>
-
-    </div>
-    <div class="yt-lockup-content">
-          <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="FUNNY MONTAGE.. #2" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CE4Qvxs" href="/watch?v=MkXVM6ad9nI&amp;list=PL501CA12E38536E7C">FUNNY MONTAGE.. #2</a></h3>
-
-  <div class="yt-lockup-meta">
-    <ul class="yt-lockup-meta-info">
-        <li>
-          
-by <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw" class="g-hovercard yt-uix-sessionlink yt-user-name  spf-link " data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CE8QwRs" dir="ltr" data-ytid="UC-lHJZR3Gqxm24_Vd_AJ5Yw" data-name="c4-overview">PewDiePie</a>  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Verified" class="yt-channel-title-icon-verified yt-uix-tooltip yt-sprite" alt="">
-
-        </li>
-      <li>20,230,845 views</li>
-        <li class="yt-lockup-deemphasized-text">
-            3 months ago
-        </li>
-    </ul>
-  </div>
-  
-  
-  
-
-    </div>
-    
-  </div>
-
-
-
-        </li>
-        <li class="channels-content-item yt-shelf-grid-item yt-uix-shelfslider-item ">
-            
-
-
-
-    <div class="yt-lockup clearfix  yt-lockup-video yt-lockup-grid"
-      data-context-item-id="gRyPjRrjS34"
-  >
-    <div class="yt-lockup-thumbnail"
-    >
-        <a href="/watch?v=gRyPjRrjS34&amp;list=PL501CA12E38536E7C" class="ux-thumb-wrap yt-uix-sessionlink yt-fluid-thumb-link contains-addto  spf-link "  data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CFEQwBs">    <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
-      >
-      <span class="yt-thumb-default">
-        <span class="yt-thumb-clip">
-          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/gRyPjRrjS34/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
-          <span class="vertical-align"></span>
-        </span>
-      </span>
-    </span>
-    <span class="video-time">10:53</span>
-
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-button-menu-id="shared-addto-watch-later-login" data-video-ids="gRyPjRrjS34"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</a>
-
-    </div>
-    <div class="yt-lockup-content">
-          <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="A Funny Montage" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CFIQvxs" href="/watch?v=gRyPjRrjS34&amp;list=PL501CA12E38536E7C">A Funny Montage</a></h3>
-
-  <div class="yt-lockup-meta">
-    <ul class="yt-lockup-meta-info">
-        <li>
-          
-by <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw" class="g-hovercard yt-uix-sessionlink yt-user-name  spf-link " data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CFMQwRs" dir="ltr" data-ytid="UC-lHJZR3Gqxm24_Vd_AJ5Yw" data-name="c4-overview">PewDiePie</a>  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Verified" class="yt-channel-title-icon-verified yt-uix-tooltip yt-sprite" alt="">
-
-        </li>
-      <li>54,558,283 views</li>
-        <li class="yt-lockup-deemphasized-text">
-            1 year ago
-        </li>
-    </ul>
-  </div>
-  
-  
-  
-
-    </div>
-    
-  </div>
-
-
-
-        </li>
-        <li class="channels-content-item yt-shelf-grid-item yt-uix-shelfslider-item ">
-            
-
-
-
-    <div class="yt-lockup clearfix  yt-lockup-video yt-lockup-grid"
-      data-context-item-id="X3HON0P6q6c"
-  >
-    <div class="yt-lockup-thumbnail"
-    >
-        <a href="/watch?v=X3HON0P6q6c&amp;list=PL501CA12E38536E7C" class="ux-thumb-wrap yt-uix-sessionlink yt-fluid-thumb-link contains-addto  spf-link "  data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CFUQwBs">    <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
-      >
-      <span class="yt-thumb-default">
-        <span class="yt-thumb-clip">
-          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/X3HON0P6q6c/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
-          <span class="vertical-align"></span>
-        </span>
-      </span>
-    </span>
-    <span class="video-time">5:57</span>
-
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-button-menu-id="shared-addto-watch-later-login" data-video-ids="X3HON0P6q6c"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</a>
-
-    </div>
-    <div class="yt-lockup-content">
-          <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="FUNNY MONTAGE (bonus)" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CFYQvxs" href="/watch?v=X3HON0P6q6c&amp;list=PL501CA12E38536E7C">FUNNY MONTAGE (bonus)</a></h3>
-
-  <div class="yt-lockup-meta">
-    <ul class="yt-lockup-meta-info">
-        <li>
-          
-by <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw" class="g-hovercard yt-uix-sessionlink yt-user-name  spf-link " data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CFcQwRs" dir="ltr" data-ytid="UC-lHJZR3Gqxm24_Vd_AJ5Yw" data-name="c4-overview">PewDiePie</a>  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Verified" class="yt-channel-title-icon-verified yt-uix-tooltip yt-sprite" alt="">
-
-        </li>
-      <li>12,217,369 views</li>
-        <li class="yt-lockup-deemphasized-text">
-            3 months ago
-        </li>
-    </ul>
-  </div>
-  
-  
-  
-
-    </div>
-    
-  </div>
-
-
-
-        </li>
-        <li class="channels-content-item yt-shelf-grid-item yt-uix-shelfslider-item ">
-            
-
-
-
-    <div class="yt-lockup clearfix  yt-lockup-video yt-lockup-grid"
-      data-context-item-id="pXO76dbictU"
-  >
-    <div class="yt-lockup-thumbnail"
-    >
-        <a href="/watch?v=pXO76dbictU&amp;list=PL501CA12E38536E7C" class="ux-thumb-wrap yt-uix-sessionlink yt-fluid-thumb-link contains-addto  spf-link "  data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CFkQwBs">    <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
-      >
-      <span class="yt-thumb-default">
-        <span class="yt-thumb-clip">
-          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/pXO76dbictU/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
-          <span class="vertical-align"></span>
-        </span>
-      </span>
-    </span>
-    <span class="video-time">6:03</span>
-
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-button-menu-id="shared-addto-watch-later-login" data-video-ids="pXO76dbictU"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</a>
-
-    </div>
-    <div class="yt-lockup-content">
-          <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="HAPPY WHEELS - FUNNY MOMENTS MONTAGE" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CFoQvxs" href="/watch?v=pXO76dbictU&amp;list=PL501CA12E38536E7C">HAPPY WHEELS - FUNNY MOMENTS MONTAGE</a></h3>
-
-  <div class="yt-lockup-meta">
-    <ul class="yt-lockup-meta-info">
-        <li>
-          
-by <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw" class="g-hovercard yt-uix-sessionlink yt-user-name  spf-link " data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CFsQwRs" dir="ltr" data-ytid="UC-lHJZR3Gqxm24_Vd_AJ5Yw" data-name="c4-overview">PewDiePie</a>  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Verified" class="yt-channel-title-icon-verified yt-uix-tooltip yt-sprite" alt="">
-
-        </li>
-      <li>20,267,510 views</li>
-        <li class="yt-lockup-deemphasized-text">
-            2 years ago
-        </li>
-    </ul>
-  </div>
-  
-  
-  
-
-    </div>
-    
-  </div>
-
-
-
-        </li>
-        <li class="channels-content-item yt-shelf-grid-item yt-uix-shelfslider-item ">
-            
-
-
-
-    <div class="yt-lockup clearfix  yt-lockup-video yt-lockup-grid"
-      data-context-item-id="rc1XYAJCZ80"
-  >
-    <div class="yt-lockup-thumbnail"
-    >
-        <a href="/watch?v=rc1XYAJCZ80&amp;list=PL501CA12E38536E7C" class="ux-thumb-wrap yt-uix-sessionlink yt-fluid-thumb-link contains-addto  spf-link "  data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CF0QwBs">    <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
-      >
-      <span class="yt-thumb-default">
-        <span class="yt-thumb-clip">
-          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/rc1XYAJCZ80/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
-          <span class="vertical-align"></span>
-        </span>
-      </span>
-    </span>
-    <span class="video-time">11:01</span>
-
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-button-menu-id="shared-addto-watch-later-login" data-video-ids="rc1XYAJCZ80"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</a>
-
-    </div>
-    <div class="yt-lockup-content">
-          <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="FUNNY GAMING MONTAGE!" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CF4Qvxs" href="/watch?v=rc1XYAJCZ80&amp;list=PL501CA12E38536E7C">FUNNY GAMING MONTAGE!</a></h3>
-
-  <div class="yt-lockup-meta">
-    <ul class="yt-lockup-meta-info">
-        <li>
-          
-by <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw" class="g-hovercard yt-uix-sessionlink yt-user-name  spf-link " data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CF8QwRs" dir="ltr" data-ytid="UC-lHJZR3Gqxm24_Vd_AJ5Yw" data-name="c4-overview">PewDiePie</a>  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Verified" class="yt-channel-title-icon-verified yt-uix-tooltip yt-sprite" alt="">
-
-        </li>
-      <li>33,913,940 views</li>
-        <li class="yt-lockup-deemphasized-text">
-            1 year ago
-        </li>
-    </ul>
-  </div>
-  
-  
-  
-
-    </div>
-    
-  </div>
-
-
-
-        </li>
-        <li class="channels-content-item yt-shelf-grid-item yt-uix-shelfslider-item ">
-            
-
-
-
-    <div class="yt-lockup clearfix  yt-lockup-video yt-lockup-grid"
-      data-context-item-id="yDzqpXA_h6Q"
-  >
-    <div class="yt-lockup-thumbnail"
-    >
-        <a href="/watch?v=yDzqpXA_h6Q&amp;list=PL501CA12E38536E7C" class="ux-thumb-wrap yt-uix-sessionlink yt-fluid-thumb-link contains-addto  spf-link "  data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CGEQwBs">    <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
-      >
-      <span class="yt-thumb-default">
-        <span class="yt-thumb-clip">
-          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/yDzqpXA_h6Q/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
-          <span class="vertical-align"></span>
-        </span>
-      </span>
-    </span>
-    <span class="video-time">4:59</span>
-
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-button-menu-id="shared-addto-watch-later-login" data-video-ids="yDzqpXA_h6Q"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</a>
-
-    </div>
-    <div class="yt-lockup-content">
-          <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="[FUNNY] TOP SCARIEST MOMENTS OF GAMING! (with screams) episode 7" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CGIQvxs" href="/watch?v=yDzqpXA_h6Q&amp;list=PL501CA12E38536E7C">[FUNNY] TOP SCARIEST MOMENTS OF GAMING! (with screams) episode 7</a></h3>
-
-  <div class="yt-lockup-meta">
-    <ul class="yt-lockup-meta-info">
-        <li>
-          
-by <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw" class="g-hovercard yt-uix-sessionlink yt-user-name  spf-link " data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CGMQwRs" dir="ltr" data-ytid="UC-lHJZR3Gqxm24_Vd_AJ5Yw" data-name="c4-overview">PewDiePie</a>  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Verified" class="yt-channel-title-icon-verified yt-uix-tooltip yt-sprite" alt="">
-
-        </li>
-      <li>14,103,049 views</li>
-        <li class="yt-lockup-deemphasized-text">
-            2 years ago
-        </li>
-    </ul>
-  </div>
-  
-  
-  
-
-    </div>
-    
-  </div>
-
-
-
-        </li>
-        <li class="channels-content-item yt-shelf-grid-item yt-uix-shelfslider-item ">
-            
-
-
-
-    <div class="yt-lockup clearfix  yt-lockup-video yt-lockup-grid"
-      data-context-item-id="YRqayjGOpYc"
-  >
-    <div class="yt-lockup-thumbnail"
-    >
-        <a href="/watch?v=YRqayjGOpYc&amp;list=PL501CA12E38536E7C" class="ux-thumb-wrap yt-uix-sessionlink yt-fluid-thumb-link contains-addto  spf-link "  data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CGUQwBs">    <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
-      >
-      <span class="yt-thumb-default">
-        <span class="yt-thumb-clip">
-          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/YRqayjGOpYc/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
-          <span class="vertical-align"></span>
-        </span>
-      </span>
-    </span>
-    <span class="video-time">5:36</span>
-
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-button-menu-id="shared-addto-watch-later-login" data-video-ids="YRqayjGOpYc"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</a>
-
-    </div>
-    <div class="yt-lockup-content">
-          <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="[FUNNY] TOP SCARIEST MOMENTS OF GAMING! 100&#39;000 Subs Special! (Episode 6)" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CGYQvxs" href="/watch?v=YRqayjGOpYc&amp;list=PL501CA12E38536E7C">[FUNNY] TOP SCARIEST MOMENTS OF GAMING! 100&#39;000 Subs Special! (Episode 6)</a></h3>
-
-  <div class="yt-lockup-meta">
-    <ul class="yt-lockup-meta-info">
-        <li>
-          
-by <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw" class="g-hovercard yt-uix-sessionlink yt-user-name  spf-link " data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CGcQwRs" dir="ltr" data-ytid="UC-lHJZR3Gqxm24_Vd_AJ5Yw" data-name="c4-overview">PewDiePie</a>  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Verified" class="yt-channel-title-icon-verified yt-uix-tooltip yt-sprite" alt="">
-
-        </li>
-      <li>15,735,748 views</li>
-        <li class="yt-lockup-deemphasized-text">
-            2 years ago
-        </li>
-    </ul>
-  </div>
-  
-  
-  
-
-    </div>
-    
-  </div>
-
-
-
-        </li>
-        <li class="channels-content-item yt-shelf-grid-item yt-uix-shelfslider-item ">
-            
-
-
-
-    <div class="yt-lockup clearfix  yt-lockup-video yt-lockup-grid"
-      data-context-item-id="4dWIQ9N_tSc"
-  >
-    <div class="yt-lockup-thumbnail"
-    >
-        <a href="/watch?v=4dWIQ9N_tSc&amp;list=PL501CA12E38536E7C" class="ux-thumb-wrap yt-uix-sessionlink yt-fluid-thumb-link contains-addto  spf-link "  data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CGkQwBs">    <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
-      >
-      <span class="yt-thumb-default">
-        <span class="yt-thumb-clip">
-          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/4dWIQ9N_tSc/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
-          <span class="vertical-align"></span>
-        </span>
-      </span>
-    </span>
-    <span class="video-time">4:26</span>
-
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-button-menu-id="shared-addto-watch-later-login" data-video-ids="4dWIQ9N_tSc"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</a>
-
-    </div>
-    <div class="yt-lockup-content">
-          <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="[FUNNY] TOP SCARIEST MOMENTS OF GAMING! (JUMPSCARES) episode 8" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CGoQvxs" href="/watch?v=4dWIQ9N_tSc&amp;list=PL501CA12E38536E7C">[FUNNY] TOP SCARIEST MOMENTS OF GAMING! (JUMPSCARES) episode 8</a></h3>
-
-  <div class="yt-lockup-meta">
-    <ul class="yt-lockup-meta-info">
-        <li>
-          
-by <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw" class="g-hovercard yt-uix-sessionlink yt-user-name  spf-link " data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CGsQwRs" dir="ltr" data-ytid="UC-lHJZR3Gqxm24_Vd_AJ5Yw" data-name="c4-overview">PewDiePie</a>  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Verified" class="yt-channel-title-icon-verified yt-uix-tooltip yt-sprite" alt="">
-
-        </li>
-      <li>18,330,259 views</li>
-        <li class="yt-lockup-deemphasized-text">
-            2 years ago
-        </li>
-    </ul>
-  </div>
-  
-  
-  
-
-    </div>
-    
-  </div>
-
-
-
-        </li>
-        <li class="channels-content-item yt-shelf-grid-item yt-uix-shelfslider-item ">
-            
-
-
-
-    <div class="yt-lockup clearfix  yt-lockup-video yt-lockup-grid"
-      data-context-item-id="jXdCo3ISSw4"
-  >
-    <div class="yt-lockup-thumbnail"
-    >
-        <a href="/watch?v=jXdCo3ISSw4&amp;list=PL501CA12E38536E7C" class="ux-thumb-wrap yt-uix-sessionlink yt-fluid-thumb-link contains-addto  spf-link "  data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CG0QwBs">    <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
-      >
-      <span class="yt-thumb-default">
-        <span class="yt-thumb-clip">
-          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/jXdCo3ISSw4/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
-          <span class="vertical-align"></span>
-        </span>
-      </span>
-    </span>
-    <span class="video-time">3:47</span>
-
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-button-menu-id="shared-addto-watch-later-login" data-video-ids="jXdCo3ISSw4"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</a>
-
-    </div>
-    <div class="yt-lockup-content">
-          <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="[FUNNY] Top 10 Scariest Moments Of Gaming /w PewDiePie (300th VIDEO SPECIAL) :D" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CG4Qvxs" href="/watch?v=jXdCo3ISSw4&amp;list=PL501CA12E38536E7C">[FUNNY] Top 10 Scariest Moments Of Gaming /w PewDiePie (300th VIDEO SPECIAL) :D</a></h3>
-
-  <div class="yt-lockup-meta">
-    <ul class="yt-lockup-meta-info">
-        <li>
-          
-by <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw" class="g-hovercard yt-uix-sessionlink yt-user-name  spf-link " data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CG8QwRs" dir="ltr" data-ytid="UC-lHJZR3Gqxm24_Vd_AJ5Yw" data-name="c4-overview">PewDiePie</a>  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Verified" class="yt-channel-title-icon-verified yt-uix-tooltip yt-sprite" alt="">
-
-        </li>
-      <li>14,408,659 views</li>
-        <li class="yt-lockup-deemphasized-text">
-            2 years ago
-        </li>
-    </ul>
-  </div>
-  
-  
-  
-
-    </div>
-    
-  </div>
-
-
-
-        </li>
-        <li class="channels-content-item yt-shelf-grid-item yt-uix-shelfslider-item ">
-            
-
-
-
-    <div class="yt-lockup clearfix  yt-lockup-video yt-lockup-grid"
-      data-context-item-id="lrBorEl9m-Q"
-  >
-    <div class="yt-lockup-thumbnail"
-    >
-        <a href="/watch?v=lrBorEl9m-Q&amp;list=PL501CA12E38536E7C" class="ux-thumb-wrap yt-uix-sessionlink yt-fluid-thumb-link contains-addto  spf-link "  data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CHEQwBs">    <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
-      >
-      <span class="yt-thumb-default">
-        <span class="yt-thumb-clip">
-          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/lrBorEl9m-Q/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
-          <span class="vertical-align"></span>
-        </span>
-      </span>
-    </span>
-    <span class="video-time">3:32</span>
-
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-button-menu-id="shared-addto-watch-later-login" data-video-ids="lrBorEl9m-Q"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</a>
-
-    </div>
-    <div class="yt-lockup-content">
-          <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="HAPPY WHEELS - FUNNY MOMENTS MONTAGE #2" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CHIQvxs" href="/watch?v=lrBorEl9m-Q&amp;list=PL501CA12E38536E7C">HAPPY WHEELS - FUNNY MOMENTS MONTAGE #2</a></h3>
-
-  <div class="yt-lockup-meta">
-    <ul class="yt-lockup-meta-info">
-        <li>
-          
-by <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw" class="g-hovercard yt-uix-sessionlink yt-user-name  spf-link " data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CHMQwRs" dir="ltr" data-ytid="UC-lHJZR3Gqxm24_Vd_AJ5Yw" data-name="c4-overview">PewDiePie</a>  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Verified" class="yt-channel-title-icon-verified yt-uix-tooltip yt-sprite" alt="">
-
-        </li>
-      <li>9,846,075 views</li>
-        <li class="yt-lockup-deemphasized-text">
-            2 years ago
-        </li>
-    </ul>
-  </div>
-  
-  
-  
-
-    </div>
-    
-  </div>
-
-
-
-        </li>
-        <li class="channels-content-item yt-shelf-grid-item yt-uix-shelfslider-item ">
-            
-
-
-
-    <div class="yt-lockup clearfix  yt-lockup-video yt-lockup-grid"
-      data-context-item-id="QB3EgIiZWn4"
-  >
-    <div class="yt-lockup-thumbnail"
-    >
-        <a href="/watch?v=QB3EgIiZWn4&amp;list=PL501CA12E38536E7C" class="ux-thumb-wrap yt-uix-sessionlink yt-fluid-thumb-link contains-addto  spf-link "  data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CHUQwBs">    <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
-      >
-      <span class="yt-thumb-default">
-        <span class="yt-thumb-clip">
-          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/QB3EgIiZWn4/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
-          <span class="vertical-align"></span>
-        </span>
-      </span>
-    </span>
-    <span class="video-time">16:52</span>
-
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-button-menu-id="shared-addto-watch-later-login" data-video-ids="QB3EgIiZWn4"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</a>
-
-    </div>
-    <div class="yt-lockup-content">
-          <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="Prop Hunt Garry&#39;s Mod: Funny Moments Montage #1" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CHYQvxs" href="/watch?v=QB3EgIiZWn4&amp;list=PL501CA12E38536E7C">Prop Hunt Garry&#39;s Mod: Funny Moments Montage #1</a></h3>
-
-  <div class="yt-lockup-meta">
-    <ul class="yt-lockup-meta-info">
-        <li>
-          
-by <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw" class="g-hovercard yt-uix-sessionlink yt-user-name  spf-link " data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CHcQwRs" dir="ltr" data-ytid="UC-lHJZR3Gqxm24_Vd_AJ5Yw" data-name="c4-overview">PewDiePie</a>  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Verified" class="yt-channel-title-icon-verified yt-uix-tooltip yt-sprite" alt="">
-
-        </li>
-      <li>5,500,036 views</li>
-        <li class="yt-lockup-deemphasized-text">
-            10 months ago
-        </li>
-    </ul>
-  </div>
-  
-  
-  
-
-    </div>
-    
-  </div>
-
-
-
-        </li>
-        <li class="channels-content-item yt-shelf-grid-item yt-uix-shelfslider-item ">
-            
-
-
-
-    <div class="yt-lockup clearfix  yt-lockup-video yt-lockup-grid"
-      data-context-item-id="ZehB5TVIUIM"
-  >
-    <div class="yt-lockup-thumbnail"
-    >
-        <a href="/watch?v=ZehB5TVIUIM&amp;list=PL501CA12E38536E7C" class="ux-thumb-wrap yt-uix-sessionlink yt-fluid-thumb-link contains-addto  spf-link "  data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CHkQwBs">    <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
-      >
-      <span class="yt-thumb-default">
-        <span class="yt-thumb-clip">
-          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/ZehB5TVIUIM/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
-          <span class="vertical-align"></span>
-        </span>
-      </span>
-    </span>
-    <span class="video-time">4:26</span>
-
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-button-menu-id="shared-addto-watch-later-login" data-video-ids="ZehB5TVIUIM"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</a>
-
-    </div>
-    <div class="yt-lockup-content">
-          <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="[Funny] SCARY MOMENTS IN VIDEO GAMES - (episode 5)" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CHoQvxs" href="/watch?v=ZehB5TVIUIM&amp;list=PL501CA12E38536E7C">[Funny] SCARY MOMENTS IN VIDEO GAMES - (episode 5)</a></h3>
-
-  <div class="yt-lockup-meta">
-    <ul class="yt-lockup-meta-info">
-        <li>
-          
-by <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw" class="g-hovercard yt-uix-sessionlink yt-user-name  spf-link " data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CHsQwRs" dir="ltr" data-ytid="UC-lHJZR3Gqxm24_Vd_AJ5Yw" data-name="c4-overview">PewDiePie</a>  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Verified" class="yt-channel-title-icon-verified yt-uix-tooltip yt-sprite" alt="">
-
-        </li>
-      <li>10,291,359 views</li>
-        <li class="yt-lockup-deemphasized-text">
-            2 years ago
-        </li>
-    </ul>
-  </div>
-  
-  
-  
-
-    </div>
-    
-  </div>
-
-
-
-        </li>
-    </ul>
-  </div>
-
-
-      <button class="yt-uix-button yt-uix-button-size-default yt-uix-button-shelf-slider-pager yt-uix-shelfslider-prev" type="button" onclick=";return false;"><span class="yt-uix-button-content">  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Previous" class="yt-uix-shelfslider-prev-arrow yt-uix-tooltip yt-sprite" alt="">
- </span></button>
-      <button class="yt-uix-button yt-uix-button-size-default yt-uix-button-shelf-slider-pager yt-uix-shelfslider-next" type="button" onclick=";return false;"><span class="yt-uix-button-content">  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Next" class="yt-uix-shelfslider-next-arrow yt-uix-tooltip yt-sprite" alt="">
- </span></button>
-    </div>
-
-  </div>
-
-  
-
-
-                  <div class="compact-shelf shelf-item yt-uix-shelfslider yt-uix-shelfslider-at-head yt-uix-shelfslider-at-tail vve-check clearfix branded-page-box yt-section-hover-container fluid-shelf yt-uix-tdl"  id="" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;ved=CHwQ3BwoAg">
-              <h2 class="branded-page-module-title">
-      <a href="/playlist?list=PLYH8WvNV1YEk0D8Q_I1VrTt0vilgI7NDA" class="yt-uix-sessionlink branded-page-module-title-link spf-nolink" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA">
-            <span class="branded-page-module-title-text">
-      <span class="" >Fridays w/ PewDiePie</span>
-    </span>
-
-      </a>
-        <a href="/watch?v=J-tc1_AQ_zc&amp;list=PLYH8WvNV1YEk0D8Q_I1VrTt0vilgI7NDA" class="yt-uix-button  shelves-play yt-uix-sessionlink yt-uix-button-default yt-uix-button-size-small" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-play-all yt-sprite" alt=""></span><span class="yt-uix-button-content">Play </span></a>
-
-  </h2>
-
-
-    
-
-    <div class="compact-shelf-content-container">
-        <div class="yt-uix-shelfslider-body">
-    <ul class="yt-uix-shelfslider-list">
-        <li class="channels-content-item yt-shelf-grid-item yt-uix-shelfslider-item ">
-            
-
-
-
-    <div class="yt-lockup clearfix  yt-lockup-video yt-lockup-grid"
-      data-context-item-id="J-tc1_AQ_zc"
-  >
-    <div class="yt-lockup-thumbnail"
-    >
-        <a href="/watch?v=J-tc1_AQ_zc&amp;list=PLYH8WvNV1YEk0D8Q_I1VrTt0vilgI7NDA" class="ux-thumb-wrap yt-uix-sessionlink yt-fluid-thumb-link contains-addto  spf-link "  data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CH4QwBs">    <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
-      >
-      <span class="yt-thumb-default">
-        <span class="yt-thumb-clip">
-          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/J-tc1_AQ_zc/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
-          <span class="vertical-align"></span>
-        </span>
-      </span>
-    </span>
-    <span class="video-time">3:53</span>
-
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-button-menu-id="shared-addto-watch-later-login" data-video-ids="J-tc1_AQ_zc"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</a>
-
-    </div>
-    <div class="yt-lockup-content">
-          <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="How To Be Attractive (According to Russian Dating Websites)" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CH8Qvxs" href="/watch?v=J-tc1_AQ_zc&amp;list=PLYH8WvNV1YEk0D8Q_I1VrTt0vilgI7NDA">How To Be Attractive (According to Russian Dating Websites)</a></h3>
-
-  <div class="yt-lockup-meta">
-    <ul class="yt-lockup-meta-info">
-        <li>
-          
-by <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw" class="g-hovercard yt-uix-sessionlink yt-user-name  spf-link " data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CIABEMEb" dir="ltr" data-ytid="UC-lHJZR3Gqxm24_Vd_AJ5Yw" data-name="c4-overview">PewDiePie</a>  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Verified" class="yt-channel-title-icon-verified yt-uix-tooltip yt-sprite" alt="">
-
-        </li>
-      <li>4,486,194 views</li>
-        <li class="yt-lockup-deemphasized-text">
-            2 days ago
-        </li>
-    </ul>
-  </div>
-  
-  
-  
-
-    </div>
-    
-  </div>
-
-
-
-        </li>
-        <li class="channels-content-item yt-shelf-grid-item yt-uix-shelfslider-item ">
-            
-
-
-
-    <div class="yt-lockup clearfix  yt-lockup-video yt-lockup-grid"
-      data-context-item-id="0mJiPcKybzU"
-  >
-    <div class="yt-lockup-thumbnail"
-    >
-        <a href="/watch?v=0mJiPcKybzU&amp;list=PLYH8WvNV1YEk0D8Q_I1VrTt0vilgI7NDA" class="ux-thumb-wrap yt-uix-sessionlink yt-fluid-thumb-link contains-addto  spf-link "  data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CIIBEMAb">    <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
-      >
-      <span class="yt-thumb-default">
-        <span class="yt-thumb-clip">
-          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/0mJiPcKybzU/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
-          <span class="vertical-align"></span>
-        </span>
-      </span>
-    </span>
-    <span class="video-time">7:44</span>
-
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-button-menu-id="shared-addto-watch-later-login" data-video-ids="0mJiPcKybzU"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</a>
-
-    </div>
-    <div class="yt-lockup-content">
-          <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="I React To My Old Videos..." data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CIMBEL8b" href="/watch?v=0mJiPcKybzU&amp;list=PLYH8WvNV1YEk0D8Q_I1VrTt0vilgI7NDA">I React To My Old Videos...</a></h3>
-
-  <div class="yt-lockup-meta">
-    <ul class="yt-lockup-meta-info">
-        <li>
-          
-by <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw" class="g-hovercard yt-uix-sessionlink yt-user-name  spf-link " data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CIQBEMEb" dir="ltr" data-ytid="UC-lHJZR3Gqxm24_Vd_AJ5Yw" data-name="c4-overview">PewDiePie</a>  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Verified" class="yt-channel-title-icon-verified yt-uix-tooltip yt-sprite" alt="">
-
-        </li>
-      <li>6,578,680 views</li>
-        <li class="yt-lockup-deemphasized-text">
-            1 week ago
-        </li>
-    </ul>
-  </div>
-  
-  
-  
-
-    </div>
-    
-  </div>
-
-
-
-        </li>
-        <li class="channels-content-item yt-shelf-grid-item yt-uix-shelfslider-item ">
-            
-
-
-
-    <div class="yt-lockup clearfix  yt-lockup-video yt-lockup-grid"
-      data-context-item-id="HUXgkHRuNHI"
-  >
-    <div class="yt-lockup-thumbnail"
-    >
-        <a href="/watch?v=HUXgkHRuNHI&amp;list=PLYH8WvNV1YEk0D8Q_I1VrTt0vilgI7NDA" class="ux-thumb-wrap yt-uix-sessionlink yt-fluid-thumb-link contains-addto  spf-link "  data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CIYBEMAb">    <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
-      >
-      <span class="yt-thumb-default">
-        <span class="yt-thumb-clip">
-          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/HUXgkHRuNHI/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
-          <span class="vertical-align"></span>
-        </span>
-      </span>
-    </span>
-    <span class="video-time">5:01</span>
-
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-button-menu-id="shared-addto-watch-later-login" data-video-ids="HUXgkHRuNHI"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</a>
-
-    </div>
-    <div class="yt-lockup-content">
-          <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="New Favorite Hair Color" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CIcBEL8b" href="/watch?v=HUXgkHRuNHI&amp;list=PLYH8WvNV1YEk0D8Q_I1VrTt0vilgI7NDA">New Favorite Hair Color</a></h3>
-
-  <div class="yt-lockup-meta">
-    <ul class="yt-lockup-meta-info">
-        <li>
-          
-by <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw" class="g-hovercard yt-uix-sessionlink yt-user-name  spf-link " data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CIgBEMEb" dir="ltr" data-ytid="UC-lHJZR3Gqxm24_Vd_AJ5Yw" data-name="c4-overview">PewDiePie</a>  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Verified" class="yt-channel-title-icon-verified yt-uix-tooltip yt-sprite" alt="">
-
-        </li>
-      <li>6,019,734 views</li>
-        <li class="yt-lockup-deemphasized-text">
-            2 weeks ago
-        </li>
-    </ul>
-  </div>
-  
-  
-  
-
-    </div>
-    
-  </div>
-
-
-
-        </li>
-        <li class="channels-content-item yt-shelf-grid-item yt-uix-shelfslider-item ">
-            
-
-
-
-    <div class="yt-lockup clearfix  yt-lockup-video yt-lockup-grid"
-      data-context-item-id="Yr14Io0wsiU"
-  >
-    <div class="yt-lockup-thumbnail"
-    >
-        <a href="/watch?v=Yr14Io0wsiU&amp;list=PLYH8WvNV1YEk0D8Q_I1VrTt0vilgI7NDA" class="ux-thumb-wrap yt-uix-sessionlink yt-fluid-thumb-link contains-addto  spf-link "  data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CIoBEMAb">    <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
-      >
-      <span class="yt-thumb-default">
-        <span class="yt-thumb-clip">
-          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/Yr14Io0wsiU/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
-          <span class="vertical-align"></span>
-        </span>
-      </span>
-    </span>
-    <span class="video-time">4:35</span>
-
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-button-menu-id="shared-addto-watch-later-login" data-video-ids="Yr14Io0wsiU"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</a>
-
-    </div>
-    <div class="yt-lockup-content">
-          <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="I Google Myself.." data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CIsBEL8b" href="/watch?v=Yr14Io0wsiU&amp;list=PLYH8WvNV1YEk0D8Q_I1VrTt0vilgI7NDA">I Google Myself..</a></h3>
-
-  <div class="yt-lockup-meta">
-    <ul class="yt-lockup-meta-info">
-        <li>
-          
-by <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw" class="g-hovercard yt-uix-sessionlink yt-user-name  spf-link " data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CIwBEMEb" dir="ltr" data-ytid="UC-lHJZR3Gqxm24_Vd_AJ5Yw" data-name="c4-overview">PewDiePie</a>  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Verified" class="yt-channel-title-icon-verified yt-uix-tooltip yt-sprite" alt="">
-
-        </li>
-      <li>7,834,722 views</li>
-        <li class="yt-lockup-deemphasized-text">
-            1 month ago
-        </li>
-    </ul>
-  </div>
-  
-  
-  
-
-    </div>
-    
-  </div>
-
-
-
-        </li>
-        <li class="channels-content-item yt-shelf-grid-item yt-uix-shelfslider-item ">
-            
-
-
-
-    <div class="yt-lockup clearfix  yt-lockup-video yt-lockup-grid"
-      data-context-item-id="xraNTMmltNg"
-  >
-    <div class="yt-lockup-thumbnail"
-    >
-        <a href="/watch?v=xraNTMmltNg&amp;list=PLYH8WvNV1YEk0D8Q_I1VrTt0vilgI7NDA" class="ux-thumb-wrap yt-uix-sessionlink yt-fluid-thumb-link contains-addto  spf-link "  data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CI4BEMAb">    <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
-      >
-      <span class="yt-thumb-default">
-        <span class="yt-thumb-clip">
-          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/xraNTMmltNg/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
-          <span class="vertical-align"></span>
-        </span>
-      </span>
-    </span>
-    <span class="video-time">6:34</span>
-
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-button-menu-id="shared-addto-watch-later-login" data-video-ids="xraNTMmltNg"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</a>
-
-    </div>
-    <div class="yt-lockup-content">
-          <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="FETUS PICS! / Fridays With PewDiePie" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CI8BEL8b" href="/watch?v=xraNTMmltNg&amp;list=PLYH8WvNV1YEk0D8Q_I1VrTt0vilgI7NDA">FETUS PICS! / Fridays With PewDiePie</a></h3>
-
-  <div class="yt-lockup-meta">
-    <ul class="yt-lockup-meta-info">
-        <li>
-          
-by <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw" class="g-hovercard yt-uix-sessionlink yt-user-name  spf-link " data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CJABEMEb" dir="ltr" data-ytid="UC-lHJZR3Gqxm24_Vd_AJ5Yw" data-name="c4-overview">PewDiePie</a>  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Verified" class="yt-channel-title-icon-verified yt-uix-tooltip yt-sprite" alt="">
-
-        </li>
-      <li>5,264,006 views</li>
-        <li class="yt-lockup-deemphasized-text">
-            1 month ago
-        </li>
-    </ul>
-  </div>
-  
-  
-  
-
-    </div>
-    
-  </div>
-
-
-
-        </li>
-        <li class="channels-content-item yt-shelf-grid-item yt-uix-shelfslider-item ">
-            
-
-
-
-    <div class="yt-lockup clearfix  yt-lockup-video yt-lockup-grid"
-      data-context-item-id="my36uLhilkY"
-  >
-    <div class="yt-lockup-thumbnail"
-    >
-        <a href="/watch?v=my36uLhilkY&amp;list=PLYH8WvNV1YEk0D8Q_I1VrTt0vilgI7NDA" class="ux-thumb-wrap yt-uix-sessionlink yt-fluid-thumb-link contains-addto  spf-link "  data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CJIBEMAb">    <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
-      >
-      <span class="yt-thumb-default">
-        <span class="yt-thumb-clip">
-          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/my36uLhilkY/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
-          <span class="vertical-align"></span>
-        </span>
-      </span>
-    </span>
-    <span class="video-time">11:38</span>
-
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-button-menu-id="shared-addto-watch-later-login" data-video-ids="my36uLhilkY"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</a>
-
-    </div>
-    <div class="yt-lockup-content">
-          <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="Tokyo Vlog" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CJMBEL8b" href="/watch?v=my36uLhilkY&amp;list=PLYH8WvNV1YEk0D8Q_I1VrTt0vilgI7NDA">Tokyo Vlog</a></h3>
-
-  <div class="yt-lockup-meta">
-    <ul class="yt-lockup-meta-info">
-        <li>
-          
-by <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw" class="g-hovercard yt-uix-sessionlink yt-user-name  spf-link " data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CJQBEMEb" dir="ltr" data-ytid="UC-lHJZR3Gqxm24_Vd_AJ5Yw" data-name="c4-overview">PewDiePie</a>  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Verified" class="yt-channel-title-icon-verified yt-uix-tooltip yt-sprite" alt="">
-
-        </li>
-      <li>4,079,027 views</li>
-        <li class="yt-lockup-deemphasized-text">
-            2 months ago
-        </li>
-    </ul>
-  </div>
-  
-  
-  
-
-    </div>
-    
-  </div>
-
-
-
-        </li>
-        <li class="channels-content-item yt-shelf-grid-item yt-uix-shelfslider-item ">
-            
-
-
-
-    <div class="yt-lockup clearfix  yt-lockup-video yt-lockup-grid"
-      data-context-item-id="0FIG0EXmK94"
-  >
-    <div class="yt-lockup-thumbnail"
-    >
-        <a href="/watch?v=0FIG0EXmK94&amp;list=PLYH8WvNV1YEk0D8Q_I1VrTt0vilgI7NDA" class="ux-thumb-wrap yt-uix-sessionlink yt-fluid-thumb-link contains-addto  spf-link "  data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CJYBEMAb">    <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
-      >
-      <span class="yt-thumb-default">
-        <span class="yt-thumb-clip">
-          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/0FIG0EXmK94/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
-          <span class="vertical-align"></span>
-        </span>
-      </span>
-    </span>
-    <span class="video-time">6:03</span>
-
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-button-menu-id="shared-addto-watch-later-login" data-video-ids="0FIG0EXmK94"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</a>
-
-    </div>
-    <div class="yt-lockup-content">
-          <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="BEHIND THE SCENES OF PEWDIEPIE" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CJcBEL8b" href="/watch?v=0FIG0EXmK94&amp;list=PLYH8WvNV1YEk0D8Q_I1VrTt0vilgI7NDA">BEHIND THE SCENES OF PEWDIEPIE</a></h3>
-
-  <div class="yt-lockup-meta">
-    <ul class="yt-lockup-meta-info">
-        <li>
-          
-by <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw" class="g-hovercard yt-uix-sessionlink yt-user-name  spf-link " data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CJgBEMEb" dir="ltr" data-ytid="UC-lHJZR3Gqxm24_Vd_AJ5Yw" data-name="c4-overview">PewDiePie</a>  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Verified" class="yt-channel-title-icon-verified yt-uix-tooltip yt-sprite" alt="">
-
-        </li>
-      <li>4,931,017 views</li>
-        <li class="yt-lockup-deemphasized-text">
-            2 months ago
-        </li>
-    </ul>
-  </div>
-  
-  
-  
-
-    </div>
-    
-  </div>
-
-
-
-        </li>
-        <li class="channels-content-item yt-shelf-grid-item yt-uix-shelfslider-item ">
-            
-
-
-
-    <div class="yt-lockup clearfix  yt-lockup-video yt-lockup-grid"
-      data-context-item-id="5163pfq4xAg"
-  >
-    <div class="yt-lockup-thumbnail"
-    >
-        <a href="/watch?v=5163pfq4xAg&amp;list=PLYH8WvNV1YEk0D8Q_I1VrTt0vilgI7NDA" class="ux-thumb-wrap yt-uix-sessionlink yt-fluid-thumb-link contains-addto  spf-link "  data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CJoBEMAb">    <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
-      >
-      <span class="yt-thumb-default">
-        <span class="yt-thumb-clip">
-          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/5163pfq4xAg/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
-          <span class="vertical-align"></span>
-        </span>
-      </span>
-    </span>
-    <span class="video-time">5:17</span>
-
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-button-menu-id="shared-addto-watch-later-login" data-video-ids="5163pfq4xAg"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</a>
-
-    </div>
-    <div class="yt-lockup-content">
-          <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="MEAN COMMENTS." data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CJsBEL8b" href="/watch?v=5163pfq4xAg&amp;list=PLYH8WvNV1YEk0D8Q_I1VrTt0vilgI7NDA">MEAN COMMENTS.</a></h3>
-
-  <div class="yt-lockup-meta">
-    <ul class="yt-lockup-meta-info">
-        <li>
-          
-by <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw" class="g-hovercard yt-uix-sessionlink yt-user-name  spf-link " data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CJwBEMEb" dir="ltr" data-ytid="UC-lHJZR3Gqxm24_Vd_AJ5Yw" data-name="c4-overview">PewDiePie</a>  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Verified" class="yt-channel-title-icon-verified yt-uix-tooltip yt-sprite" alt="">
-
-        </li>
-      <li>11,348,523 views</li>
-        <li class="yt-lockup-deemphasized-text">
-            2 months ago
-        </li>
-    </ul>
-  </div>
-  
-  
-  
-
-    </div>
-    
-  </div>
-
-
-
-        </li>
-        <li class="channels-content-item yt-shelf-grid-item yt-uix-shelfslider-item ">
-            
-
-
-
-    <div class="yt-lockup clearfix  yt-lockup-video yt-lockup-grid"
-      data-context-item-id="p-KQW-cSpoc"
-  >
-    <div class="yt-lockup-thumbnail"
-    >
-        <a href="/watch?v=p-KQW-cSpoc&amp;list=PLYH8WvNV1YEk0D8Q_I1VrTt0vilgI7NDA" class="ux-thumb-wrap yt-uix-sessionlink yt-fluid-thumb-link contains-addto  spf-link "  data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CJ4BEMAb">    <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
-      >
-      <span class="yt-thumb-default">
-        <span class="yt-thumb-clip">
-          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/p-KQW-cSpoc/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
-          <span class="vertical-align"></span>
-        </span>
-      </span>
-    </span>
-    <span class="video-time">5:49</span>
-
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-button-menu-id="shared-addto-watch-later-login" data-video-ids="p-KQW-cSpoc"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</a>
-
-    </div>
-    <div class="yt-lockup-content">
-          <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="PewDiePie Reacts To: Elders React To: PewDiePie..." data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CJ8BEL8b" href="/watch?v=p-KQW-cSpoc&amp;list=PLYH8WvNV1YEk0D8Q_I1VrTt0vilgI7NDA">PewDiePie Reacts To: Elders React To: PewDiePie...</a></h3>
-
-  <div class="yt-lockup-meta">
-    <ul class="yt-lockup-meta-info">
-        <li>
-          
-by <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw" class="g-hovercard yt-uix-sessionlink yt-user-name  spf-link " data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CKABEMEb" dir="ltr" data-ytid="UC-lHJZR3Gqxm24_Vd_AJ5Yw" data-name="c4-overview">PewDiePie</a>  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Verified" class="yt-channel-title-icon-verified yt-uix-tooltip yt-sprite" alt="">
-
-        </li>
-      <li>11,991,955 views</li>
-        <li class="yt-lockup-deemphasized-text">
-            4 months ago
-        </li>
-    </ul>
-  </div>
-  
-  
-  
-
-    </div>
-    
-  </div>
-
-
-
-        </li>
-        <li class="channels-content-item yt-shelf-grid-item yt-uix-shelfslider-item ">
-            
-
-
-
-    <div class="yt-lockup clearfix  yt-lockup-video yt-lockup-grid"
-      data-context-item-id="ImHcwrglC_8"
-  >
-    <div class="yt-lockup-thumbnail"
-    >
-        <a href="/watch?v=ImHcwrglC_8&amp;list=PLYH8WvNV1YEk0D8Q_I1VrTt0vilgI7NDA" class="ux-thumb-wrap yt-uix-sessionlink yt-fluid-thumb-link contains-addto  spf-link "  data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CKIBEMAb">    <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
-      >
-      <span class="yt-thumb-default">
-        <span class="yt-thumb-clip">
-          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/ImHcwrglC_8/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
-          <span class="vertical-align"></span>
-        </span>
-      </span>
-    </span>
-    <span class="video-time">10:35</span>
-
-
-  <button class="yt-uix-button yt-uix-button-size-small yt-uix-button-default yt-uix-button-empty yt-uix-button-has-icon addto-button video-actions spf-nolink hide-until-delayloaded addto-watch-later-button-sign-in yt-uix-tooltip" type="button" onclick=";return false;" title="Watch Later" data-button-menu-id="shared-addto-watch-later-login" data-video-ids="ImHcwrglC_8"><span class="yt-uix-button-icon-wrapper"><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-addto yt-sprite" alt="Watch Later"></span><img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-arrow yt-sprite" alt=""></button>
-</a>
-
-    </div>
-    <div class="yt-lockup-content">
-          <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="DRAWING YOUTUBERS!" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CKMBEL8b" href="/watch?v=ImHcwrglC_8&amp;list=PLYH8WvNV1YEk0D8Q_I1VrTt0vilgI7NDA">DRAWING YOUTUBERS!</a></h3>
-
-  <div class="yt-lockup-meta">
-    <ul class="yt-lockup-meta-info">
-        <li>
-          
-by <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw" class="g-hovercard yt-uix-sessionlink yt-user-name  spf-link " data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CKQBEMEb" dir="ltr" data-ytid="UC-lHJZR3Gqxm24_Vd_AJ5Yw" data-name="c4-overview">PewDiePie</a>  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Verified" class="yt-channel-title-icon-verified yt-uix-tooltip yt-sprite" alt="">
-
-        </li>
-      <li>9,509,456 views</li>
-        <li class="yt-lockup-deemphasized-text">
-            4 months ago
-        </li>
-    </ul>
-  </div>
-  
-  
-  
-
-    </div>
-    
-  </div>
-
-
-
-        </li>
-          <li class="channels-content-item yt-shelf-grid-item yt-uix-shelfslider-item compact-shelf-view-all-card">
-    <a class="compact-shelf-view-all-card-link yt-valign" href="    /playlist?list=PLYH8WvNV1YEk0D8Q_I1VrTt0vilgI7NDA
-"     href=&quot;/playlist?list=PLYH8WvNV1YEk0D8Q_I1VrTt0vilgI7NDA&quot; class=&quot; yt-uix-sessionlink spf-link &quot; data-sessionlink=&quot;&quot;
->
-      <h4 class="compact-shelf-view-all-card-link-text yt-valign-container">
-        <span class="" >30+ more</span>
-      </h4>
-    </a>
-  </li>
-
-    </ul>
-  </div>
-
-
-      <button class="yt-uix-button yt-uix-button-size-default yt-uix-button-shelf-slider-pager yt-uix-shelfslider-prev" type="button" onclick=";return false;"><span class="yt-uix-button-content">  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Previous" class="yt-uix-shelfslider-prev-arrow yt-uix-tooltip yt-sprite" alt="">
- </span></button>
-      <button class="yt-uix-button yt-uix-button-size-default yt-uix-button-shelf-slider-pager yt-uix-shelfslider-next" type="button" onclick=";return false;"><span class="yt-uix-button-content">  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Next" class="yt-uix-shelfslider-next-arrow yt-uix-tooltip yt-sprite" alt="">
- </span></button>
-    </div>
-
-  </div>
-
-  
-
-
-                  <div class="compact-shelf shelf-item yt-uix-shelfslider yt-uix-shelfslider-at-head yt-uix-shelfslider-at-tail vve-check clearfix branded-page-box yt-section-hover-container fluid-shelf yt-uix-tdl"  id="" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;ved=CKUBENwcKAM">
-              <h2 class="branded-page-module-title">
-      <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw/playlists?view=50&amp;shelf_id=20&amp;sort=dd" class="yt-uix-sessionlink branded-page-module-title-link spf-nolink" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA">
-            <span class="branded-page-module-title-text">
-      <span class="" >All Funny</span>
-    </span>
-
-      </a>
-  </h2>
-
-
-    
-
-    <div class="compact-shelf-content-container">
-        <div class="yt-uix-shelfslider-body">
-    <ul class="yt-uix-shelfslider-list">
-        <li class="channels-content-item yt-shelf-grid-item yt-uix-shelfslider-item ">
-            
-
-
-
-    <div class="yt-lockup clearfix  yt-lockup-playlist yt-lockup-grid"
-  >
-    <div class="yt-lockup-thumbnail"
-    >
-            <a href="/watch?v=3gZAj36qPLE&amp;list=PLYH8WvNV1YEnT1JJMSSguuu4YxtrWPHUS" class="yt-pl-thumb-link yt-uix-sessionlink  spf-link " data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CKoBEMAb">
-    
-  <span class="yt-pl-thumb  yt-pl-thumb-fluid">
-      
-      <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
-      >
-      <span class="yt-thumb-default">
-        <span class="yt-thumb-clip">
-          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/EjdnJ-Meu3I/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
-          <span class="vertical-align"></span>
-        </span>
-      </span>
-    </span>
-
-
-
-      <span class="sidebar">
-        <span class="yt-pl-sidebar-content yt-valign">
-          <span class="yt-valign-container">
-                <span class="formatted-video-count-label">
-      <b>27</b> videos
-    </span>
-
-            <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-pl-icon yt-pl-icon-reg yt-sprite" alt="">
-          </span>
-        </span>
-      </span>
-        <span class="yt-pl-thumb-overlay">
-          <span class="yt-pl-thumb-overlay-content">
-            <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="play-icon yt-sprite" alt="">
-            <span class="yt-pl-thumb-overlay-text">
-Play all
-            </span>
-          </span>
-        </span>
-  </span>
-
-  </a>
-
-
-    </div>
-    <div class="yt-lockup-content">
-        <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="All Funny Series" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;ved=CKgBEL8b" href="/playlist?list=PLYH8WvNV1YEnT1JJMSSguuu4YxtrWPHUS">All Funny Series</a></h3>
-  <div class="yt-lockup-meta">
-    <ul class="yt-lockup-meta-info">
-
-        <li>
-            
-by <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw" class="g-hovercard yt-uix-sessionlink yt-user-name  spf-link " data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CKkBEMEb" dir="ltr" data-ytid="UC-lHJZR3Gqxm24_Vd_AJ5Yw" data-name="c4-overview">PewDiePie</a>  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Verified" class="yt-channel-title-icon-verified yt-uix-tooltip yt-sprite" alt="">
-
-        </li>
-    </ul>
-      <ul class="yt-lockup-meta-info">
-        <li class="yt-lockup-deemphasized-text">
-          9 months ago
-        </li>
-      </ul>
-  </div>
-
-    </div>
-    
-  </div>
-
-
-
-        </li>
-    </ul>
-  </div>
-
-
-      <button class="yt-uix-button yt-uix-button-size-default yt-uix-button-shelf-slider-pager yt-uix-shelfslider-prev" type="button" onclick=";return false;"><span class="yt-uix-button-content">  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Previous" class="yt-uix-shelfslider-prev-arrow yt-uix-tooltip yt-sprite" alt="">
- </span></button>
-      <button class="yt-uix-button yt-uix-button-size-default yt-uix-button-shelf-slider-pager yt-uix-shelfslider-next" type="button" onclick=";return false;"><span class="yt-uix-button-content">  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Next" class="yt-uix-shelfslider-next-arrow yt-uix-tooltip yt-sprite" alt="">
- </span></button>
-    </div>
-
-  </div>
-
-  
-
-
-                  <div class="compact-shelf shelf-item yt-uix-shelfslider yt-uix-shelfslider-at-head yt-uix-shelfslider-at-tail vve-check clearfix branded-page-box yt-section-hover-container fluid-shelf yt-uix-tdl"  id="" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;ved=CKsBENwcKAQ">
-              <h2 class="branded-page-module-title">
-      <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw/playlists?view=50&amp;shelf_id=22&amp;sort=dd" class="yt-uix-sessionlink branded-page-module-title-link spf-nolink" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA">
-            <span class="branded-page-module-title-text">
-      <span class="" >All Story</span>
-    </span>
-
-      </a>
-  </h2>
-
-
-    
-
-    <div class="compact-shelf-content-container">
-        <div class="yt-uix-shelfslider-body">
-    <ul class="yt-uix-shelfslider-list">
-        <li class="channels-content-item yt-shelf-grid-item yt-uix-shelfslider-item ">
-            
-
-
-
-    <div class="yt-lockup clearfix  yt-lockup-playlist yt-lockup-grid"
-  >
-    <div class="yt-lockup-thumbnail"
-    >
-            <a href="/watch?v=0wLljngvrpw&amp;list=PLYH8WvNV1YEkNpyUtlfwdQ81q5dqm5o4F" class="yt-pl-thumb-link yt-uix-sessionlink  spf-link " data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CLABEMAb">
-    
-  <span class="yt-pl-thumb  yt-pl-thumb-fluid">
-      
-      <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
-      >
-      <span class="yt-thumb-default">
-        <span class="yt-thumb-clip">
-          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/0wLljngvrpw/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
-          <span class="vertical-align"></span>
-        </span>
-      </span>
-    </span>
-
-
-
-      <span class="sidebar">
-        <span class="yt-pl-sidebar-content yt-valign">
-          <span class="yt-valign-container">
-                <span class="formatted-video-count-label">
-      <b>11</b> videos
-    </span>
-
-            <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-pl-icon yt-pl-icon-reg yt-sprite" alt="">
-          </span>
-        </span>
-      </span>
-        <span class="yt-pl-thumb-overlay">
-          <span class="yt-pl-thumb-overlay-content">
-            <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="play-icon yt-sprite" alt="">
-            <span class="yt-pl-thumb-overlay-text">
-Play all
-            </span>
-          </span>
-        </span>
-  </span>
-
-  </a>
-
-
-    </div>
-    <div class="yt-lockup-content">
-        <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="All Story Series" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;ved=CK4BEL8b" href="/playlist?list=PLYH8WvNV1YEkNpyUtlfwdQ81q5dqm5o4F">All Story Series</a></h3>
-  <div class="yt-lockup-meta">
-    <ul class="yt-lockup-meta-info">
-
-        <li>
-            
-by <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw" class="g-hovercard yt-uix-sessionlink yt-user-name  spf-link " data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CK8BEMEb" dir="ltr" data-ytid="UC-lHJZR3Gqxm24_Vd_AJ5Yw" data-name="c4-overview">PewDiePie</a>  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Verified" class="yt-channel-title-icon-verified yt-uix-tooltip yt-sprite" alt="">
-
-        </li>
-    </ul>
-      <ul class="yt-lockup-meta-info">
-        <li class="yt-lockup-deemphasized-text">
-          5 months ago
-        </li>
-      </ul>
-  </div>
-
-    </div>
-    
-  </div>
-
-
-
-        </li>
-    </ul>
-  </div>
-
-
-      <button class="yt-uix-button yt-uix-button-size-default yt-uix-button-shelf-slider-pager yt-uix-shelfslider-prev" type="button" onclick=";return false;"><span class="yt-uix-button-content">  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Previous" class="yt-uix-shelfslider-prev-arrow yt-uix-tooltip yt-sprite" alt="">
- </span></button>
-      <button class="yt-uix-button yt-uix-button-size-default yt-uix-button-shelf-slider-pager yt-uix-shelfslider-next" type="button" onclick=";return false;"><span class="yt-uix-button-content">  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Next" class="yt-uix-shelfslider-next-arrow yt-uix-tooltip yt-sprite" alt="">
- </span></button>
-    </div>
-
-  </div>
-
-  
-
-
-                  <div class="compact-shelf shelf-item yt-uix-shelfslider yt-uix-shelfslider-at-head yt-uix-shelfslider-at-tail vve-check clearfix branded-page-box yt-section-hover-container fluid-shelf yt-uix-tdl"  id="" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;ved=CLEBENwcKAU">
-              <h2 class="branded-page-module-title">
-      <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw/playlists?view=50&amp;shelf_id=21&amp;sort=dd" class="yt-uix-sessionlink branded-page-module-title-link spf-nolink" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA">
-            <span class="branded-page-module-title-text">
-      <span class="" >All Horror</span>
-    </span>
-
-      </a>
-  </h2>
-
-
-    
-
-    <div class="compact-shelf-content-container">
-        <div class="yt-uix-shelfslider-body">
-    <ul class="yt-uix-shelfslider-list">
-        <li class="channels-content-item yt-shelf-grid-item yt-uix-shelfslider-item ">
-            
-
-
-
-    <div class="yt-lockup clearfix  yt-lockup-playlist yt-lockup-grid"
-  >
-    <div class="yt-lockup-thumbnail"
-    >
-            <a href="/watch?v=GP5k7I70qlI&amp;list=PLYH8WvNV1YEmX9Ud7IVTnIXBQCRKr9XpZ" class="yt-pl-thumb-link yt-uix-sessionlink  spf-link " data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CLYBEMAb">
-    
-  <span class="yt-pl-thumb  yt-pl-thumb-fluid">
-      
-      <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
-      >
-      <span class="yt-thumb-default">
-        <span class="yt-thumb-clip">
-          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/GP5k7I70qlI/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
-          <span class="vertical-align"></span>
-        </span>
-      </span>
-    </span>
-
-
-
-      <span class="sidebar">
-        <span class="yt-pl-sidebar-content yt-valign">
-          <span class="yt-valign-container">
-                <span class="formatted-video-count-label">
-      <b>48</b> videos
-    </span>
-
-            <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-pl-icon yt-pl-icon-reg yt-sprite" alt="">
-          </span>
-        </span>
-      </span>
-        <span class="yt-pl-thumb-overlay">
-          <span class="yt-pl-thumb-overlay-content">
-            <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="play-icon yt-sprite" alt="">
-            <span class="yt-pl-thumb-overlay-text">
-Play all
-            </span>
-          </span>
-        </span>
-  </span>
-
-  </a>
-
-
-    </div>
-    <div class="yt-lockup-content">
-        <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="All Horror Series" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;ved=CLQBEL8b" href="/playlist?list=PLYH8WvNV1YEmX9Ud7IVTnIXBQCRKr9XpZ">All Horror Series</a></h3>
-  <div class="yt-lockup-meta">
-    <ul class="yt-lockup-meta-info">
-
-        <li>
-            
-by <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw" class="g-hovercard yt-uix-sessionlink yt-user-name  spf-link " data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CLUBEMEb" dir="ltr" data-ytid="UC-lHJZR3Gqxm24_Vd_AJ5Yw" data-name="c4-overview">PewDiePie</a>  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Verified" class="yt-channel-title-icon-verified yt-uix-tooltip yt-sprite" alt="">
-
-        </li>
-    </ul>
-      <ul class="yt-lockup-meta-info">
-        <li class="yt-lockup-deemphasized-text">
-          9 months ago
-        </li>
-      </ul>
-  </div>
-
-    </div>
-    
-  </div>
-
-
-
-        </li>
-    </ul>
-  </div>
-
-
-      <button class="yt-uix-button yt-uix-button-size-default yt-uix-button-shelf-slider-pager yt-uix-shelfslider-prev" type="button" onclick=";return false;"><span class="yt-uix-button-content">  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Previous" class="yt-uix-shelfslider-prev-arrow yt-uix-tooltip yt-sprite" alt="">
- </span></button>
-      <button class="yt-uix-button yt-uix-button-size-default yt-uix-button-shelf-slider-pager yt-uix-shelfslider-next" type="button" onclick=";return false;"><span class="yt-uix-button-content">  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Next" class="yt-uix-shelfslider-next-arrow yt-uix-tooltip yt-sprite" alt="">
- </span></button>
-    </div>
-
-  </div>
-
-  
-
-
-                  <div class="compact-shelf shelf-item yt-uix-shelfslider yt-uix-shelfslider-at-head yt-uix-shelfslider-at-tail vve-check clearfix branded-page-box yt-section-hover-container fluid-shelf yt-uix-tdl"  id="" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;ved=CLcBENwcKAY">
-              <h2 class="branded-page-module-title">
-      <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw/playlists?view=50&amp;shelf_id=23&amp;sort=dd" class="yt-uix-sessionlink branded-page-module-title-link spf-nolink" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA">
-            <span class="branded-page-module-title-text">
-      <span class="" >All Multiplayer</span>
-    </span>
-
-      </a>
-  </h2>
-
-
-    
-
-    <div class="compact-shelf-content-container">
-        <div class="yt-uix-shelfslider-body">
-    <ul class="yt-uix-shelfslider-list">
-        <li class="channels-content-item yt-shelf-grid-item yt-uix-shelfslider-item ">
-            
-
-
-
-    <div class="yt-lockup clearfix  yt-lockup-playlist yt-lockup-grid"
-  >
-    <div class="yt-lockup-thumbnail"
-    >
-            <a href="/watch?v=di9bRFTR3Lc&amp;list=PLYH8WvNV1YEkfFY95cTybH-ZyQzuNPKHV" class="yt-pl-thumb-link yt-uix-sessionlink  spf-link " data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CLwBEMAb">
-    
-  <span class="yt-pl-thumb  yt-pl-thumb-fluid">
-      
-      <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
-      >
-      <span class="yt-thumb-default">
-        <span class="yt-thumb-clip">
-          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/di9bRFTR3Lc/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
-          <span class="vertical-align"></span>
-        </span>
-      </span>
-    </span>
-
-
-
-      <span class="sidebar">
-        <span class="yt-pl-sidebar-content yt-valign">
-          <span class="yt-valign-container">
-                <span class="formatted-video-count-label">
-      <b>29</b> videos
-    </span>
-
-            <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-pl-icon yt-pl-icon-reg yt-sprite" alt="">
-          </span>
-        </span>
-      </span>
-        <span class="yt-pl-thumb-overlay">
-          <span class="yt-pl-thumb-overlay-content">
-            <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="play-icon yt-sprite" alt="">
-            <span class="yt-pl-thumb-overlay-text">
-Play all
-            </span>
-          </span>
-        </span>
-  </span>
-
-  </a>
-
-
-    </div>
-    <div class="yt-lockup-content">
-        <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="All Youtuber Collabs" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;ved=CLoBEL8b" href="/playlist?list=PLYH8WvNV1YEkfFY95cTybH-ZyQzuNPKHV">All Youtuber Collabs</a></h3>
-  <div class="yt-lockup-meta">
-    <ul class="yt-lockup-meta-info">
-
-        <li>
-            
-by <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw" class="g-hovercard yt-uix-sessionlink yt-user-name  spf-link " data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CLsBEMEb" dir="ltr" data-ytid="UC-lHJZR3Gqxm24_Vd_AJ5Yw" data-name="c4-overview">PewDiePie</a>  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Verified" class="yt-channel-title-icon-verified yt-uix-tooltip yt-sprite" alt="">
-
-        </li>
-    </ul>
-      <ul class="yt-lockup-meta-info">
-        <li class="yt-lockup-deemphasized-text">
-          9 months ago
-        </li>
-      </ul>
-  </div>
-
-    </div>
-    
-  </div>
-
-
-
-        </li>
-    </ul>
-  </div>
-
-
-      <button class="yt-uix-button yt-uix-button-size-default yt-uix-button-shelf-slider-pager yt-uix-shelfslider-prev" type="button" onclick=";return false;"><span class="yt-uix-button-content">  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Previous" class="yt-uix-shelfslider-prev-arrow yt-uix-tooltip yt-sprite" alt="">
- </span></button>
-      <button class="yt-uix-button yt-uix-button-size-default yt-uix-button-shelf-slider-pager yt-uix-shelfslider-next" type="button" onclick=";return false;"><span class="yt-uix-button-content">  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Next" class="yt-uix-shelfslider-next-arrow yt-uix-tooltip yt-sprite" alt="">
- </span></button>
-    </div>
-
-  </div>
-
-  
-
-
-                  <div class="compact-shelf shelf-item yt-uix-shelfslider yt-uix-shelfslider-at-head yt-uix-shelfslider-at-tail vve-check clearfix branded-page-box yt-section-hover-container fluid-shelf yt-uix-tdl"  id="" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;ved=CL0BENwcKAc">
-              <h2 class="branded-page-module-title">
-      <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw/playlists?view=50&amp;shelf_id=24&amp;sort=dd" class="yt-uix-sessionlink branded-page-module-title-link spf-nolink" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA">
-            <span class="branded-page-module-title-text">
-      <span class="" >All RPG Maker</span>
-    </span>
-
-      </a>
-  </h2>
-
-
-    
-
-    <div class="compact-shelf-content-container">
-        <div class="yt-uix-shelfslider-body">
-    <ul class="yt-uix-shelfslider-list">
-        <li class="channels-content-item yt-shelf-grid-item yt-uix-shelfslider-item ">
-            
-
-
-
-    <div class="yt-lockup clearfix  yt-lockup-playlist yt-lockup-grid"
-  >
-    <div class="yt-lockup-thumbnail"
-    >
-            <a href="/watch?v=UbnmlfxnNAs&amp;list=PLYH8WvNV1YEmm2bpZTpJJRM0zl0D3lFis" class="yt-pl-thumb-link yt-uix-sessionlink  spf-link " data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CMIBEMAb">
-    
-  <span class="yt-pl-thumb  yt-pl-thumb-fluid">
-      
-      <span class="video-thumb  yt-thumb yt-thumb-185 yt-thumb-fluid"
-      >
-      <span class="yt-thumb-default">
-        <span class="yt-thumb-clip">
-          <img aria-hidden="true" data-thumb="//i.ytimg.com/vi/UbnmlfxnNAs/mqdefault.jpg" alt="" src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" width="185"  >
-          <span class="vertical-align"></span>
-        </span>
-      </span>
-    </span>
-
-
-
-      <span class="sidebar">
-        <span class="yt-pl-sidebar-content yt-valign">
-          <span class="yt-valign-container">
-                <span class="formatted-video-count-label">
-      <b>8</b> videos
-    </span>
-
-            <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-pl-icon yt-pl-icon-reg yt-sprite" alt="">
-          </span>
-        </span>
-      </span>
-        <span class="yt-pl-thumb-overlay">
-          <span class="yt-pl-thumb-overlay-content">
-            <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="play-icon yt-sprite" alt="">
-            <span class="yt-pl-thumb-overlay-text">
-Play all
-            </span>
-          </span>
-        </span>
-  </span>
-
-  </a>
-
-
-    </div>
-    <div class="yt-lockup-content">
-        <h3 class="yt-lockup-title"><a class="yt-uix-sessionlink yt-uix-tile-link  spf-link  yt-ui-ellipsis yt-ui-ellipsis-2" dir="ltr" title="All RPG Maker Series" data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;ved=CMABEL8b" href="/playlist?list=PLYH8WvNV1YEmm2bpZTpJJRM0zl0D3lFis">All RPG Maker Series</a></h3>
-  <div class="yt-lockup-meta">
-    <ul class="yt-lockup-meta-info">
-
-        <li>
-            
-by <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw" class="g-hovercard yt-uix-sessionlink yt-user-name  spf-link " data-sessionlink="ei=3xDXU5-cDciS-gOdqILYDA&amp;feature=c4-overview&amp;ved=CMEBEMEb" dir="ltr" data-ytid="UC-lHJZR3Gqxm24_Vd_AJ5Yw" data-name="c4-overview">PewDiePie</a>  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Verified" class="yt-channel-title-icon-verified yt-uix-tooltip yt-sprite" alt="">
-
-        </li>
-    </ul>
-      <ul class="yt-lockup-meta-info">
-        <li class="yt-lockup-deemphasized-text">
-          5 months ago
-        </li>
-      </ul>
-  </div>
-
-    </div>
-    
-  </div>
-
-
-
-        </li>
-    </ul>
-  </div>
-
-
-      <button class="yt-uix-button yt-uix-button-size-default yt-uix-button-shelf-slider-pager yt-uix-shelfslider-prev" type="button" onclick=";return false;"><span class="yt-uix-button-content">  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Previous" class="yt-uix-shelfslider-prev-arrow yt-uix-tooltip yt-sprite" alt="">
- </span></button>
-      <button class="yt-uix-button yt-uix-button-size-default yt-uix-button-shelf-slider-pager yt-uix-shelfslider-next" type="button" onclick=";return false;"><span class="yt-uix-button-content">  <img src="https://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" data-tooltip-text="Next" class="yt-uix-shelfslider-next-arrow yt-uix-tooltip yt-sprite" alt="">
- </span></button>
-    </div>
-
-  </div>
-
+</li>';
+}
+}
+?>
+</ul></div>
   
 
 
@@ -3081,7 +1093,7 @@ by <a href="/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw" class="g-hovercard yt-uix-session
 
   <div id="ad_creative_1" class="ad-div hid" style="z-index: 1">
     <div id="ad_creative_div_1"></div>
-    <script>(function() {function tagMpuIframe() {var containerEl = document.getElementById('ad_creative_div_1');if (!containerEl) {return;}var iframeEl = document.createElement('iframe');var iframeSrc = 'https://ad.doubleclick.net/N4061/adi/com.ytbc/PewDiePie;sz=1x1;kvid=MkXVM6ad9nI;kpu=PewDiePie;kpeid=-lHJZR3Gqxm24_Vd_AJ5Yw;kpid=666950;tile=1;ssl=1;afv=1;dc_yt=1;k5=3_8_36_41_211_613;kclt=1;kga=-1;kgg=-1;klg=en;kmsrd=1;kmyd=ad_creative_1;ko=p;kpco=12045;kr=F;kvz=205;longads=1;nlfb=1;yt3pav=1;yt_vrallowed=1;ytcat=20;ytdevice=1;ytexp=937407,948200,911305,944312,908555,946011;!c=666950;k2=3;k2=8;k2=36;k2=41;k2=211;k2=613;kvlg=en;ord=' +Math.floor(Math.random() * 10000000000000000) +'?';iframeEl.id = 'ad_creative_iframe_1';iframeEl.width = '1';iframeEl.height = '1';iframeEl.style.cssText = 'z-index:1;';iframeEl.scrolling = 'no';iframeEl.frameBorder = '0';containerEl.appendChild(iframeEl);iframeEl.src = iframeSrc;}tagMpuIframe();})();</script>
+    <script>(function() {function tagMpuIframe() {var containerEl = document.getElementById('ad_creative_div_1');if (!containerEl) {return;}var iframeEl = document.createElement('iframe');var iframeSrc = 'https://ad.doubleclick.net/N4061/adi/com.ytbc/<?php echo $author; ?>;sz=1x1;kvid=MkXVM6ad9nI;kpu=<?php echo $author; ?>;kpeid=-lHJZR3Gqxm24_Vd_AJ5Yw;kpid=666950;tile=1;ssl=1;afv=1;dc_yt=1;k5=3_8_36_41_211_613;kclt=1;kga=-1;kgg=-1;klg=en;kmsrd=1;kmyd=ad_creative_1;ko=p;kpco=12045;kr=F;kvz=205;longads=1;nlfb=1;yt3pav=1;yt_vrallowed=1;ytcat=20;ytdevice=1;ytexp=937407,948200,911305,944312,908555,946011;!c=666950;k2=3;k2=8;k2=36;k2=41;k2=211;k2=613;kvlg=en;ord=' +Math.floor(Math.random() * 10000000000000000) +'?';iframeEl.id = 'ad_creative_iframe_1';iframeEl.width = '1';iframeEl.height = '1';iframeEl.style.cssText = 'z-index:1;';iframeEl.scrolling = 'no';iframeEl.frameBorder = '0';containerEl.appendChild(iframeEl);iframeEl.src = iframeSrc;}tagMpuIframe();})();</script>
   </div>
 
 
@@ -3465,7 +1477,7 @@ Policy &amp; Safety
 
 
 <div class="hid">    <div id="shared-addto-watch-later-login" class="hid">
-      <a href="https://accounts.google.com/ServiceLogin?hl=en&service=youtube&uilel=3&continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Fhl%3Den%26next%3D%252Fuser%252FPewDiePie%26feature%3Dplaylist%26app%3Ddesktop%26action_handle_signin%3Dtrue&passive=true" class="sign-in-link">Sign in</a> to add this to Watch Later
+      <a href="https://accounts.google.com/ServiceLogin?hl=en&service=youtube&uilel=3&continue=https%3A%2F%2Fwww.youtube.com%2Fsignin%3Fhl%3Den%26next%3D%252Fchannel%252F<?php echo $authorId; ?>%26feature%3Dplaylist%26app%3Ddesktop%26action_handle_signin%3Dtrue&passive=true" class="sign-in-link">Sign in</a> to add this to Watch Later
 
     </div>
   <div id="yt-uix-videoactionmenu-menu" class="yt-ui-menu-content">
@@ -3514,7 +1526,7 @@ Add to
 
 
     
-    yt.setConfig('CHANNEL_ID', "UC-lHJZR3Gqxm24_Vd_AJ5Yw");
+    yt.setConfig('CHANNEL_ID', "<?php echo $authorId; ?>");
     yt.setConfig('JS_PAGE_MODULES', [
       'www/channels',
       ''

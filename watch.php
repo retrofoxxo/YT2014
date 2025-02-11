@@ -457,7 +457,11 @@ Loading...
   </div>
 </span>
 
-        <span ><button class="yt-uix-button yt-uix-button-size-default yt-uix-button-text yt-uix-button-empty yt-uix-button-has-icon action-panel-trigger   yt-uix-tooltip" type="button" onclick=";return false;" title="Transcript" data-trigger-for="action-panel-transcript" data-button-toggle="true"><span class="yt-uix-button-icon-wrapper"><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-action-panel-transcript yt-sprite" alt="Transcript"></span></button></span>
+<?php
+if (!empty($dataVid['captions'])) {
+echo '        <span ><button class="yt-uix-button yt-uix-button-size-default yt-uix-button-text yt-uix-button-empty yt-uix-button-has-icon action-panel-trigger   yt-uix-tooltip" type="button" onclick=";return false;" title="Transcript" data-trigger-for="action-panel-transcript" data-button-toggle="true"><span class="yt-uix-button-icon-wrapper"><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-action-panel-transcript yt-sprite" alt="Transcript"></span></button></span>';
+}
+?>
 
         <span ><button class="yt-uix-button yt-uix-button-size-default yt-uix-button-text yt-uix-button-empty yt-uix-button-has-icon action-panel-trigger   yt-uix-tooltip" type="button" onclick=";return false;" title="Statistics" data-trigger-for="action-panel-stats" data-button-toggle="true"><span class="yt-uix-button-icon-wrapper"><img src="http://s.ytimg.com/yts/img/pixel-vfl3z5WfW.gif" class="yt-uix-button-icon yt-uix-button-icon-action-panel-stats yt-sprite" alt="Statistics"></span></button></span>
 
