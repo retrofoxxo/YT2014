@@ -16,16 +16,16 @@ Screenshots
 ![afbeelding](https://github.com/user-attachments/assets/1a286586-31c0-4082-8e06-673ab1b92121)
 ![afbeelding](https://github.com/user-attachments/assets/a44561b5-1530-4e39-9136-6dea0255690a)
 
-Notes
-Channel Search doesn't work
-Storyboards don't appear properly yet
-Captions don't work, only the captions list does
-Statistics don't work
-Sign in doesn't work
-Channel discuss & Video comments don't work
-Sub count on video's is always 0
-Dislike count is always 0
+Notes  
+Channel Search doesn't work  
+Storyboards don't appear properly yet  
+Captions don't work, only the captions list does  
+Statistics don't work  
+Sign in doesn't work  
+Channel discuss & Video comments don't work  
+Sub count on video's is always 0  
+Dislike count is always 0  
 
-Credits
-Invidious https://invidious.io/
-Google And YouTube for the design
+Credits  
+Invidious https://invidious.io/  
+Google And YouTube for the design  
