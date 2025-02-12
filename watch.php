@@ -25,6 +25,10 @@ if (file_exists($cache_file) && (time() - filemtime($cache_file) < $cache_durati
 
 $dataVid = json_decode($data, true);
 
+if (!isset($dataVid['title'])) {
+header('location: /error?src=404&error=This%20Video%20Does%20Not%20Exist.');
+}
+
 $title = $dataVid['title'];
 $description = $dataVid['descriptionHtml'];
 $descriptionBland = str_replace("\n", " ", $dataVid['description']);

@@ -993,7 +993,7 @@ echo '            <div id="video-page-subnav" class="branded-page-v2-subnav-cont
                 <h2 class="branded-page-module-title">
       <a href="/channel/<?php echo $authorId; ?>/playlists?sort=dd&amp;view=1" class="yt-uix-sessionlink branded-page-module-title-link spf-nolink" data-sessionlink="ei=rPLWU5eNHsOG-QODx4G4Dw">
             <span class="branded-page-module-title-text">
-      <span class="" >Playlists by <?php echo $author; ?></span>
+      <span class="" >Playlists by ' . $author . '</span>
     </span>
 
       </a>
