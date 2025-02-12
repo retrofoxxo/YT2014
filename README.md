@@ -25,6 +25,7 @@ Sign in doesn't work
 Channel discuss & Video comments don't work  
 Sub count on video's is always 0  
 Dislike count is always 0  
+Playlists don't work
 
 Credits  
 Invidious https://invidious.io/  
