@@ -1,0 +1,20 @@
+Options +MultiViews
+RewriteEngine on
+RewriteCond %{THE_REQUEST} /([^.]+)\.php [NC]
+RewriteRule ^ /%1 [NC,L,R]
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^ %{REQUEST_URI}.php [NC,L]
+
+RewriteRule ^channel/(.*)/about$ /user/about.php?id=$1 [QSA]
+RewriteRule ^channel/(.*)/discussion$ /user/discussion.php?id=$1 [QSA]
+RewriteRule ^channel/(.*)/videos$ /user/videos.php?id=$1 [QSA]
+RewriteRule ^channel/(.*)/playlists$ /user/playlists.php?id=$1 [QSA]
+RewriteRule ^channel/(.*)/channels$ /user/channels.php?id=$1 [QSA]
+RewriteRule ^channel/(.*)/featured$ /user/index.php?id=$1 [QSA]
+RewriteRule ^channel/(.*)$ /user/index.php?id=$1 [QSA]
+
+php_flag display_errors on
+
+ErrorDocument 404 /error?src=404
+ErrorDocument 403 /ip_ban
+ErrorDocument 500 /500
